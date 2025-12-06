@@ -58,7 +58,7 @@ function App() {
 
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
       {/* Mobile Menu Button */}
       <button
         className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
