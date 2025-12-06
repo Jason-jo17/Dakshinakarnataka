@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import MapView from './components/map/MapView';
 import Sidebar from './components/layout/Sidebar';
 import InstitutionDetail from './components/institution/InstitutionDetail';
@@ -21,6 +22,7 @@ function App() {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showPopulationView, setShowPopulationView] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Combine static and discovered data
   const allData = [...INSTITUTIONS, ...discoveredData];
@@ -42,30 +44,58 @@ function App() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      <Sidebar
-        institutions={filteredData}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-        searchQuery={filters.search}
-        onSearchChange={setSearch}
-        selectedCategories={filters.categories}
-        onToggleCategory={toggleCategory}
-        apiKey={apiKey}
-        onSetApiKey={(key) => {
-          setApiKey(key);
-          setIsKeySet(!!key);
-          if (key) initializeGenAI(key);
-        }}
-        onDiscover={async (query) => {
-          const results = await discoverPlaces(query);
-          setDiscoveredData(prev => [...prev, ...results]);
-        }}
-        isKeySet={isKeySet}
-        currentView={showDashboard ? 'dashboard' : 'map'}
-        onViewChange={(view) => setShowDashboard(view === 'dashboard')}
-        showHeatmap={showHeatmap}
-        onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
-      />
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      >
+        {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-[1999] bg-black/50 backdrop-blur-sm"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Wrapper */}
+      <div className={`
+        fixed md:relative top-0 bottom-0 z-[2000] flex flex-col h-full bg-white shadow-xl md:shadow-none transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <Sidebar
+          institutions={filteredData}
+          selectedId={selectedId}
+          onSelect={(id) => {
+            setSelectedId(id);
+            setIsMobileMenuOpen(false); // Close menu on selection on mobile
+          }}
+          searchQuery={filters.search}
+          onSearchChange={setSearch}
+          selectedCategories={filters.categories}
+          onToggleCategory={toggleCategory}
+          apiKey={apiKey}
+          onSetApiKey={(key) => {
+            setApiKey(key);
+            setIsKeySet(!!key);
+            if (key) initializeGenAI(key);
+          }}
+          onDiscover={async (query) => {
+            const results = await discoverPlaces(query);
+            setDiscoveredData(prev => [...prev, ...results]);
+          }}
+          isKeySet={isKeySet}
+          currentView={showDashboard ? 'dashboard' : 'map'}
+          onViewChange={(view) => {
+            setShowDashboard(view === 'dashboard');
+            setIsMobileMenuOpen(false);
+          }}
+          showHeatmap={showHeatmap}
+          onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
+        />
+      </div>
 
       <div className="flex-1 relative overflow-hidden flex">
         {/* Map is always rendered but might be partially covered or resized if needed */}
@@ -107,7 +137,7 @@ function App() {
 
         {/* Dashboard Side Panel */}
         {showDashboard && (
-          <div className="w-[600px] h-full bg-white shadow-2xl overflow-y-auto border-l border-gray-200 z-20 absolute right-0 top-0 bottom-0 animate-in slide-in-from-right duration-300">
+          <div className="w-full md:w-[600px] h-full bg-white shadow-2xl overflow-y-auto border-l border-gray-200 z-20 absolute right-0 top-0 bottom-0 animate-in slide-in-from-right duration-300">
             <div className="p-2 sticky top-0 bg-white z-10 border-b flex justify-end">
               <button
                 onClick={() => setShowDashboard(false)}
