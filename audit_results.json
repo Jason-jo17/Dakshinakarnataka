@@ -1,0 +1,22 @@
+{
+  "uniqueCategories": [
+    "Company",
+    "Degree College",
+    "Engineering",
+    "ITI",
+    "PU College",
+    "Polytechnic",
+    "Training",
+    "University"
+  ],
+  "categoryCounts": {
+    "University": 10,
+    "Engineering": 42,
+    "Polytechnic": 26,
+    "ITI": 20,
+    "Training": 6,
+    "PU College": 152,
+    "Degree College": 118,
+    "Company": 18
+  }
+}

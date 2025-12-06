@@ -1,0 +1,1670 @@
+[
+  {
+    "name": "Yenepoya Deemed To Be University",
+    "address": "University Road, Deralakatte, Mangaluru -",
+    "programs": [
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 120
+      },
+      {
+        "name": "Computer Science & Engineering",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Artificial Intelligence)",
+        "seats": 120
+      },
+      {
+        "name": "CSE (Cyber Security)",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 120
+      },
+      {
+        "name": "CSE (IoT)",
+        "seats": 60
+      },
+      {
+        "name": "Computer Engg (Software Engg) Computer Applications",
+        "seats": 60
+      },
+      {
+        "name": "BCA",
+        "seats": 840
+      },
+      {
+        "name": "MCA Management",
+        "seats": 300
+      },
+      {
+        "name": "BBA",
+        "seats": 660
+      },
+      {
+        "name": "MBA Design",
+        "seats": 360
+      },
+      {
+        "name": "B.Des (Communication Design)",
+        "seats": 30
+      },
+      {
+        "name": "B.Des (Fashion Design)",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "St. Aloysius Deemed To Be University",
+    "address": "Light House Hill Road, Kodialbail, Mangaluru - 575003",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Artificial Intelligence & ML)",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Information Science & Engg Computer Applications",
+        "seats": 60
+      },
+      {
+        "name": "BCA Management",
+        "seats": 310
+      },
+      {
+        "name": "BBA",
+        "seats": 360
+      }
+    ]
+  },
+  {
+    "name": "Srinivas University",
+    "address": "Srinivas Nagar, Mukka, Mangaluru - 574146",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 300
+      },
+      {
+        "name": "BBA",
+        "seats": 300
+      }
+    ]
+  },
+  {
+    "name": "Srinivas University Inst. of Engg & Tech",
+    "address": "Srinivas Campus, Mukka, Mangaluru - 574146",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Cyber Security)",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 30
+      },
+      {
+        "name": "Electronics & Communication Management",
+        "seats": 30
+      },
+      {
+        "name": "MBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Mangalore University",
+    "address": "Mangalagangotri, Mangalore - 574199",
+    "programs": [
+      {
+        "name": "MCA (Dept of PG Studies)",
+        "seats": 30
+      },
+      {
+        "name": "MBA (Dept of Business Admin)",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sahyadri College of Engg & Management",
+    "address": "Sahyadri Campus, N.H-48, Adyar, Mangalore - 575007",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 240
+      },
+      {
+        "name": "CSE (Artificial Intelligence & ML)",
+        "seats": 180
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Robotics & Automation",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering PG",
+        "seats": 60
+      },
+      {
+        "name": "MBA",
+        "seats": 180
+      },
+      {
+        "name": "M.Tech (CSE)",
+        "seats": 18
+      }
+    ]
+  },
+  {
+    "name": "St. Joseph Engineering College",
+    "address": "Vamanjoor, Mangalore - 575028",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 240
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 120
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science & Business Systems",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 60
+      },
+      {
+        "name": "Electronics Engg (VLSI Design)",
+        "seats": 60
+      },
+      {
+        "name": "Electrical & Electronics",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering PG",
+        "seats": 60
+      },
+      {
+        "name": "MCA",
+        "seats": 120
+      },
+      {
+        "name": "MBA",
+        "seats": 120
+      },
+      {
+        "name": "MBA (Innovation & Venture)",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Mangalore Inst. of Tech & Engg (MITE)",
+    "address": "Badaga Mijar, Moodbidri - 574225",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 240
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 180
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 120
+      },
+      {
+        "name": "CSE (IoT & Cyber Security)",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Artificial Intelligence)",
+        "seats": 60
+      },
+      {
+        "name": "Mechatronics",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Aeronautical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Robotics & Artificial Intelligence PG",
+        "seats": 60
+      },
+      {
+        "name": "MBA",
+        "seats": 150
+      },
+      {
+        "name": "MCA",
+        "seats": 120
+      },
+      {
+        "name": "M.Tech (CSE)",
+        "seats": 18
+      }
+    ]
+  },
+  {
+    "name": "Alva's Institute of Engg & Tech",
+    "address": "Shobhavana Campus, Mijar, Moodbidri - 574225",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 240
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 120
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science & Design",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 60
+      },
+      {
+        "name": "Agriculture Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering PG",
+        "seats": 60
+      },
+      {
+        "name": "MBA",
+        "seats": 180
+      }
+    ]
+  },
+  {
+    "name": "Canara Engineering College",
+    "address": "Benjanapadavu, Bantwal - 574219",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 180
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 180
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 120
+      },
+      {
+        "name": "Computer Science & Design",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science & Business Systems",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "A. J. Institute",
+    "address": "of Engineering & Tech Kottara Chowki, Boloor, Mangaluru - 575006",
+    "programs": [
+      {
+        "name": "Electronics & Communication",
+        "seats": 180
+      },
+      {
+        "name": "Computer Science & Engg",
+        "seats": 150
+      },
+      {
+        "name": "CSE (IoT & Cyber Security)",
+        "seats": 120
+      },
+      {
+        "name": "CSE (Artificial Intelligence & ML)",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Data Science",
+        "seats": 60
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Electronics Engg (VLSI Design)",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering PG",
+        "seats": 30
+      },
+      {
+        "name": "MCA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "Yenepoya Institute of Technology",
+    "address": "Vidyanagar, N.H 13, Thodar, Moodbidri - 574225",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "CSE (IoT & Cyber Security)",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 30
+      },
+      {
+        "name": "Electrical & Electronics PG",
+        "seats": 30
+      },
+      {
+        "name": "M.Tech (VLSI Design)",
+        "seats": 12
+      }
+    ]
+  },
+  {
+    "name": "Shree Devi Institute of Technology",
+    "address": "Airport Road, Kenjar, Mangaluru - 574142",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 180
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Aeronautical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Data Science",
+        "seats": 30
+      },
+      {
+        "name": "CSE (Artificial Intelligence & ML) PG",
+        "seats": 30
+      },
+      {
+        "name": "MBA",
+        "seats": 180
+      },
+      {
+        "name": "MCA",
+        "seats": 120
+      },
+      {
+        "name": "M.Tech (Construction Tech)",
+        "seats": 18
+      }
+    ]
+  },
+  {
+    "name": "Vivekananda College of Engg & Tech",
+    "address": "Neharu Nagara, Puttur - 574203",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering PG",
+        "seats": 30
+      },
+      {
+        "name": "MCA",
+        "seats": 60
+      },
+      {
+        "name": "MBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "P.A. College",
+    "address": "of Engineering Nadupadav, Montepadav Post, Bantwal - 574153",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "CSE (IoT & Cyber Security)",
+        "seats": 60
+      },
+      {
+        "name": "Biotechnology",
+        "seats": 30
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 30
+      },
+      {
+        "name": "Civil Engineering PG",
+        "seats": 30
+      },
+      {
+        "name": "MBA",
+        "seats": 90
+      }
+    ]
+  },
+  {
+    "name": "K.V.G. College",
+    "address": "of Engineering Kurunjibhag, Sullia - 574327",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 180
+      },
+      {
+        "name": "CSE (Artificial Intelligence & ML)",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering PG",
+        "seats": 30
+      },
+      {
+        "name": "MBA",
+        "seats": 120
+      },
+      {
+        "name": "M.Tech (CSE)",
+        "seats": 18
+      },
+      {
+        "name": "M.Tech (Digital Electronics)",
+        "seats": 18
+      },
+      {
+        "name": "M.Tech (Construction Tech)",
+        "seats": 18
+      }
+    ]
+  },
+  {
+    "name": "SDM Institute of Technology",
+    "address": "Ujire, Belthangady - 574240",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 120
+      },
+      {
+        "name": "Information Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Data Science",
+        "seats": 60
+      },
+      {
+        "name": "Electrical & Electronics",
+        "seats": 30
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Karavali Institute of Technology",
+    "address": "Neerumarga, Mangalore - 575029",
+    "programs": [
+      {
+        "name": "Computer Science & Engg",
+        "seats": 120
+      },
+      {
+        "name": "Aeronautical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "CSE (Data Science)",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 30
+      },
+      {
+        "name": "Mechanical Engineering PG",
+        "seats": 30
+      },
+      {
+        "name": "MBA",
+        "seats": 90
+      }
+    ]
+  },
+  {
+    "name": "Bearys Institute of Technology",
+    "address": "Lands End, Innoli, Boliyar - 574153",
+    "programs": [
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 30
+      },
+      {
+        "name": "Computer Science & Engg",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Data Science",
+        "seats": 60
+      },
+      {
+        "name": "CSE (IoT & Cyber Security) PG",
+        "seats": 60
+      },
+      {
+        "name": "M.Tech (CSE)",
+        "seats": 18
+      }
+    ]
+  },
+  {
+    "name": "St. Agnes College",
+    "address": "(Autonomous) Bendore, Mangalore - 575002",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 140
+      },
+      {
+        "name": "MCA",
+        "seats": 120
+      },
+      {
+        "name": "MBA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 80
+      }
+    ]
+  },
+  {
+    "name": "St. Philomena College",
+    "address": "Philonagar, Darbe, Puttur - 574202",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 240
+      },
+      {
+        "name": "BBA",
+        "seats": 120
+      },
+      {
+        "name": "MCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Canara College",
+    "address": "M.G. Road, Kodialbail, Mangalore - 575003",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 240
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      },
+      {
+        "name": "MCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Alva's College",
+    "address": "Vidhyagiri, Moodbidre - 574227",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 240
+      },
+      {
+        "name": "BBA",
+        "seats": 180
+      }
+    ]
+  },
+  {
+    "name": "SCS First Grade College",
+    "address": "SCS Riverside Campus, Urwa, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 240
+      },
+      {
+        "name": "BBA",
+        "seats": 180
+      }
+    ]
+  },
+  {
+    "name": "SDM College of Business Management",
+    "address": "Kodialbail, M.G. Road, Mangalore",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 231
+      },
+      {
+        "name": "BCA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "Vivekananda College (Arts, Sci, Comm)",
+    "address": "Nehru Nagar, Puttur - 574203",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 280
+      },
+      {
+        "name": "BBA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "Dr. P. Dayananda Pai - P. Satisha Pai Govt First Grade College",
+    "address": "Carstreet, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "University College Mangalore",
+    "address": "Hampanakatta, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Milagres College",
+    "address": "Hampankatta, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Padua College of Commerce & Management",
+    "address": "Nanthur, Mangaluru",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "P.A. First Grade College",
+    "address": "Nadupadav, Kairangala, Bantwal",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 120
+      },
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Nehru Memorial College",
+    "address": "Kurunjibagh, Sullia",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 80
+      }
+    ]
+  },
+  {
+    "name": "Govinda Dasa College",
+    "address": "Surathkal",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 100
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sri Ramakrishna College",
+    "address": "Bunts Hostel Circle, Mangaluru",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      },
+      {
+        "name": "BBA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Akshaya College",
+    "address": "Sampya, Puttur",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "The Yenepoya College",
+    "address": "Thodar, Moodbidri",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "Shree Devi College of Information Science",
+    "address": "Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 480
+      }
+    ]
+  },
+  {
+    "name": "Shree Devi College",
+    "address": "Ballalbagh, Mangalore",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 540
+      }
+    ]
+  },
+  {
+    "name": "SDM College (Autonomous)",
+    "address": "Ujire",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 170
+      },
+      {
+        "name": "BBA",
+        "seats": 80
+      }
+    ]
+  },
+  {
+    "name": "SDM College of Business Management (PG)",
+    "address": "Kodialbail, Mangalore",
+    "programs": [
+      {
+        "name": "MBA",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "A. J. Institute",
+    "address": "of Management Ashok Nagar, Mangalore",
+    "programs": [
+      {
+        "name": "MBA",
+        "seats": 180
+      }
+    ]
+  },
+  {
+    "name": "Manel Srinivas Nayak Institute of Management",
+    "address": "Bondel, Mangalore",
+    "programs": [
+      {
+        "name": "MBA",
+        "seats": 120
+      },
+      {
+        "name": "Integrated MBA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Karavali College of Hotel Management",
+    "address": "Neerumarga, Mangalore",
+    "programs": [
+      {
+        "name": "Hotel Management & Catering Tech",
+        "seats": 120
+      }
+    ]
+  },
+  {
+    "name": "Moti Mahal College of Hotel Management",
+    "address": "Falnir Road, Mangalore",
+    "programs": [
+      {
+        "name": "Hotel Management",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Besant Women's College",
+    "address": "M.G. Road, Kodialbail, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Indian Design School",
+    "address": "Attavar, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Haleyangadi",
+    "address": "Indiranagar, Haleyangadi",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Sullia",
+    "address": "Kodiyal Bail, Sullia",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Kavoor",
+    "address": "Gandhi Nagara, Mangalore",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 60
+      },
+      {
+        "name": "BCA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College for Women",
+    "address": "Balmatta, Mangaluru",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 60
+      },
+      {
+        "name": "BCA",
+        "seats": 40
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Uppinangady",
+    "address": "Uppinangady",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 40
+      },
+      {
+        "name": "BBA",
+        "seats": 40
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Belandoor",
+    "address": "Kaimana Post, Kadaba",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Belthangady",
+    "address": "Melanthabettu, Belthangady",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Bettampady",
+    "address": "Puttur Taluk",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 40
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Mudipu",
+    "address": "Kurnad",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Puttur",
+    "address": "Jidekallu, Puttur",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Siddakatte",
+    "address": "Bantwal Taluk",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade College, Vamadapadavu",
+    "address": "Vamadapadavu",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 30
+      },
+      {
+        "name": "BBA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Govt First Grade Evening College",
+    "address": "Carstreet, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Sri Mahaveera College",
+    "address": "Moodbidri",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Vijaya College",
+    "address": "Mulki",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sri Dhavala College",
+    "address": "Moodbidri",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sacred Heart College",
+    "address": "Madanthyar",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sri Venkataramana Swamy College",
+    "address": "Vidyagiri, Bantwal",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 50
+      }
+    ]
+  },
+  {
+    "name": "Kukke Sri Subrahmanyeshwara College",
+    "address": "Subrahmanya",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Kanachur Institute of Mgmt & Science",
+    "address": "Deralakatte",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Mangalore Academy of Prof. Studies (MAPS)",
+    "address": "Kadri Road, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "St. Raymond's College",
+    "address": "Vamanjoor",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Sharada College",
+    "address": "Talapady",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Bearys Inst. of Emerging Sciences",
+    "address": "Boliyar",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      },
+      {
+        "name": "BBA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Melkar Degree College",
+    "address": "Marnabail, Bantwal",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Trisha College of Commerce & Mgmt",
+    "address": "Bangra Kuloor, Mangalore",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Vidyarashmi First Grade College",
+    "address": "Savanoor",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Shree Bharathi College",
+    "address": "Nanthoor",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Shri Gurudeva First Grade College",
+    "address": "Belthangady",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Misbah Womens College",
+    "address": "Katipalla",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Hira Women's College",
+    "address": "Permannur",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Anugraha Women's College",
+    "address": "Kalladka",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Swastika National Business School",
+    "address": "Urwastore, Mangalore",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 50
+      }
+    ]
+  },
+  {
+    "name": "Tippu Sultan First Grade College",
+    "address": "Ullal",
+    "programs": [
+      {
+        "name": "BBA",
+        "seats": 40
+      }
+    ]
+  },
+  {
+    "name": "Sri Rama First Grade College",
+    "address": "Kalladka",
+    "programs": [
+      {
+        "name": "BCA",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "P.A. Polytechnic",
+    "address": "Nadupadav, Kairangala",
+    "programs": [
+      {
+        "name": "Civil Engineering",
+        "seats": 120
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 120
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Electrical & Electronics",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "S N Mudbidri Polytechnic",
+    "address": "Moodbidri",
+    "programs": [
+      {
+        "name": "Automobile Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Electrical & Electronics",
+        "seats": 60
+      },
+      {
+        "name": "Mechatronics",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Govt Tool Room & Training Centre",
+    "address": "Baikampady, Mangalore",
+    "programs": [
+      {
+        "name": "Tool & Die Making",
+        "seats": 60
+      },
+      {
+        "name": "Artificial Intelligence & Machine Learning",
+        "seats": 60
+      },
+      {
+        "name": "Precision Manufacturing",
+        "seats": 30
+      }
+    ]
+  },
+  {
+    "name": "Government Polytechnic, Bantwal",
+    "address": "Bantwal",
+    "programs": [
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "Karnataka (Govt.) Polytechnic",
+    "address": "Mangalore",
+    "programs": [
+      {
+        "name": "Electrical & Electronics",
+        "seats": 90
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 90
+      },
+      {
+        "name": "Automobile Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Chemical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Polymer Technology",
+        "seats": 40
+      }
+    ]
+  },
+  {
+    "name": "Kurunji Venkatramana Gowda Polytechnic",
+    "address": "Kurunjibhag, Sullia",
+    "programs": [
+      {
+        "name": "Automobile Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Electrical & Electronics",
+        "seats": 55
+      },
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      }
+    ]
+  },
+  {
+    "name": "SDM Polytechnic",
+    "address": "Ujire",
+    "programs": [
+      {
+        "name": "Mechanical Engineering",
+        "seats": 60
+      },
+      {
+        "name": "Computer Science",
+        "seats": 60
+      },
+      {
+        "name": "Electronics & Communication",
+        "seats": 60
+      },
+      {
+        "name": "Civil Engineering",
+        "seats": 60
+      }
+    ]
+  }
+]

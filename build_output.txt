@@ -1,0 +1,20 @@
+
+> dk-directory@0.0.0 build
+> tsc -b && vite build
+
+src/App.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/App.tsx(8,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/institution/InstitutionDetail.tsx(2,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/institution/InstitutionDetail.tsx(3,10): error TS1484: 'GeminiResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/institution/InstitutionDetail.tsx(5,35): error TS6133: 'Mail' is declared but its value is never read.
+src/components/institution/InstitutionDetail.tsx(5,48): error TS6133: 'Users' is declared but its value is never read.
+src/components/layout/Sidebar.tsx(2,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/map/MapView.tsx(4,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/data/institutions.ts(1,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/hooks/useFilters.ts(2,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/services/geminiService.ts(2,10): error TS1484: 'GeminiResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/services/geminiService.ts(3,10): error TS1484: 'Institution' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/services/geminiService.ts(35,19): error TS18048: 'candidate.content' is possibly 'undefined'.
+src/services/geminiService.ts(35,19): error TS18048: 'candidate.content.parts' is possibly 'undefined'.
+src/services/geminiService.ts(62,19): error TS18048: 'candidate.content' is possibly 'undefined'.
+src/services/geminiService.ts(62,19): error TS18048: 'candidate.content.parts' is possibly 'undefined'.

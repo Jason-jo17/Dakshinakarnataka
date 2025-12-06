@@ -1,0 +1,25 @@
+Error: Cannot apply unknown utility class `bg-slate-50`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at onInvalidCandidate (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:21:1314)
+    at Te (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:16:36364)
+    at D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:21:355
+    at Tr (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:3:1718)
+    at _ (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:3:1377)
+    at Se (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:21:172)
+    at ln (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:38:294)
+    at async sn (D:\dk district\dk-directory\node_modules\tailwindcss\dist\lib.js:38:631)
+    at async Qr (D:\dk district\dk-directory\node_modules\@tailwindcss\node\dist\index.js:10:3385)
+    at async I (D:\dk district\dk-directory\node_modules\@tailwindcss\postcss\dist\index.js:10:3978)
+[31m✗[39m Build failed in 667ms
+[31merror during build:
+[31m[vite:css] [postcss] tailwindcss: D:/dk district/dk-directory/src/index.css:1:1: Cannot apply unknown utility class `bg-slate-50`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive[31m
+file: [36mD:/dk district/dk-directory/src/index.css:1:0[31m
+    at Input.error (D:\dk district\dk-directory\node_modules\postcss\lib\input.js:135:16)
+    at Root.error (D:\dk district\dk-directory\node_modules\postcss\lib\node.js:146:32)
+    at Object.Once (D:\dk district\dk-directory\node_modules\@tailwindcss\postcss\dist\index.js:10:6912)
+    at async LazyResult.runAsync (D:\dk district\dk-directory\node_modules\postcss\lib\lazy-result.js:293:11)
+    at async runPostCSS (file:///D:/dk%20district/dk-directory/node_modules/vite/dist/node/chunks/config.js:30138:19)
+    at async compilePostCSS (file:///D:/dk%20district/dk-directory/node_modules/vite/dist/node/chunks/config.js:30122:6)
+    at async compileCSS (file:///D:/dk%20district/dk-directory/node_modules/vite/dist/node/chunks/config.js:30052:26)
+    at async Object.handler (file:///D:/dk%20district/dk-directory/node_modules/vite/dist/node/chunks/config.js:29585:54)
+    at async transform (file:///D:/dk%20district/dk-directory/node_modules/rollup/dist/es/shared/node-entry.js:21163:16)
+    at async ModuleLoader.addModuleSource (file:///D:/dk%20district/dk-directory/node_modules/rollup/dist/es/shared/node-entry.js:21377:36)[39m

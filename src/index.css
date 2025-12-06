@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+/* Hide markers when heatmap is active */
+.heatmap-active .leaflet-marker-icon,
+.heatmap-active .leaflet-marker-shadow,
+.heatmap-active .custom-marker {
+  display: none !important;
+}

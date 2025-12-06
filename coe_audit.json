@@ -1,0 +1,23 @@
+[
+  {
+    "id": "nitk-surathkal",
+    "name": "National Institute of Technology Karnataka",
+    "category": "Engineering",
+    "hasPrograms": false,
+    "hasSeats": false
+  },
+  {
+    "id": "sahyadri-college",
+    "name": "Sahyadri College of Engineering & Management",
+    "category": "Engineering",
+    "hasPrograms": false,
+    "hasSeats": false
+  },
+  {
+    "id": "mite-moodbidri",
+    "name": "Mangalore Institute of Technology & Engineering (MITE)",
+    "category": "Engineering",
+    "hasPrograms": false,
+    "hasSeats": false
+  }
+]
