@@ -16,13 +16,29 @@ import { JOBS } from './data/jobs';
 function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [discoveredData, setDiscoveredData] = useState<Institution[]>([]);
-  const [apiKey, setApiKey] = useState('');
   const [isKeySet, setIsKeySet] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showPopulationView, setShowPopulationView] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Initialize dark mode from system preference
+  useEffect(() => {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDarkMode(true);
+    }
+  }, []);
+
+  // Update HTML class when theme changes
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   // Combine static and discovered data
   const allData = [...INSTITUTIONS, ...discoveredData];
@@ -34,7 +50,6 @@ function App() {
   useEffect(() => {
     const envKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (envKey) {
-      setApiKey(envKey);
       initializeGenAI(envKey);
       setIsKeySet(true);
     }
@@ -76,12 +91,6 @@ function App() {
           onSearchChange={setSearch}
           selectedCategories={filters.categories}
           onToggleCategory={toggleCategory}
-          apiKey={apiKey}
-          onSetApiKey={(key) => {
-            setApiKey(key);
-            setIsKeySet(!!key);
-            if (key) initializeGenAI(key);
-          }}
           onDiscover={async (query) => {
             const results = await discoverPlaces(query);
             setDiscoveredData(prev => [...prev, ...results]);
@@ -94,6 +103,8 @@ function App() {
           }}
           showHeatmap={showHeatmap}
           onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
+          isDarkMode={isDarkMode}
+          onToggleTheme={() => setIsDarkMode(!isDarkMode)}
         />
       </div>
 
