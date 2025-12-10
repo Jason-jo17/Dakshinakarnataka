@@ -1,5 +1,5 @@
-import { INSTITUTIONS } from '../../data/institutions';
-import { X, CheckCircle2, AlertTriangle, FileText, MapPin, Gauge } from 'lucide-react';
+// INSTITUTIONS import removed
+import { X, CheckCircle2, MapPin } from 'lucide-react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface FeasibilityModalProps {

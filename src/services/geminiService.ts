@@ -198,7 +198,7 @@ export const performIntelligentSearch = async (query: string, dataContext: strin
                     properties: {
                         thoughtProcess: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
                         answer: { type: SchemaType.STRING },
-                        recommendedView: { type: SchemaType.STRING, enum: ['institutions', 'jobs', 'market_analysis', 'skill_gap'] },
+                        recommendedView: { type: SchemaType.STRING, format: 'enum', enum: ['institutions', 'jobs', 'market_analysis', 'skill_gap'] },
                         filters: {
                             type: SchemaType.OBJECT,
                             properties: {

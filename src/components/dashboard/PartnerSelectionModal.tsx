@@ -8,7 +8,7 @@ interface PartnerSelectionModalProps {
     sector?: string; // e.g., "Engineering", "Research" to filter initial list
 }
 
-const PartnerSelectionModal: React.FC<PartnerSelectionModalProps> = ({ onClose, onConfirm, sector }) => {
+const PartnerSelectionModal: React.FC<PartnerSelectionModalProps> = ({ onClose, onConfirm, sector: _sector }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -79,8 +79,8 @@ const PartnerSelectionModal: React.FC<PartnerSelectionModalProps> = ({ onClose, 
                                     key={inst.id}
                                     onClick={() => toggleSelection(inst.id)}
                                     className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center gap-4 ${isSelected
-                                            ? 'bg-indigo-50 border-indigo-500 dark:bg-indigo-900/20 dark:border-indigo-500'
-                                            : 'bg-white border-gray-200 hover:border-indigo-300 dark:bg-slate-800 dark:border-slate-700'
+                                        ? 'bg-indigo-50 border-indigo-500 dark:bg-indigo-900/20 dark:border-indigo-500'
+                                        : 'bg-white border-gray-200 hover:border-indigo-300 dark:bg-slate-800 dark:border-slate-700'
                                         }`}
                                 >
                                     <div className={`p-2 rounded-full shrink-0 ${isSelected ? 'text-indigo-600' : 'text-gray-400'}`}>
