@@ -50,10 +50,10 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
             <div className="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex justify-between items-start">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${institution.category === 'Engineering' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                            institution.category === 'Hospital' ? 'bg-red-50 text-red-700 border-red-200' :
-                                institution.category === 'Company' ? 'bg-purple-50 text-purple-700 border-purple-200' :
-                                    'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${institution.category === 'Engineering' ? 'bg-primary/5 text-primary border-primary/20' :
+                            institution.category === 'Hospital' ? 'bg-danger/5 text-danger border-danger/20' :
+                                institution.category === 'Company' ? 'bg-primary/5 text-primary border-primary/20' :
+                                    'bg-success/5 text-success border-success/20'
                             }`}>
                             {institution.category}
                         </span>
@@ -79,9 +79,9 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
 
                 {/* AI Section */}
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
-                    <h3 className="text-sm font-bold text-indigo-900 flex items-center gap-2 mb-3">
-                        <Sparkles className="w-4 h-4 text-indigo-600" />
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
+                    <h3 className="text-sm font-bold text-primary flex items-center gap-2 mb-3">
+                        <Sparkles className="w-4 h-4 text-primary" />
                         AI Insights
                     </h3>
 
@@ -95,7 +95,7 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                                 <button
                                     onClick={handleVerify}
                                     disabled={aiLoading}
-                                    className="flex-1 bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-sm"
+                                    className="flex-1 bg-white border border-primary/20 text-primary hover:bg-primary/5 text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-sm"
                                 >
                                     {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
                                     Verify Location
@@ -103,7 +103,7 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                                 <button
                                     onClick={handleSearch}
                                     disabled={aiLoading}
-                                    className="flex-1 bg-white border border-purple-200 text-purple-700 hover:bg-purple-50 text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-sm"
+                                    className="flex-1 bg-white border border-primary/20 text-primary hover:bg-primary/5 text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition-colors shadow-sm"
                                 >
                                     {aiLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
                                     Latest News
@@ -111,16 +111,16 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                             </div>
 
                             {error && (
-                                <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                                <div className="text-xs text-danger bg-danger/5 p-2 rounded border border-danger/10">
                                     {error}
                                 </div>
                             )}
 
                             {aiResponse && (
-                                <div className="bg-white/80 p-3 rounded-lg border border-indigo-100 text-xs text-slate-700 leading-relaxed animate-in fade-in slide-in-from-bottom-2">
+                                <div className="bg-white/80 p-3 rounded-lg border border-primary/10 text-xs text-slate-700 leading-relaxed animate-in fade-in slide-in-from-bottom-2">
                                     <p className="mb-2">{aiResponse.text}</p>
                                     {aiResponse.groundingChunks && aiResponse.groundingChunks.length > 0 && (
-                                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-indigo-50">
+                                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-primary/5">
                                             {aiResponse.groundingChunks.map((chunk, idx) => {
                                                 const uri = chunk.web?.uri || chunk.maps?.uri;
                                                 const title = chunk.web?.title || chunk.maps?.title || "Source";
@@ -149,20 +149,20 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                 {(institution.primaryDomains || (institution.domains && Object.keys(institution.domains).length > 0) || institution.keyTools || (institution.tools && institution.tools.length > 0)) && (
                     <div className="space-y-4">
                         <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-amber-500" />
+                            <Zap className="w-4 h-4 text-warning" />
                             Key Highlights
                         </h3>
-                        <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-100 space-y-4">
+                        <div className="bg-warning/5 rounded-xl p-4 border border-warning/10 space-y-4">
                             {(institution.primaryDomains || (institution.domains && Object.keys(institution.domains).length > 0)) && (
                                 <div>
-                                    <p className="text-xs font-semibold text-amber-800 mb-2 uppercase tracking-wider">Primary Domains</p>
+                                    <p className="text-xs font-semibold text-warning mb-2 uppercase tracking-wider">Primary Domains</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {(institution.primaryDomains || Object.entries(institution.domains || {})
                                             .sort(([, a], [, b]) => (b || 0) - (a || 0))
                                             .slice(0, 8)
                                             .map(([domain]) => domain)
                                         ).map((domain, i) => (
-                                            <span key={i} className="text-[10px] font-medium bg-white border border-amber-200 text-amber-900 px-2 py-1 rounded shadow-sm">
+                                            <span key={i} className="text-[10px] font-medium bg-white border border-warning/20 text-warning px-2 py-1 rounded shadow-sm">
                                                 {domain}
                                             </span>
                                         ))}
@@ -172,10 +172,10 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
 
                             {(institution.keyTools || (institution.tools && institution.tools.length > 0)) && (
                                 <div>
-                                    <p className="text-xs font-semibold text-amber-800 mb-2 uppercase tracking-wider">Tools & Technologies</p>
+                                    <p className="text-xs font-semibold text-warning mb-2 uppercase tracking-wider">Tools & Technologies</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {(institution.keyTools || (institution.tools || []).slice(0, 10).map(t => t.name)).map((tool, i) => (
-                                            <span key={i} className="text-[10px] font-medium bg-white border border-amber-200 text-slate-700 px-2 py-1 rounded shadow-sm">
+                                            <span key={i} className="text-[10px] font-medium bg-white border border-warning/20 text-slate-700 px-2 py-1 rounded shadow-sm">
                                                 {tool}
                                             </span>
                                         ))}
@@ -277,17 +277,17 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                             Placement Stats ({institution.placement.year})
                         </h3>
                         <div className="grid grid-cols-3 gap-2">
-                            <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-100 text-center">
-                                <div className="text-lg font-bold text-emerald-700">{institution.placement.rate}%</div>
-                                <div className="text-[10px] text-emerald-600 font-medium">Placed</div>
+                            <div className="bg-success/5 p-3 rounded-lg border border-success/10 text-center">
+                                <div className="text-lg font-bold text-success">{institution.placement.rate}%</div>
+                                <div className="text-[10px] text-success font-medium">Placed</div>
                             </div>
-                            <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
-                                <div className="text-lg font-bold text-blue-700">₹{institution.placement.packages.highest}L</div>
-                                <div className="text-[10px] text-blue-600 font-medium">Highest</div>
+                            <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 text-center">
+                                <div className="text-lg font-bold text-primary">₹{institution.placement.packages.highest}L</div>
+                                <div className="text-[10px] text-primary font-medium">Highest</div>
                             </div>
-                            <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-center">
-                                <div className="text-lg font-bold text-indigo-700">₹{institution.placement.packages.average}L</div>
-                                <div className="text-[10px] text-indigo-600 font-medium">Average</div>
+                            <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 text-center">
+                                <div className="text-lg font-bold text-primary">₹{institution.placement.packages.average}L</div>
+                                <div className="text-[10px] text-primary font-medium">Average</div>
                             </div>
                         </div>
                         <div>
@@ -340,22 +340,22 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                             <Activity className="w-4 h-4 text-slate-500" />
                             Healthcare Services
                         </h3>
-                        <div className="bg-red-50 rounded-xl p-4 border border-red-100 space-y-3">
+                        <div className="bg-danger/5 rounded-xl p-4 border border-danger/10 space-y-3">
                             <div className="flex items-center gap-4">
                                 <div className="text-center">
-                                    <div className="text-xl font-bold text-red-700">{institution.hospital.beds}</div>
-                                    <div className="text-[10px] text-red-600">Beds</div>
+                                    <div className="text-xl font-bold text-danger">{institution.hospital.beds}</div>
+                                    <div className="text-[10px] text-danger">Beds</div>
                                 </div>
-                                <div className="h-8 w-px bg-red-200"></div>
+                                <div className="h-8 w-px bg-danger/20"></div>
                                 <div className="flex-1">
                                     <div className="flex flex-wrap gap-1">
                                         {institution.hospital.emergency && (
-                                            <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
+                                            <span className="text-[10px] bg-danger/10 text-danger px-2 py-0.5 rounded-full font-bold">
                                                 24x7 Emergency
                                             </span>
                                         )}
                                         {institution.hospital.ambulance && (
-                                            <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">
+                                            <span className="text-[10px] bg-danger/10 text-danger px-2 py-0.5 rounded-full font-bold">
                                                 Ambulance
                                             </span>
                                         )}
@@ -363,8 +363,8 @@ const InstitutionDetail: React.FC<InstitutionDetailProps> = ({ institution, onCl
                                 </div>
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-red-800 mb-1">Specialties</p>
-                                <p className="text-xs text-red-700 leading-relaxed">
+                                <p className="text-xs font-semibold text-danger mb-1">Specialties</p>
+                                <p className="text-xs text-danger leading-relaxed">
                                     {institution.hospital.specialties.join(', ')}
                                 </p>
                             </div>

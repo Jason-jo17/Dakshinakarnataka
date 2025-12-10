@@ -253,5 +253,113 @@ export const JOBS: Job[] = [
         "apply_link_or_contact": "Apply via Apna",
         "source_citation": "[17]",
         "coordinates": { "lat": 12.8700, "lng": 74.8400 }
+    },
+    {
+        "job_id": "DK_JOB_021",
+        "role": "Senior Python Developer",
+        "company": "Novigo Solutions",
+        "location": "Mangalore",
+        "salary": "₹8.0 - ₹12.0 Lakhs Per Annum",
+        "requirements": "5+ years exp in Python, Django, Cloud Tech. AI interest is a plus.",
+        "application_type": "LinkedIn",
+        "apply_link_or_contact": "https://novigosolutions.com/careers",
+        "source_citation": "[18]",
+        "coordinates": { "lat": 12.8680, "lng": 74.8420 }
+    },
+    {
+        "job_id": "DK_JOB_022",
+        "role": "AI/ML Engineer",
+        "company": "CodeCraft Technologies",
+        "location": "Bejai, Mangalore",
+        "salary": "₹6.0 - ₹10.0 Lakhs Per Annum",
+        "requirements": "TensorFlow, PyTorch, Data Science fundamentals.",
+        "application_type": "Email",
+        "apply_link_or_contact": "careers@codecraft.com",
+        "source_citation": "[19]",
+        "coordinates": { "lat": 12.8850, "lng": 74.8400 }
+    },
+    {
+        "job_id": "DK_JOB_023",
+        "role": "Data Scientist",
+        "company": "Novigo Solutions",
+        "location": "Mangalore",
+        "salary": "₹7.0 - ₹14.0 Lakhs Per Annum",
+        "requirements": "Python, SQL, Machine Learning models.",
+        "application_type": "LinkedIn",
+        "apply_link_or_contact": "https://novigosolutions.com/careers",
+        "source_citation": "[18]",
+        "coordinates": { "lat": 12.8680, "lng": 74.8420 }
+    },
+    {
+        "job_id": "DK_JOB_024",
+        "role": "React Native Developer",
+        "company": "CodeCraft Technologies",
+        "location": "Bejai, Mangalore",
+        "salary": "₹4.0 - ₹8.0 Lakhs Per Annum",
+        "requirements": "Mobile app development, React Native, Redux.",
+        "application_type": "Email",
+        "apply_link_or_contact": "careers@codecraft.com",
+        "source_citation": "[19]",
+        "coordinates": { "lat": 12.8850, "lng": 74.8400 }
+    },
+    {
+        "job_id": "DK_JOB_025",
+        "role": "Process Associate (Non-Voice)",
+        "company": "Atlantic Data Bureau Services",
+        "location": "Mangalore",
+        "salary": "₹15,000 - ₹22,000 per month",
+        "requirements": "Any Graduate. Typing speed > 30 WPM. Basic Excel.",
+        "application_type": "Walk-in",
+        "apply_link_or_contact": "Atlantic Data, PVS Building",
+        "source_citation": "[20]",
+        "coordinates": { "lat": 12.8750, "lng": 74.8380 }
+    },
+    {
+        "job_id": "DK_JOB_026",
+        "role": "Software Engineer Level 1",
+        "company": "Mphasis",
+        "location": "Mudipu, Mangalore",
+        "salary": "₹3.5 - ₹5.0 Lakhs Per Annum",
+        "requirements": "BE/BTech (CS/IT/EC). Good communication.",
+        "application_type": "Website",
+        "apply_link_or_contact": "https://careers.mphasis.com",
+        "source_citation": "[21]",
+        "coordinates": { "lat": 12.8250, "lng": 74.9830 }
+    },
+    {
+        "job_id": "DK_JOB_027",
+        "role": "Staff Nurse",
+        "company": "Father Muller Medical College Hospital",
+        "location": "Kankanady, Mangalore",
+        "salary": "₹18,000 - ₹30,000 per month",
+        "requirements": "B.Sc Nursing / GNM. Registered with Nursing Council.",
+        "application_type": "Walk-in",
+        "apply_link_or_contact": "HR Department, Father Muller",
+        "source_citation": "[22]",
+        "coordinates": { "lat": 12.8640, "lng": 74.8560 }
+    },
+    {
+        "job_id": "DK_JOB_028",
+        "role": "Guest Relations Executive",
+        "company": "The Ocean Pearl",
+        "location": "Navabharath Circle, Mangalore",
+        "salary": "₹15,000 - ₹25,000 per month",
+        "requirements": "Hotel Management degree or Diploma. Fluent English.",
+        "application_type": "Email",
+        "apply_link_or_contact": "hr@oceanpearl.in",
+        "source_citation": "[23]",
+        "coordinates": { "lat": 12.8730, "lng": 74.8430 }
+    },
+    {
+        "job_id": "DK_JOB_029",
+        "role": "Showroom Manager",
+        "company": "City Centre Mall (Fashion Store)",
+        "location": "K.S. Rao Road, Mangalore",
+        "salary": "₹20,000 - ₹28,000 per month",
+        "requirements": "Retail experience 2+ years. Leadership skills.",
+        "application_type": "Walk-in",
+        "apply_link_or_contact": "City Centre Mall Office",
+        "source_citation": "[24]",
+        "coordinates": { "lat": 12.8710, "lng": 74.8410 }
     }
 ];

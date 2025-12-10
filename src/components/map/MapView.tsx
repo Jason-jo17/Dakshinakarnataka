@@ -7,17 +7,8 @@ import L from 'leaflet';
 import 'leaflet.heat';
 
 // Fix for default marker icon
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+// Default icon fix removed as we use custom DivIcons for all markers
 
 interface MapViewProps {
     institutions: Institution[];
@@ -50,11 +41,11 @@ const HeatmapLayer = ({ points }: { points: [number, number, number][] }) => {
             blur: 20,   // Increased blur for smoother gradient
             maxZoom: 12,
             gradient: {
-                0.4: 'blue',
-                0.6: 'cyan',
-                0.7: 'lime',
-                0.8: 'yellow',
-                1.0: 'red'
+                0.2: '#0000ff', // Blue
+                0.4: '#00ffff', // Cyan
+                0.6: '#00ff00', // Lime
+                0.8: '#ffff00', // Yellow
+                1.0: '#ff0000'  // Red
             }
         });
 
@@ -212,6 +203,23 @@ const JobMarker = ({ job }: { job: Job }) => {
     );
 };
 
+const MapInvalidator = ({ isDashboardView }: { isDashboardView?: boolean }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        // Invalidate size immediately and after transitions
+        map.invalidateSize();
+
+        const timers = [100, 300, 500, 1000].map(t =>
+            setTimeout(() => map.invalidateSize(), t)
+        );
+
+        return () => timers.forEach(t => clearTimeout(t));
+    }, [map, isDashboardView]);
+
+    return null;
+};
+
 const MapView: React.FC<MapViewProps> = ({
     institutions,
     selectedId,
@@ -247,6 +255,8 @@ const MapView: React.FC<MapViewProps> = ({
                 style={{ height: '100%', width: '100%' }}
                 className={`z-0 ${showHeatmap ? 'heatmap-active' : ''}`}
             >
+                <MapInvalidator isDashboardView={!hideLegend} />
+
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

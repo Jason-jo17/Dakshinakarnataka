@@ -1,221 +1,190 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { Institution } from '../../types/institution';
-import { Search, MapPin, Building2, Compass, Loader2, Wrench, Sun, Moon } from 'lucide-react';
-import { ToolSearch } from '../search/ToolSearch';
+import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search } from 'lucide-react';
 
 interface SidebarProps {
     institutions: Institution[];
     selectedId: string | null;
     onSelect: (id: string) => void;
-    searchQuery: string;
-    onSearchChange: (query: string) => void;
-    selectedCategories: string[];
-    onToggleCategory: (category: string) => void;
-    onDiscover: (query: string) => Promise<void>;
-    isKeySet: boolean;
-    currentView: 'map' | 'dashboard';
-    onViewChange: (view: 'map' | 'dashboard') => void;
+    currentView: 'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics';
+    onViewChange: (view: 'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics') => void;
     showHeatmap: boolean;
     onToggleHeatmap: () => void;
     isDarkMode: boolean;
     onToggleTheme: () => void;
+    // Optional filters for Map view
+    searchQuery?: string;
+    onSearchChange?: (query: string) => void;
+    selectedCategories?: string[];
+    onToggleCategory?: (category: string) => void;
 }
-
-const CATEGORIES = ['Engineering', 'Polytechnic', 'ITI', 'Training', 'University', 'Research', 'Hospital', 'Company', 'PU College'];
 
 const Sidebar: React.FC<SidebarProps> = ({
     institutions,
     selectedId,
     onSelect,
-    searchQuery,
-    onSearchChange,
-    selectedCategories,
-    onToggleCategory,
-    onDiscover,
-    isKeySet,
     currentView,
     onViewChange,
     showHeatmap,
     onToggleHeatmap,
     isDarkMode,
-    onToggleTheme
+    onToggleTheme,
+    searchQuery,
+    onSearchChange,
+    selectedCategories,
+    onToggleCategory
 }) => {
-    const [discoveryQuery, setDiscoveryQuery] = useState('');
-    const [isDiscovering, setIsDiscovering] = useState(false);
-    const [activeTab, setActiveTab] = useState<'institutions' | 'skills'>('institutions');
 
-    const handleDiscoverSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!discoveryQuery.trim()) return;
-        setIsDiscovering(true);
-        await onDiscover(discoveryQuery);
-        setIsDiscovering(false);
-        setDiscoveryQuery('');
-    };
+    const MenuItem = ({ view, icon: Icon, label }: { view: any, icon: any, label: string }) => (
+        <button
+            onClick={() => onViewChange(view)}
+            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-r-full mr-2 ${currentView === view
+                ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 border-l-4 border-transparent'
+                }`}
+        >
+            <Icon size={18} />
+            {label}
+        </button>
+    );
 
     return (
-        <div className="w-80 bg-white border-r border-slate-200 flex flex-col h-full shadow-lg z-10 flex-shrink-0 dark:bg-gray-800 dark:border-gray-700">
-            <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h1 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
-                            <MapPin className="w-6 h-6 text-primary" />
-                            DK Directory
-                        </h1>
-                        <p className="text-slate-500 dark:text-gray-400 text-xs mt-1 font-medium">Education & Industry Portal</p>
-                    </div>
+        <div className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full shadow-lg z-10 flex-shrink-0 text-slate-900 dark:text-white transition-colors duration-300">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+                        <div className="bg-blue-600 p-1 rounded">
+                            <Building2 className="w-5 h-5 text-white" />
+                        </div>
+                        Dakshina Kannada Directory
+                    </h1>
                     <button
                         onClick={onToggleTheme}
-                        className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200"
+                        className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                         title="Toggle Theme"
                     >
                         {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                     </button>
                 </div>
+                <p className="text-slate-500 text-xs mt-2 pl-9">District Education Portal</p>
+            </div>
 
-                <div className="flex gap-2 mt-4 bg-slate-100 dark:bg-gray-700 p-1 rounded-lg">
-                    <button
-                        onClick={() => onViewChange('map')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-semibold rounded-md transition-all ${currentView === 'map' ? 'bg-white text-primary shadow-sm ring-1 ring-slate-200 dark:bg-gray-600 dark:text-white dark:ring-0' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 dark:text-gray-300 dark:hover:bg-gray-600'}`}
-                    >
-                        <MapPin className="w-3 h-3" /> Map
-                    </button>
-                    <button
-                        onClick={() => onViewChange('dashboard')}
-                        className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-semibold rounded-md transition-all ${currentView === 'dashboard' ? 'bg-white text-primary shadow-sm ring-1 ring-slate-200 dark:bg-gray-600 dark:text-white dark:ring-0' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 dark:text-gray-300 dark:hover:bg-gray-600'}`}
-                    >
-                        <Building2 className="w-3 h-3" /> Dashboard
-                    </button>
-                </div>
+            <div className="flex-1 overflow-y-auto py-4 space-y-1">
+                {/* Search & Filters Section Removed as per request */}
 
+
+
+                <MenuItem view="dashboard" icon={LayoutDashboard} label="Dashboard" />
+
+                <div className="my-2 text-xs font-semibold text-slate-500 uppercase tracking-wider px-4">Map Control</div>
+                <MenuItem view="map" icon={MapPin} label="Interactive Map" />
+
+                <div className="my-2 border-t border-slate-200 dark:border-slate-800 mx-4"></div>
+
+                <MenuItem view="analytics" icon={PieChart} label="Education Analytics" />
+                <MenuItem view="institutions" icon={Building2} label="Institutions" />
+                <MenuItem view="assessments" icon={GraduationCap} label="Assessments" />
+                <MenuItem view="industry" icon={Briefcase} label="Industry Demand" />
+                <MenuItem view="coe" icon={Award} label="Centers of Excellence" />
+                <MenuItem view="centers" icon={MapPin} label="Career Centers (GCC)" />
+                <MenuItem view="reports" icon={FileText} label="Reports" />
+
+                <div className="my-2 border-t border-slate-200 dark:border-slate-800 mx-4"></div>
+                <div className="my-2 text-xs font-semibold text-slate-500 uppercase tracking-wider px-4">AI Assistance</div>
+                <MenuItem view="ai-search" icon={Bot} label="AI Assistant" />
+
+
+                {/* Map View Specific Controls: Search & Filters */}
                 {currentView === 'map' && (
-                    <button
-                        onClick={onToggleHeatmap}
-                        className={`w-full mt-3 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-md border transition-colors ${showHeatmap
-                            ? 'bg-orange-50 border-orange-200 text-orange-600 dark:bg-orange-900/20 dark:border-orange-900/50 dark:text-orange-400'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
-                            }`}
-                    >
-                        <div className={`w-2 h-2 rounded-full mr-2 ${showHeatmap ? 'bg-orange-500' : 'bg-slate-400'}`}></div>
-                        {showHeatmap ? 'Heatmap Active' : 'Show Heatmap'}
-                    </button>
-                )}
-            </div>
-
-            {/* Tab Navigation */}
-            <div className="flex border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                <button
-                    onClick={() => setActiveTab('institutions')}
-                    className={`flex-1 py-3 text-xs font-semibold border-b-2 transition-colors ${activeTab === 'institutions' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200'}`}
-                >
-                    Institutions
-                </button>
-                <button
-                    onClick={() => setActiveTab('skills')}
-                    className={`flex-1 py-3 text-xs font-semibold border-b-2 transition-colors flex items-center justify-center gap-1 ${activeTab === 'skills' ? 'border-primary text-primary' : 'border-transparent text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-200'}`}
-                >
-                    <Wrench className="w-3 h-3" /> Search by Skills
-                </button>
-            </div>
-
-            {activeTab === 'skills' ? (
-                <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-gray-900">
-                    <ToolSearch
-                        institutions={institutions}
-                        onSelectInstitution={onSelect}
-                    />
-                </div>
-            ) : (
-                <>
-                    <div className="p-3 border-b border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 space-y-3">
-                        {/* Discovery Section */}
-                        <div className="bg-white dark:bg-gray-800 p-2 rounded border border-slate-200 dark:border-gray-700 shadow-sm">
-                            <h3 className="text-[10px] font-bold text-slate-600 dark:text-gray-400 uppercase mb-1 flex items-center gap-1">
-                                <Compass className="w-3 h-3" /> AI Discovery
-                            </h3>
-                            <form onSubmit={handleDiscoverSubmit} className="flex gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="e.g. 'Software companies in Mangalore'"
-                                    className="flex-1 text-xs px-2 py-1.5 border border-slate-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-primary text-slate-800 dark:text-white dark:bg-gray-700 placeholder:text-slate-400"
-                                    value={discoveryQuery}
-                                    onChange={(e) => setDiscoveryQuery(e.target.value)}
-                                    disabled={!isKeySet || isDiscovering}
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!isKeySet || isDiscovering}
-                                    className="bg-accent text-white p-1.5 rounded hover:bg-accent/90 disabled:opacity-50"
-                                >
-                                    {isDiscovering ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
-                                </button>
-                            </form>
-                            {!isKeySet && <p className="text-[10px] text-red-600 mt-1 font-semibold">API Key required</p>}
-                        </div>
-
-                        {/* Local Search */}
+                    <div className="px-4 py-2 space-y-4">
+                        {/* Search Bar */}
                         <div className="relative">
-                            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-500" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4" />
                             <input
                                 type="text"
-                                placeholder="Filter list..."
-                                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-slate-800 dark:text-white dark:bg-gray-700 placeholder:text-slate-400"
-                                value={searchQuery}
-                                onChange={(e) => onSearchChange(e.target.value)}
+                                placeholder="Search institutions..."
+                                value={searchQuery || ''}
+                                onChange={(e) => onSearchChange?.(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white placeholder-slate-500"
                             />
                         </div>
 
-                        {/* Categories */}
-                        <div className="flex flex-wrap gap-1.5">
-                            {CATEGORIES.map(cat => (
+                        {/* Category Filters */}
+                        <div className="flex flex-wrap gap-2">
+                            {['Engineering', 'Polytechnic', 'Medical', 'Degree', 'PU College'].map(category => (
                                 <button
-                                    key={cat}
-                                    onClick={() => onToggleCategory(cat)}
-                                    className={`text-[10px] px-2 py-1 rounded-full border transition-colors font-medium ${selectedCategories.includes(cat)
-                                        ? 'bg-primary text-white border-primary'
-                                        : 'bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-slate-300 dark:border-gray-600 hover:border-primary/50 hover:bg-slate-50'
+                                    key={category}
+                                    onClick={() => onToggleCategory?.(category)}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${selectedCategories?.includes(category)
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300'
                                         }`}
                                 >
-                                    {cat}
+                                    {category}
                                 </button>
                             ))}
                         </div>
 
-                        <div className="flex justify-between items-center text-xs text-slate-600 dark:text-gray-400 px-1 font-medium">
-                            <span>{institutions.length} results found</span>
-                        </div>
-                    </div>
+                        <div className="border-t border-slate-200 dark:border-slate-800 pt-2"></div>
 
-                    <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-800">
-                        {institutions.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 text-sm">
-                                No institutions found.
+                        {/* Heatmap Toggle */}
+                        <button
+                            onClick={onToggleHeatmap}
+                            className={`w-full flex items-center justify-between p-2 rounded-lg border transition-colors ${showHeatmap
+                                ? 'bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/50 dark:text-orange-400'
+                                : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600'
+                                }`}
+                        >
+                            <span className="text-sm font-medium flex items-center gap-2">
+                                <Compass size={16} /> Heatmap
+                            </span>
+                            <div className={`w-8 h-4 rounded-full relative transition-colors ${showHeatmap ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${showHeatmap ? 'left-4.5' : 'left-0.5'}`} style={{ left: showHeatmap ? '18px' : '2px' }} />
                             </div>
-                        ) : (
-                            institutions.map((inst) => (
-                                <div
+                        </button>
+
+                        {/* Institutions List (Map Mode Only) */}
+                        <div className="mt-4 space-y-2">
+                            <h3 className="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                Result List ({institutions.length})
+                            </h3>
+                            {institutions.map(inst => (
+                                <button
                                     key={inst.id}
                                     onClick={() => onSelect(inst.id)}
-                                    className={`p-4 border-b border-slate-100 dark:border-gray-700 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-gray-700 ${selectedId === inst.id ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-primary' : ''
+                                    className={`w-full text-left p-3 rounded-lg border transition-all ${selectedId === inst.id
+                                        ? 'bg-blue-600 border-blue-500 text-white shadow-md'
+                                        : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                                         }`}
                                 >
-                                    <div className="flex justify-between items-start">
-                                        <h3 className={`font-bold text-sm ${selectedId === inst.id ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-                                            {inst.name}
-                                        </h3>
+                                    <h4 className="font-semibold text-sm line-clamp-1">{inst.name}</h4>
+                                    <div className="flex items-center gap-2 mt-1 text-xs opacity-75">
+                                        <span className={`px-1.5 py-0.5 rounded bg-black/5 dark:bg-black/20 text-xs`}>
+                                            {inst.category}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <MapPin size={10} /> {inst.location.area}
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-1 mt-1 text-xs text-slate-600 dark:text-gray-400 font-medium">
-                                        <Building2 className="w-3 h-3" />
-                                        <span>{inst.category}</span>
-                                        <span className="mx-1">•</span>
-                                        <span>{inst.location.area}</span>
-                                    </div>
-                                </div>
-                            ))
-                        )}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </>
-            )}
+                )}
+            </div>
+
+            {/* Bottom User Profile Section (Mock) */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white">
+                        DA
+                    </div>
+                    <div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">District Admin</div>
+                        <div className="text-xs text-slate-500">admin@dist.gov.in</div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

@@ -35,9 +35,14 @@ export const useFilters = (data: Institution[]) => {
                 if (!matchName && !matchAddress && !matchArea) return false;
             }
 
-            // Category
+            // Category (Fuzzy Match)
             if (filters.categories.length > 0) {
-                if (!filters.categories.includes(item.category)) return false;
+                // If any of the selected categories is contained in the item's category string
+                const matchVal = filters.categories.some(selectedCat =>
+                    item.category.toLowerCase().includes(selectedCat.toLowerCase()) ||
+                    selectedCat.toLowerCase().includes(item.category.toLowerCase())
+                );
+                if (!matchVal) return false;
             }
 
             // Type

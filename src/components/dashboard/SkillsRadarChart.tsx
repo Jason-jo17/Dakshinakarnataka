@@ -8,9 +8,10 @@ interface SkillsRadarChartProps {
         B: number; // Industry Expectation
         fullMark: number;
     }[];
+    onInsightClick: (data: any) => void;
 }
 
-const SkillsRadarChart: React.FC<SkillsRadarChartProps> = ({ data }) => {
+const SkillsRadarChart: React.FC<SkillsRadarChartProps> = ({ data, onInsightClick }) => {
     return (
         <div className="h-[400px] w-full bg-white p-4 rounded-lg shadow-md">
             <h3 className="text-lg font-bold mb-4 text-gray-800">Skills Gap Analysis: Student Reality vs Industry Expectation</h3>
@@ -22,16 +23,20 @@ const SkillsRadarChart: React.FC<SkillsRadarChartProps> = ({ data }) => {
                     <Radar
                         name="Student Reality"
                         dataKey="A"
-                        stroke="#8884d8"
-                        fill="#8884d8"
+                        stroke="#0D47A1" // Primary Blue
+                        fill="#0D47A1"
                         fillOpacity={0.6}
+                        onClick={(data) => onInsightClick({ skill: 'Overall Analysis', priority: 'High', gap: 'Various', ...data })}
+                        className="cursor-pointer"
                     />
                     <Radar
                         name="Industry Expectation"
                         dataKey="B"
-                        stroke="#82ca9d"
-                        fill="#82ca9d"
+                        stroke="#4CAF50" // Success Green
+                        fill="#4CAF50"
                         fillOpacity={0.6}
+                        onClick={(data) => onInsightClick({ skill: 'Industry Standards', priority: 'High', gap: 'Critical', ...data })}
+                        className="cursor-pointer"
                     />
                     <Legend />
                     <Tooltip />

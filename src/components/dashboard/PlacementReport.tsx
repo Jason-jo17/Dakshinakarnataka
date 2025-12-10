@@ -11,7 +11,7 @@ const ecosystemData = [
         id: 'nitk',
         name: 'NITK Surathkal',
         category: 'Elite National',
-        color: '#2563eb', // Blue 600
+        color: '#60A5FACC', // Mellow Blue-400
         median: 14.21,
         avg: 16.25,
         highest: 55.00,
@@ -31,7 +31,7 @@ const ecosystemData = [
         id: 'manipal',
         name: 'MIT Manipal (MAHE)',
         category: 'Private University',
-        color: '#f97316', // Orange 500
+        color: '#FDBA74CC', // Mellow Orange-300
         median: 10.05,
         avg: 12.31,
         highest: 69.25,
@@ -50,7 +50,7 @@ const ecosystemData = [
         id: 'sjec',
         name: 'St. Joseph (SJEC)',
         category: 'Tier-2 Stable',
-        color: '#10b981', // Emerald 500
+        color: '#86EFACCC', // Mellow Green-300
         median: 5.60,
         avg: 6.00,
         highest: 24.00,
@@ -69,7 +69,7 @@ const ecosystemData = [
         id: 'sahyadri',
         name: 'Sahyadri (SCEM)',
         category: 'High Variance',
-        color: '#f59e0b', // Amber 500
+        color: '#FCA5A5CC', // Mellow Red-300
         median: 4.75,
         avg: 6.30,
         highest: 72.00,
@@ -90,7 +90,7 @@ const ecosystemData = [
         id: 'nmamit',
         name: 'NMAMIT (Nitte)',
         category: 'Private University',
-        color: '#8b5cf6', // Violet 500
+        color: '#818CF8CC', // Mellow Indigo-400
         median: 5.50,
         avg: 7.50,
         highest: 52.00,
@@ -109,7 +109,7 @@ const ecosystemData = [
         id: 'mite',
         name: 'MITE Moodbidri',
         category: 'Tier-2 Stable',
-        color: '#06b6d4', // Cyan 500
+        color: '#FF9800', // Warning Orange
         median: 4.60,
         avg: 5.00,
         highest: 50.00,
@@ -151,19 +151,46 @@ const PlacementReport = () => {
 
             {/* 1. Executive Summary */}
             <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="col-span-1 md:col-span-4 mb-2">
-                    <h2 className="text-2xl font-bold text-gray-800">Market Correction Overview (2024-25)</h2>
-                    <p className="text-gray-600">The "Tech Winter" has bifurcated the region's outcomes. While elite talent secures global pay, mass recruitment has contracted, placing a premium on <strong>Median Stability</strong> over headline numbers.</p>
+                <div className="col-span-1 md:col-span-4 mb-2 flex justify-between items-start">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">Market Correction Overview (2024-25)</h2>
+                        <p className="text-gray-600">The "Tech Winter" has bifurcated the region's outcomes. While elite talent secures global pay, mass recruitment has contracted, placing a premium on <strong>Median Stability</strong> over headline numbers.</p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            try {
+                                const reportMeta = {
+                                    title: 'Placement Market Correction 2024-25',
+                                    type: 'Analytics',
+                                    size: '1.2 MB',
+                                    date: new Date().toLocaleDateString(),
+                                    action: null
+                                };
+                                const existingStr = localStorage.getItem('generated_reports');
+                                let existing = [];
+                                if (existingStr) {
+                                    existing = JSON.parse(existingStr);
+                                }
+                                localStorage.setItem('generated_reports', JSON.stringify([reportMeta, ...existing]));
+                                alert('Placement Analysis Report saved to Reports!');
+                            } catch (e) {
+                                alert("Could not save report.");
+                            }
+                        }}
+                        className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg shadow hover:bg-primary/90 transition-colors flex items-center gap-2"
+                    >
+                        Save Analysis Report
+                    </button>
                 </div>
 
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Regional Highest Offer</p>
-                            <h3 className="text-2xl font-bold text-blue-600">72.00 LPA</h3>
+                            <h3 className="text-2xl font-bold text-primary">72.00 LPA</h3>
                             <p className="text-xs text-gray-400 mt-1">Sahyadri (SCEM) 2025</p>
                         </div>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
                             <Trophy size={20} />
                         </div>
                     </div>
@@ -173,10 +200,10 @@ const PlacementReport = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Top Tier-2 Median</p>
-                            <h3 className="text-2xl font-bold text-emerald-600">5.60 LPA</h3>
+                            <h3 className="text-2xl font-bold text-success">5.60 LPA</h3>
                             <p className="text-xs text-gray-400 mt-1">SJEC (Stability Leader)</p>
                         </div>
-                        <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <div className="p-2 bg-success/10 rounded-lg text-success">
                             <Activity size={20} />
                         </div>
                     </div>
@@ -186,10 +213,10 @@ const PlacementReport = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Placement Rate Volatility</p>
-                            <h3 className="text-2xl font-bold text-red-500">-15% to -30%</h3>
+                            <h3 className="text-2xl font-bold text-danger">-15% to -30%</h3>
                             <p className="text-xs text-gray-400 mt-1">Drop in Pvt. Colleges (2024)</p>
                         </div>
-                        <div className="p-2 bg-red-50 rounded-lg text-red-500">
+                        <div className="p-2 bg-danger/10 rounded-lg text-danger">
                             <TrendingDown size={20} />
                         </div>
                     </div>
@@ -199,10 +226,10 @@ const PlacementReport = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Japanese Packages</p>
-                            <h3 className="text-2xl font-bold text-amber-500">30-47 LPA</h3>
+                            <h3 className="text-2xl font-bold text-warning">30-47 LPA</h3>
                             <p className="text-xs text-gray-400 mt-1">Sahyadri & Nitte Corridor</p>
                         </div>
-                        <div className="p-2 bg-amber-50 rounded-lg text-amber-500">
+                        <div className="p-2 bg-warning/10 rounded-lg text-warning">
                             <Globe size={20} />
                         </div>
                     </div>
@@ -217,9 +244,9 @@ const PlacementReport = () => {
                         <p className="text-sm text-gray-500">Analyzing institutions by <strong>Placement Reliability</strong> (Y-Axis) vs <strong>Median Outcomes</strong> (X-Axis). Bubble size represents the <strong>Highest Package</strong>.</p>
                     </div>
                     <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">Elite</span>
-                        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full">Stable</span>
-                        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">High Variance</span>
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">Elite</span>
+                        <span className="px-3 py-1 bg-success/10 text-success text-xs font-semibold rounded-full">Stable</span>
+                        <span className="px-3 py-1 bg-warning/10 text-warning text-xs font-semibold rounded-full">High Variance</span>
                     </div>
                 </div>
                 <div className="p-6 h-[400px]">
@@ -264,7 +291,7 @@ const PlacementReport = () => {
                                     key={inst.id}
                                     onClick={() => setSelectedInstId(inst.id)}
                                     className={`w-full text-left p-3 rounded-lg border transition-all flex items-center justify-between group ${selectedInstId === inst.id
-                                        ? 'bg-gray-50 border-indigo-500 ring-1 ring-indigo-500'
+                                        ? 'bg-gray-50 border-primary ring-1 ring-primary'
                                         : 'border-gray-200 hover:bg-gray-50'
                                         }`}
                                 >
@@ -367,7 +394,7 @@ const PlacementReport = () => {
                                     <RechartsTooltip />
                                     <Legend />
                                     <Bar dataKey="Highest" fill="#94a3b8" name="Highest Package" />
-                                    <Bar dataKey="Median" fill="#3b82f6" name="Median Salary" />
+                                    <Bar dataKey="Median" fill="#0D47A1" name="Median Salary" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>

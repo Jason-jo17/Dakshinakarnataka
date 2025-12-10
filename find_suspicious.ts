@@ -4,7 +4,7 @@ import { INSTITUTIONS } from './src/data/institutions';
 
 const allInstitutions = [...legacyInstitutions, ...INSTITUTIONS];
 
-const suspicious = [];
+const suspicious: any[] = [];
 
 allInstitutions.forEach(inst => {
     const name = inst.name.toLowerCase();

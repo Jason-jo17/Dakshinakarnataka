@@ -1,23 +1,33 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Minimize2, Map as MapIcon } from 'lucide-react';
 import MapView from './components/map/MapView';
 import Sidebar from './components/layout/Sidebar';
 import InstitutionDetail from './components/institution/InstitutionDetail';
 import DKEducationDashboard from './components/dashboard/DKEducationDashboard';
+import DistrictDashboard from './components/pages/DistrictDashboard';
+import InstitutionsView from './components/pages/InstitutionsView';
+import AssessmentsView from './components/pages/AssessmentsView';
+import IndustryDemandView from './components/pages/IndustryDemandView';
+import COEView from './components/pages/COEView';
+import CareerCentersView from './components/pages/CareerCentersView';
+import ReportsView from './components/pages/ReportsView';
 import { INSTITUTIONS } from './data/institutions';
 import { useFilters } from './hooks/useFilters';
-import { initializeGenAI, discoverPlaces } from './services/geminiService';
-import type { Institution } from './types/institution';
-
+import { initializeGenAI } from './services/geminiService';
 import { FloatingFilterPanel } from './components/map/FloatingFilterPanel';
-
 import { JOBS } from './data/jobs';
+import { DCSearch } from './components/dashboard/DCSearch';
 
 function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [discoveredData, setDiscoveredData] = useState<Institution[]>([]);
+  // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('map');
+
+  const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
+  // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
+
+  const [isMapCollapsed, setIsMapCollapsed] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showPopulationView, setShowPopulationView] = useState(false);
   const [showJobs, setShowJobs] = useState(false);
@@ -26,9 +36,10 @@ function App() {
 
   // Initialize dark mode from system preference
   useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true);
-    }
+    // Disabled auto-detection to default to light mode as per user request
+    // if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    //   setIsDarkMode(true);
+    // }
   }, []);
 
   // Update HTML class when theme changes
@@ -41,7 +52,7 @@ function App() {
   }, [isDarkMode]);
 
   // Combine static and discovered data
-  const allData = [...INSTITUTIONS, ...discoveredData];
+  const allData = [...INSTITUTIONS];
 
   const { filteredData, filters, setSearch, toggleCategory, toggleDomain, toggleTool, toggleDegree, toggleCoe } = useFilters(allData);
 
@@ -55,7 +66,47 @@ function App() {
     }
   }, []);
 
-
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <DistrictDashboard onNavigate={(view) => setCurrentView(view as any)} />;
+      case 'analytics':
+        return <DKEducationDashboard
+          initialTab={dashboardTab}
+          onNavigate={(view, tab) => {
+            setCurrentView(view as any);
+            if (tab && view as any === 'analytics') setDashboardTab(tab);
+          }}
+        />;
+      case 'ai-search':
+        return <DCSearch
+          initialQuery=""
+          onNavigate={(view, tab) => {
+            setCurrentView(view);
+            setDashboardTab(tab);
+          }} />;
+      case 'institutions':
+        return <InstitutionsView onNavigate={(view, id) => {
+          setCurrentView(view);
+          if (id) setSelectedId(id);
+        }} />;
+      case 'assessments':
+        return <AssessmentsView />;
+      case 'industry':
+        return <IndustryDemandView />;
+      case 'coe':
+        return <COEView onNavigate={(view, id) => {
+          setCurrentView(view);
+          if (id) setSelectedId(id);
+        }} />;
+      case 'centers':
+        return <CareerCentersView />;
+      case 'reports':
+        return <ReportsView />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
@@ -81,85 +132,130 @@ function App() {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <Sidebar
-          institutions={filteredData}
+          institutions={currentView === 'map' ? filteredData : INSTITUTIONS}
           selectedId={selectedId}
           onSelect={(id) => {
             setSelectedId(id);
-            setIsMobileMenuOpen(false); // Close menu on selection on mobile
+            setIsMobileMenuOpen(false);
           }}
-          searchQuery={filters.search}
-          onSearchChange={setSearch}
-          selectedCategories={filters.categories}
-          onToggleCategory={toggleCategory}
-          onDiscover={async (query) => {
-            const results = await discoverPlaces(query);
-            setDiscoveredData(prev => [...prev, ...results]);
-          }}
-          isKeySet={isKeySet}
-          currentView={showDashboard ? 'dashboard' : 'map'}
+          currentView={currentView as any}
           onViewChange={(view) => {
-            setShowDashboard(view === 'dashboard');
+            setCurrentView(view);
             setIsMobileMenuOpen(false);
           }}
           showHeatmap={showHeatmap}
           onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
           isDarkMode={isDarkMode}
           onToggleTheme={() => setIsDarkMode(!isDarkMode)}
+          // Pass Filters
+          searchQuery={filters.search}
+          onSearchChange={setSearch}
+          selectedCategories={filters.categories}
+          onToggleCategory={toggleCategory}
         />
       </div>
 
-      <div className="flex-1 relative overflow-hidden flex">
-        {/* Map is always rendered but might be partially covered or resized if needed */}
-        <div className={`flex-1 h-full relative transition-all duration-300 ${showDashboard ? 'w-1/2' : 'w-full'}`}>
-          <MapView
-            institutions={filteredData}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            showHeatmap={showHeatmap}
-            showPopulationView={showPopulationView}
-            showJobs={showJobs}
-            jobs={JOBS}
-            hideLegend={showDashboard}
-          />
+      <div className="flex-1 relative overflow-hidden h-full">
 
-          <FloatingFilterPanel
-            selectedDomains={filters.domains}
-            onToggleDomain={toggleDomain}
-            selectedTools={filters.tools}
-            onToggleTool={toggleTool}
-            selectedDegrees={filters.degrees}
-            onToggleDegree={toggleDegree}
-            showCoeOnly={filters.coe}
-            onToggleCoe={toggleCoe}
-            showPopulationView={showPopulationView}
-            onTogglePopulationView={() => setShowPopulationView(!showPopulationView)}
-            showJobs={showJobs}
-            onToggleJobs={() => setShowJobs(!showJobs)}
-          />
+        {/* Main View Area */}
+        {currentView !== 'map' && (
+          <div className="absolute inset-0 z-20 overflow-y-auto bg-slate-50 dark:bg-slate-900 animate-in fade-in duration-300 scrollbar-hide">
+            {renderCurrentView()}
+          </div>
+        )}
 
-          {selectedInstitution && !showDashboard && (
-            <InstitutionDetail
-              institution={selectedInstitution}
-              onClose={() => setSelectedId(null)}
-              isKeySet={isKeySet}
-            />
+        {/* Map Container - Acts as Main View, Pop-out, or Collapsed Pill */}
+        <div
+          className={`
+            transition-all duration-500 ease-in-out bg-white dark:bg-slate-800 shadow-2xl
+            ${currentView !== 'map'
+              ? isMapCollapsed
+                ? 'absolute bottom-6 right-6 w-auto h-auto z-30 rounded-full border-2 border-white dark:border-slate-700 overflow-hidden cursor-pointer hover:scale-105'
+                : 'absolute bottom-6 right-6 w-80 h-56 z-30 rounded-xl border-4 border-white dark:border-slate-700 overflow-hidden group cursor-pointer hover:scale-105 hover:shadow-3xl'
+              : 'absolute inset-0 w-full h-full z-10'
+            }
+          `}
+          onClick={() => {
+            if (currentView !== 'map') {
+              if (isMapCollapsed) setIsMapCollapsed(false);
+              else setCurrentView('map');
+            }
+          }}
+        >
+          {currentView !== 'map' && isMapCollapsed ? (
+            <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+              <MapIcon size={18} />
+              <span className="font-semibold text-sm whitespace-nowrap">Show Map</span>
+            </div>
+          ) : (
+            <>
+              <div className="w-full h-full relative pointer-events-auto">
+                <MapView
+                  institutions={filteredData}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  showHeatmap={showHeatmap}
+                  showPopulationView={showPopulationView}
+                  showJobs={showJobs}
+                  jobs={JOBS}
+                  hideLegend={currentView !== 'map'}
+                />
+              </div>
+
+              {/* Minimize Button - visible only when floating and expanded */}
+              {currentView !== 'map' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMapCollapsed(true);
+                  }}
+                  className="absolute top-2 right-2 z-50 p-1.5 bg-white/90 dark:bg-slate-800/90 rounded-full shadow-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
+                  title="Minimize Map"
+                >
+                  <Minimize2 size={16} className="text-slate-600 dark:text-slate-300" />
+                </button>
+              )}
+
+              {/* Overlay for Expand Prompt in Minimized Mode */}
+              {currentView !== 'map' && !isMapCollapsed && (
+                <div className="absolute inset-0 bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors pointer-events-none">
+                  <div className="bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                    Click to Expand
+                  </div>
+                </div>
+              )}
+
+              {/* Map Controls - Only visible in Full Map Mode */}
+              {currentView === 'map' && (
+                <>
+                  <FloatingFilterPanel
+                    selectedDomains={filters.domains}
+                    onToggleDomain={toggleDomain}
+                    selectedTools={filters.tools}
+                    onToggleTool={toggleTool}
+                    selectedDegrees={filters.degrees}
+                    onToggleDegree={toggleDegree}
+                    showCoeOnly={filters.coe}
+                    onToggleCoe={toggleCoe}
+                    showPopulationView={showPopulationView}
+                    onTogglePopulationView={() => setShowPopulationView(!showPopulationView)}
+                    showJobs={showJobs}
+                    onToggleJobs={() => setShowJobs(!showJobs)}
+                  />
+
+                  {selectedInstitution && (
+                    <InstitutionDetail
+                      institution={selectedInstitution}
+                      onClose={() => setSelectedId(null)}
+                      isKeySet={isKeySet}
+                    />
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
 
-        {/* Dashboard Side Panel */}
-        {showDashboard && (
-          <div className="w-full md:w-[600px] h-full bg-white shadow-2xl overflow-y-auto border-l border-gray-200 z-20 absolute right-0 top-0 bottom-0 animate-in slide-in-from-right duration-300">
-            <div className="p-2 sticky top-0 bg-white z-10 border-b flex justify-end">
-              <button
-                onClick={() => setShowDashboard(false)}
-                className="text-sm text-gray-500 hover:text-gray-800 px-3 py-1 bg-gray-100 rounded"
-              >
-                Close Dashboard
-              </button>
-            </div>
-            <DKEducationDashboard />
-          </div>
-        )}
       </div>
     </div>
   );

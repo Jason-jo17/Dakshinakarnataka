@@ -112,7 +112,7 @@ export const ToolSearch: React.FC<ToolSearchProps> = ({ institutions, onSelectIn
                             key={level}
                             onClick={() => toggleProficiency(level)}
                             className={`text-xs px-2 py-1 rounded-md border transition-colors flex items-center gap-1 ${selectedProficiencies.includes(level)
-                                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-medium'
+                                ? 'bg-primary/5 border-primary/20 text-primary font-medium'
                                 : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
                                 }`}
                         >
@@ -145,15 +145,15 @@ export const ToolSearch: React.FC<ToolSearchProps> = ({ institutions, onSelectIn
                                     </h4>
                                     {inst.matchedTool ? (
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded border ${inst.matchedTool.proficiency === 'Advanced' || inst.matchedTool.proficiency === 'Expert'
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                            ? 'bg-success/5 text-success border-success/20'
                                             : inst.matchedTool.proficiency === 'Intermediate'
-                                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                                ? 'bg-warning/5 text-warning border-warning/20'
                                                 : 'bg-slate-50 text-slate-600 border-slate-200'
                                             }`}>
                                             {inst.matchedTool.proficiency}
                                         </span>
                                     ) : (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded border bg-indigo-50 text-indigo-700 border-indigo-200">
+                                        <span className="text-[10px] px-1.5 py-0.5 rounded border bg-primary/5 text-primary border-primary/20">
                                             Domain Match
                                         </span>
                                     )}

@@ -1,11 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { GeminiResponse } from "../types/ai";
 import type { Institution } from "../types/institution";
 
 let ai: GoogleGenAI | null = null;
+let savedApiKey: string = "";
 
 export const initializeGenAI = (apiKey: string) => {
     ai = new GoogleGenAI({ apiKey });
+    savedApiKey = apiKey;
 };
 
 export const fetchLocationDetails = async (
@@ -16,7 +19,7 @@ export const fetchLocationDetails = async (
     }
 
     try {
-        const model = "gemini-2.0-flash";
+        const model = "gemini-1.5-flash";
         const prompt = `Tell me the exact address, rating, and a very brief description (one sentence) for: ${query}. 
     Also, find its precise geographic location (Latitude and Longitude) and return it in the text.`;
 
@@ -48,7 +51,7 @@ export const fetchSearchInfo = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-flash",
             contents: query,
             config: {
                 tools: [{ googleSearch: {} }]
@@ -86,7 +89,7 @@ export const discoverPlaces = async (query: string): Promise<Institution[]> => {
         Do not explain. Just return JSON.`;
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -137,3 +140,103 @@ export const discoverPlaces = async (query: string): Promise<Institution[]> => {
         throw error;
     }
 }
+
+export const performIntelligentSearch = async (query: string, dataContext: string = ''): Promise<{
+    thoughtProcess: string[];
+    answer: string;
+    recommendedView: 'institutions' | 'jobs' | 'market_analysis' | 'skill_gap';
+    filters: {
+        skills: string[];
+        location: string | null;
+        category: string | null;
+        type: string | null;
+    };
+}> => {
+    if (!savedApiKey) throw new Error("API Key not initialized");
+
+    try {
+        const genAI = new GoogleGenerativeAI(savedApiKey);
+
+        const systemInstruction = `You are an intelligent data analyst for the Dakshina Kannada District Education & Industry Dashboard.
+
+        Goal: Understand user intent, explain reasoning, and select the best DASHBOARD VIEW to visualize the answer.
+
+        Available Views (Tools):
+        - 'institutions': For finding colleges, schools, training centers.
+        - 'jobs': For finding active job openings or companies hiring.
+        - 'market_analysis': For broad industry trends, demand supply, or company landscapes (COEs, etc.).
+        - 'skill_gap': For specific skill-related queries (e.g., "Where can I learn AI?").
+
+        RESPONSE FORMAT (JSON):
+        {
+            "thoughtProcess": ["Step 1...", "Step 2..."],
+            "answer": "Natural language summary...",
+            "recommendedView": "one_of_the_views_above",
+            "filters": {
+                "skills": ["extracted", "skills"],
+                "location": "location_or_null",
+                "category": "category_or_null",
+                "type": "Company_or_Education_or_null"
+            }
+        }`;
+
+        const userPrompt = `
+        User Query: "${query}"
+
+        REAL-TIME DATA CONTEXT:
+        ${dataContext}
+        
+        Analyze the query based on the provided context and return the JSON response.`;
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: systemInstruction,
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: SchemaType.OBJECT,
+                    properties: {
+                        thoughtProcess: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                        answer: { type: SchemaType.STRING },
+                        recommendedView: { type: SchemaType.STRING, enum: ['institutions', 'jobs', 'market_analysis', 'skill_gap'] },
+                        filters: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                skills: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                                location: { type: SchemaType.STRING, nullable: true },
+                                category: { type: SchemaType.STRING, nullable: true },
+                                type: { type: SchemaType.STRING, nullable: true }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const result = await model.generateContent(userPrompt);
+        const text = result.response.text();
+        const parsed = JSON.parse(text);
+
+        // Ensure defaults if AI misses fields
+        return {
+            thoughtProcess: parsed.thoughtProcess || [],
+            answer: parsed.answer || "Here is what I found.",
+            recommendedView: parsed.recommendedView || 'institutions',
+            filters: {
+                skills: parsed.filters?.skills || [],
+                location: parsed.filters?.location || null,
+                category: parsed.filters?.category || null,
+                type: parsed.filters?.type || null
+            }
+        };
+
+    } catch (error) {
+        console.error("Query Parse Error", error);
+        return {
+            thoughtProcess: ["Failed to analyze query", "Error: " + String(error)],
+            answer: "I encountered an error analyzing your request. Showing general results.",
+            recommendedView: 'institutions',
+            filters: { skills: [], location: null, category: null, type: null }
+        };
+    }
+};

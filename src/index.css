@@ -1,9 +1,80 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #0D47A1;
+  --color-success: #4CAF50;
+  --color-warning: #FF9800;
+  --color-danger: #F44336;
+  --color-background: #F3F5F9;
+  --color-surface: #FFFFFF;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+  }
+
+  @layer utilities {
+    .bg-primary {
+      background-color: #0D47A1 !important;
+    }
+
+    .text-primary {
+      color: #0D47A1 !important;
+    }
+
+    .border-primary {
+      border-color: #0D47A1 !important;
+    }
+
+    .bg-success {
+      background-color: #4CAF50 !important;
+    }
+
+    .text-success {
+      color: #4CAF50 !important;
+    }
+
+    .border-success {
+      border-color: #4CAF50 !important;
+    }
+
+    .bg-warning {
+      background-color: #FF9800 !important;
+    }
+
+    .text-warning {
+      color: #FF9800 !important;
+    }
+
+    .border-warning {
+      border-color: #FF9800 !important;
+    }
+
+    .bg-danger {
+      background-color: #F44336 !important;
+    }
+
+    .text-danger {
+      color: #F44336 !important;
+    }
+
+    .border-danger {
+      border-color: #F44336 !important;
+    }
+
+    .bg-background {
+      background-color: #F3F5F9 !important;
+    }
+
+    .bg-surface {
+      background-color: #FFFFFF !important;
+    }
   }
 
   body {

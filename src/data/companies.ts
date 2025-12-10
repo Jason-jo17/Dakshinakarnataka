@@ -633,5 +633,106 @@ export const COMPANIES: Institution[] = [
             { name: 'Chemical Process Control', domain: 'Chemical Engineering', category: 'Automation', proficiency: 'Advanced' }
         ],
         tags: ['Chemicals', 'Polymers']
+    },
+    {
+        id: 'atlantic-data',
+        name: 'Atlantic Data Bureau Services',
+        type: 'Private',
+        category: 'Company',
+        location: {
+            address: 'PVS Centenary Building, Kaloor', // Using generic relevant location
+            landmark: 'PVS Kalikamba',
+            area: 'Mangalore',
+            taluk: 'Mangalore',
+            district: 'Dakshina Kannada',
+            state: 'Karnataka',
+            pincode: '575003',
+            coordinates: { lat: 12.8750, lng: 74.8380 },
+            googleMapsUrl: ''
+        },
+        metadata: { verified: true, lastUpdated: '2024-03-20', source: 'User' },
+        contact: { website: 'https://www.atlanticdata.co.uk/' },
+        academic: {
+            programs: [
+                { name: 'Data Process Executive', duration: 'Permanent', seats: 40 },
+                { name: 'Process Lead', duration: 'Permanent', seats: 10 }
+            ]
+        },
+        domains: {
+            'Business': 9,
+            'Software Development': 6
+        },
+        tools: [
+            { name: 'Excel', domain: 'Business', category: 'Productivity', proficiency: 'Advanced' },
+            { name: 'CRM Tools', domain: 'Business', category: 'Management', proficiency: 'Intermediate' }
+        ],
+        tags: ['BPO', 'KPO', 'Data Services']
+    },
+    {
+        id: 'mphasis',
+        name: 'Mphasis',
+        type: 'Private',
+        category: 'Company',
+        location: {
+            address: 'Mangalore SEZ, Mudipu',
+            landmark: 'SEZ',
+            area: 'Mudipu',
+            taluk: 'Mangalore',
+            district: 'Dakshina Kannada',
+            state: 'Karnataka',
+            pincode: '574153',
+            coordinates: { lat: 12.8250, lng: 74.9830 },
+            googleMapsUrl: ''
+        },
+        metadata: { verified: true, lastUpdated: '2024-03-20', source: 'User' },
+        contact: { website: 'https://www.mphasis.com/' },
+        academic: {
+            programs: [
+                { name: 'Software Trainee', duration: 'Permanent', seats: 60 }
+            ]
+        },
+        domains: {
+            'Software Development': 9,
+            'Business': 8
+        },
+        tools: [
+            { name: 'Java', domain: 'Software Development', category: 'Development', proficiency: 'Advanced' },
+            { name: 'Cloud Computing', domain: 'Software Development', category: 'Cloud', proficiency: 'Intermediate' }
+        ],
+        tags: ['IT Services', 'Consulting']
+    },
+    {
+        id: 'father-muller',
+        name: 'Father Muller Medical College Hospital',
+        type: 'Private',
+        category: 'Company', // Listed as company for job purposes
+        location: {
+            address: 'Kankanady, Mangalore',
+            landmark: 'Father Muller Road',
+            area: 'Kankanady',
+            taluk: 'Mangalore',
+            district: 'Dakshina Kannada',
+            state: 'Karnataka',
+            pincode: '575002',
+            coordinates: { lat: 12.8640, lng: 74.8560 },
+            googleMapsUrl: ''
+        },
+        metadata: { verified: true, lastUpdated: '2024-03-20', source: 'User' },
+        contact: { website: 'https://fathermuller.edu.in/' },
+        academic: {
+            programs: [
+                { name: 'Staff Nurse', duration: 'Permanent', seats: 100 },
+                { name: 'Lab Technician', duration: 'Permanent', seats: 30 }
+            ]
+        },
+        domains: {
+            'Healthcare': 10,
+            'Biotechnology': 7
+        },
+        tools: [
+            { name: 'Patient Management System', domain: 'Healthcare', category: 'Management', proficiency: 'Advanced' },
+            { name: 'MRI/CT Scanners', domain: 'Healthcare', category: 'Medical', proficiency: 'Advanced' }
+        ],
+        tags: ['Healthcare', 'Hospital', 'Education']
     }
 ];

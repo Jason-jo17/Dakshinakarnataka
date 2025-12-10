@@ -9,7 +9,9 @@ const legacyIdMap: Record<string, string> = {
     'st-joseph-engineering': 'sjec-vamanjoor',
     'mite-moodbidri': 'mite-moodabidri',
     'sahyadri-college': 'sahyadri-adyar',
-    'alvas-engineering': 'aiet-mijar',
+    'alvas-engineering': 'alva-s-institute-of-engg-tech',
+    'canara-engineering': 'canara-engineering-college', // Hypothetical, but we rely on deduplication primarily
+    'nitte-university': 'nitte-university-deemed',
     'aj-institute-engineering': 'ajiet-kottara',
     'govt-polytechnic-mangalore': 'karnataka-govt-polytechnic',
     'st-aloysius-deemed-university': 'st-aloysius-university',
@@ -36,7 +38,12 @@ const mergePrograms = (userPrograms: any[], legacyPrograms: any[]) => {
 };
 
 // 1. Process User Institutions and Merge with Legacy
-const mergedUserInstitutions = userInstitutions.map(userInst => {
+// Deduplicate userInstitutions by ID first
+const uniqueUserInstitutions = Array.from(
+    new Map(userInstitutions.map(item => [item.id, item])).values()
+);
+
+const mergedUserInstitutions = uniqueUserInstitutions.map(userInst => {
     const legacyId = legacyIdMap[userInst.id] || userInst.id;
     const legacyInst = legacyInstitutions.find(l => l.id === legacyId);
 

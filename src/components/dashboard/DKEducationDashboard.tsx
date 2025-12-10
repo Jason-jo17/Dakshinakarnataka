@@ -1,14 +1,57 @@
-import { useState } from 'react';
-import { Users, TrendingUp, Target, MapPin, GraduationCap, Briefcase, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, TrendingUp, Target, MapPin, GraduationCap, Briefcase, BookOpen, Sparkles } from 'lucide-react';
 import KnowledgeGraph from './KnowledgeGraph';
 import { INSTITUTIONS } from '../../data/institutions';
 import SkillsRadarChart from './SkillsRadarChart';
 import PlacementReport from './PlacementReport';
+import InsightModal from './InsightModal';
+import DetailedReport from './DetailedReport';
+import DKRecommendations from './DKRecommendations';
 
-const DKEducationDashboard = () => {
-    const [activeView, setActiveView] = useState('overview');
+interface DashboardProps {
+    initialTab?: string;
+    onNavigate?: (view: 'map' | 'institutions' | 'industry' | 'jobs' | 'dashboard', tab?: string) => void;
+}
+
+const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview', onNavigate }) => {
+    const [activeView, setActiveView] = useState(initialTab);
     const [selectedTaluk, setSelectedTaluk] = useState('All');
     const [selectedYear, setSelectedYear] = useState('2024-25');
+
+    // Effect to update activeView if initialTab changes (for navigation from DC Search)
+    useEffect(() => {
+        if (initialTab) setActiveView(initialTab);
+    }, [initialTab]);
+    const [selectedInsight, setSelectedInsight] = useState<{ isOpen: boolean, data: any, type: 'skill' | 'industry' | 'education' | null }>({
+        isOpen: false,
+        data: null,
+        type: null
+    });
+
+    // State for Detailed Report
+    const [reportConfig, setReportConfig] = useState<{ isOpen: boolean, skill: string }>({
+        isOpen: false,
+        skill: ''
+    });
+
+    // State for Recommendations
+    const [showRecommendations, setShowRecommendations] = useState(false);
+
+    const openInsight = (data: any, type: 'skill' | 'industry' | 'education') => {
+        setSelectedInsight({ isOpen: true, data, type });
+    };
+
+    const closeInsight = () => {
+        setSelectedInsight({ ...selectedInsight, isOpen: false });
+    };
+
+    const handleViewReport = (skill: string) => {
+        setReportConfig({ isOpen: true, skill });
+    };
+
+    const closeReport = () => {
+        setReportConfig({ ...reportConfig, isOpen: false });
+    };
 
     const taluks = ['All', 'Mangaluru', 'Bantwal', 'Puttur', 'Sullia', 'Belthangady'];
     const years = ['2021-22', '2022-23', '2023-24', '2024-25'];
@@ -38,12 +81,12 @@ const DKEducationDashboard = () => {
     };
 
     const educationLevelData = [
-        { level: '10th Std', students: Math.floor(45000 * multiplier), institutions: Math.floor(180 * multiplier), growth: 3.2, color: 'bg-blue-500' },
-        { level: 'PU', students: Math.floor(32000 * multiplier), institutions: Math.floor(125 * multiplier), growth: 4.1, color: 'bg-indigo-500' },
-        { level: 'Degree', students: Math.floor(38000 * multiplier), institutions: Math.floor(85 * multiplier), growth: 5.3, color: 'bg-purple-500' },
-        { level: 'Engineering', students: Math.floor(28000 * multiplier), institutions: Math.floor(45 * multiplier), growth: 2.8, color: 'bg-pink-500' },
-        { level: 'Diploma', students: Math.floor(8500 * multiplier), institutions: Math.floor(35 * multiplier), growth: 6.2, color: 'bg-orange-500' },
-        { level: 'ITI', students: Math.floor(4500 * multiplier), institutions: Math.floor(28 * multiplier), growth: 7.5, color: 'bg-red-500' }
+        { level: '10th Std', students: Math.floor(45000 * multiplier), institutions: Math.floor(180 * multiplier), growth: 3.2, color: 'bg-rose-300/80' },
+        { level: 'PU', students: Math.floor(32000 * multiplier), institutions: Math.floor(125 * multiplier), growth: 4.1, color: 'bg-orange-300/80' },
+        { level: 'Degree', students: Math.floor(38000 * multiplier), institutions: Math.floor(85 * multiplier), growth: 5.3, color: 'bg-amber-300/80' },
+        { level: 'Engineering', students: Math.floor(28000 * multiplier), institutions: Math.floor(45 * multiplier), growth: 2.8, color: 'bg-emerald-300/80' },
+        { level: 'Diploma', students: Math.floor(8500 * multiplier), institutions: Math.floor(35 * multiplier), growth: 6.2, color: 'bg-sky-300/80' },
+        { level: 'ITI', students: Math.floor(4500 * multiplier), institutions: Math.floor(28 * multiplier), growth: 7.5, color: 'bg-indigo-300/80' }
     ];
 
     const streamDistribution = {
@@ -113,22 +156,22 @@ const DKEducationDashboard = () => {
         return 'Other';
     };
 
-    const companyDemand: Record<string, number> = {};
+    const companyDemandMap: Record<string, number> = {};
     companies.forEach(c => {
         Object.keys(c.domains || {}).forEach(d => {
             const normalized = normalizeDomain(d);
             if (normalized !== 'Other') {
-                companyDemand[normalized] = (companyDemand[normalized] || 0) + 1;
+                companyDemandMap[normalized] = (companyDemandMap[normalized] || 0) + 1;
             }
         });
     });
 
-    const collegeSupply: Record<string, number> = {};
+    const collegeSupplyMap: Record<string, number> = {};
     colleges.forEach(c => {
         Object.keys(c.domains || {}).forEach(d => {
             const normalized = normalizeDomain(d);
             if (normalized !== 'Other') {
-                collegeSupply[normalized] = (collegeSupply[normalized] || 0) + 1;
+                collegeSupplyMap[normalized] = (collegeSupplyMap[normalized] || 0) + 1;
             }
         });
     });
@@ -143,8 +186,8 @@ const DKEducationDashboard = () => {
         'Biotech & Healthcare'
     ].map(d => ({
         subject: d,
-        A: Math.round(((collegeSupply[d] || 0) / collegeCount) * 100), // Student Reality
-        B: Math.round(((companyDemand[d] || 0) / companyCount) * 100), // Industry Expectation
+        A: Math.round(((collegeSupplyMap[d] || 0) / collegeCount) * 100), // Student Reality
+        B: Math.round(((companyDemandMap[d] || 0) / companyCount) * 100), // Industry Expectation
         fullMark: 100
     }));
 
@@ -167,34 +210,35 @@ const DKEducationDashboard = () => {
         }
     ];
 
-    // ... existing code ...
-
     const OverviewDashboard = () => (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-blue-50/80 dark:bg-blue-900/30 backdrop-blur-sm rounded-lg p-6 text-blue-900 dark:text-blue-100 shadow-sm border border-blue-100 dark:border-blue-700">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm opacity-90">Total Students</p>
+                            <p className="text-sm font-medium opacity-90">Total Students</p>
                             <h3 className="text-3xl font-bold mt-1">{(stats.totalStudents / 1000).toFixed(1)}K</h3>
-                            <p className="text-xs mt-2 opacity-75">AY {selectedYear}</p>
+                            <p className="text-xs mt-2 font-medium opacity-75">AY {selectedYear}</p>
                         </div>
                         <Users size={40} className="opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg p-6 text-white shadow-lg">
+                <div
+                    className="bg-indigo-50/80 dark:bg-indigo-900/30 backdrop-blur-sm rounded-lg p-6 text-indigo-900 dark:text-indigo-100 shadow-sm border border-indigo-100 dark:border-indigo-700 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                    onClick={() => onNavigate?.('institutions')}
+                >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm opacity-90">Institutions</p>
+                            <p className="text-sm font-medium opacity-90">Institutions</p>
                             <h3 className="text-3xl font-bold mt-1">{stats.totalInstitutions}</h3>
-                            <p className="text-xs mt-2 opacity-75">{selectedTaluk === 'All' ? '5 Taluks' : selectedTaluk}</p>
+                            <p className="text-xs mt-2 font-medium opacity-75">{selectedTaluk === 'All' ? '5 Taluks' : selectedTaluk}</p>
                         </div>
                         <GraduationCap size={40} className="opacity-80" />
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-emerald-50/80 dark:bg-emerald-900/30 backdrop-blur-sm rounded-lg p-6 text-emerald-900 dark:text-emerald-100 shadow-sm border border-emerald-100 dark:border-emerald-700">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm opacity-90">Avg Pass Rate</p>
@@ -205,7 +249,7 @@ const DKEducationDashboard = () => {
                     </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-amber-50/80 dark:bg-amber-900/30 backdrop-blur-sm rounded-lg p-6 text-amber-900 dark:text-amber-100 shadow-sm border border-amber-100 dark:border-amber-700">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm opacity-90">Employment Rate</p>
@@ -217,9 +261,9 @@ const DKEducationDashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <BookOpen size={24} className="text-indigo-600" />
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                    <BookOpen size={24} className="text-cyan-500 dark:text-cyan-400" />
                     Student Distribution by Education Level
                 </h3>
                 <div className="space-y-4">
@@ -229,14 +273,14 @@ const DKEducationDashboard = () => {
                         return (
                             <div key={index} className="space-y-2">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold text-gray-700">{item.level}</span>
+                                    <span className="font-semibold text-gray-700 dark:text-gray-200">{item.level}</span>
                                     <div className="flex gap-4 text-xs">
-                                        <span className="text-gray-600">{item.students.toLocaleString()} students</span>
-                                        <span className="text-gray-600">{item.institutions} institutions</span>
-                                        <span className="text-green-600 font-semibold">↑ {item.growth}%</span>
+                                        <span className="text-gray-600 dark:text-gray-400">{item.students.toLocaleString()} students</span>
+                                        <span className="text-gray-600 dark:text-gray-400">{item.institutions} institutions</span>
+                                        <span className="text-emerald-600 font-semibold">↑ {item.growth}%</span>
                                     </div>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-6 overflow-hidden">
                                     <div
                                         className={`${item.color} h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-3`}
                                         style={{ width: `${width}%` }}
@@ -252,27 +296,27 @@ const DKEducationDashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <MapPin size={24} className="text-indigo-600" />
+            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                    <MapPin size={24} className="text-cyan-500 dark:text-cyan-400" />
                     Regional Distribution
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     {talukData.map((taluk, index) => (
-                        <div key={index} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 className="font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 text-center truncate" title={taluk.name}>{taluk.name}</h4>
+                        <div key={index} className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow">
+                            <h4 className="font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-slate-600 pb-2 text-center truncate" title={taluk.name}>{taluk.name}</h4>
                             <div className="space-y-3">
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Students</p>
-                                    <p className="text-lg font-bold text-gray-800">{(taluk.students / 1000).toFixed(1)}K</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Students</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">{(taluk.students / 1000).toFixed(1)}K</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold" title="Institutions">Insts.</p>
-                                    <p className="text-lg font-bold text-gray-800">{taluk.institutions}</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold" title="Institutions">Insts.</p>
+                                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">{taluk.institutions}</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold" title="Employment Rate">Empl.</p>
-                                    <p className="text-lg font-bold text-green-600">{taluk.employment}%</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold" title="Employment Rate">Empl.</p>
+                                    <p className="text-lg font-bold text-success">{taluk.employment}%</p>
                                 </div>
                             </div>
                         </div>
@@ -289,14 +333,18 @@ const DKEducationDashboard = () => {
                     <h3 className="text-xl font-bold text-gray-800 mb-4">Engineering Streams</h3>
                     <div className="space-y-3">
                         {streamDistribution.Engineering.map((stream, index) => (
-                            <div key={index} className="space-y-1">
+                            <div
+                                key={index}
+                                className="space-y-1 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                                onClick={() => openInsight(stream, 'education')}
+                            >
                                 <div className="flex justify-between text-sm">
                                     <span className="font-semibold text-gray-700">{stream.name}</span>
                                     <span className="text-gray-600">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-4">
                                     <div
-                                        className="bg-gradient-to-r from-pink-500 to-pink-600 h-4 rounded-full transition-all duration-500"
+                                        className="bg-blue-300/80 h-4 rounded-full transition-all duration-500"
                                         style={{ width: `${stream.percentage * 2.5}%` }}
                                     ></div>
                                 </div>
@@ -309,14 +357,18 @@ const DKEducationDashboard = () => {
                     <h3 className="text-xl font-bold text-gray-800 mb-4">Degree Streams</h3>
                     <div className="space-y-3">
                         {streamDistribution.Degree.map((stream, index) => (
-                            <div key={index} className="space-y-1">
+                            <div
+                                key={index}
+                                className="space-y-1 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                                onClick={() => openInsight(stream, 'education')}
+                            >
                                 <div className="flex justify-between text-sm">
                                     <span className="font-semibold text-gray-700">{stream.name}</span>
                                     <span className="text-gray-600">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-4">
                                     <div
-                                        className="bg-gradient-to-r from-purple-500 to-purple-600 h-4 rounded-full transition-all duration-500"
+                                        className="bg-rose-300/80 h-4 rounded-full transition-all duration-500"
                                         style={{ width: `${stream.percentage * 2.5}%` }}
                                     ></div>
                                 </div>
@@ -335,22 +387,28 @@ const DKEducationDashboard = () => {
                         return (
                             <div key={index} className="text-center">
                                 <h4 className="font-semibold text-sm text-gray-700 mb-2">{level.level}</h4>
-                                <div className="flex h-32 gap-2">
-                                    <div className="flex-1 bg-blue-500 rounded-t-lg relative" style={{ height: `${malePercentage}%` }}>
+                                <div className="flex h-32 gap-2 items-end">
+                                    <div className="flex-1 bg-blue-600 rounded-t-lg relative group transition-all duration-300 hover:opacity-90" style={{ height: `${malePercentage}%` }}>
                                         <span className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-white text-xs font-bold">{malePercentage}%</span>
+                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                            Male: {malePercentage}%
+                                        </div>
                                     </div>
-                                    <div className="flex-1 bg-pink-500 rounded-t-lg relative" style={{ height: `${femalePercentage}%` }}>
+                                    <div className="flex-1 bg-pink-400 rounded-t-lg relative group transition-all duration-300 hover:opacity-90" style={{ height: `${femalePercentage}%` }}>
                                         <span className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-white text-xs font-bold">{femalePercentage}%</span>
+                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                            Female: {femalePercentage}%
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-2 mt-2 text-xs justify-center">
-                                    <div className="flex items-center gap-1">
-                                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                        <span className="text-gray-600">M</span>
+                                <div className="flex gap-4 mt-3 text-xs justify-center">
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                                        <span className="text-gray-600 font-medium">Male</span>
                                     </div>
-                                    <div className="flex items-center gap-1">
-                                        <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
-                                        <span className="text-gray-600">F</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 bg-pink-400 rounded-full"></div>
+                                        <span className="text-gray-600 font-medium">Female</span>
                                     </div>
                                 </div>
                             </div>
@@ -364,12 +422,12 @@ const DKEducationDashboard = () => {
     const SkillGapDashboard = () => (
         <div className="space-y-6">
             {/* Radar Chart Section */}
-            <SkillsRadarChart data={radarData} />
+            <SkillsRadarChart data={radarData} onInsightClick={(data) => openInsight(data, 'skill')} />
 
             <div className="bg-white rounded-lg shadow-lg p-6">
                 {/* ... existing Skill Gap Analysis content ... */}
                 <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Target size={24} className="text-indigo-600" />
+                    <Target size={24} className="text-cyan-500" />
                     Skill Gap Analysis
                 </h3>
                 <div className="space-y-4">
@@ -379,14 +437,17 @@ const DKEducationDashboard = () => {
                             <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center gap-3">
                                     <span className="font-semibold text-gray-800">{skill.skill}</span>
-                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${skill.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${skill.priority === 'High' ? 'bg-orange-100 text-orange-600' : 'bg-fuchsia-100 text-fuchsia-600'
                                         }`}>
                                         {skill.priority}
                                     </span>
                                 </div>
-                                <span className="text-red-600 font-bold">Gap: {skill.gap}%</span>
+                                <span className="text-orange-500 font-bold">Gap: {skill.gap}%</span>
                             </div>
-                            <div className="space-y-2">
+                            <div
+                                className="space-y-2 cursor-pointer hover:bg-gray-50 p-2 rounded -mx-2 transition-colors"
+                                onClick={() => openInsight(skill, 'skill')}
+                            >
                                 <div>
                                     <div className="flex justify-between text-xs text-gray-600 mb-1">
                                         <span>Current Proficiency</span>
@@ -394,7 +455,7 @@ const DKEducationDashboard = () => {
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-3">
                                         <div
-                                            className="bg-orange-400 h-3 rounded-full"
+                                            className="bg-cyan-500/60 h-3 rounded-full"
                                             style={{ width: `${skill.current}%` }}
                                         ></div>
                                     </div>
@@ -406,7 +467,7 @@ const DKEducationDashboard = () => {
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-3">
                                         <div
-                                            className="bg-green-500 h-3 rounded-full"
+                                            className="bg-lime-500 h-3 rounded-full"
                                             style={{ width: `${skill.required}%` }}
                                         ></div>
                                     </div>
@@ -417,24 +478,23 @@ const DKEducationDashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow-lg p-6 border border-indigo-200">
-                {/* ... existing recommendations ... */}
+            <div className="bg-cyan-50 rounded-lg shadow-lg p-6 border border-cyan-100">
                 <h3 className="text-lg font-bold text-gray-800 mb-3">Skill Development Recommendations</h3>
                 <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
-                        <span className="text-indigo-600 font-bold">1.</span>
+                        <span className="text-cyan-600 font-bold">1.</span>
                         <p className="text-gray-700">Prioritize Cloud Computing and Data Analytics training</p>
                     </div>
                     <div className="flex items-start gap-2">
-                        <span className="text-indigo-600 font-bold">2.</span>
+                        <span className="text-cyan-600 font-bold">2.</span>
                         <p className="text-gray-700">Establish industry partnerships for Programming workshops</p>
                     </div>
                     <div className="flex items-start gap-2">
-                        <span className="text-indigo-600 font-bold">3.</span>
+                        <span className="text-cyan-600 font-bold">3.</span>
                         <p className="text-gray-700">Integrate Communication skills across all levels</p>
                     </div>
                     <div className="flex items-start gap-2">
-                        <span className="text-indigo-600 font-bold">4.</span>
+                        <span className="text-cyan-600 font-bold">4.</span>
                         <p className="text-gray-700">Create internship programs with local companies</p>
                     </div>
                 </div>
@@ -447,13 +507,13 @@ const DKEducationDashboard = () => {
             {/* Insights Section */}
             <div className="bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <BookOpen size={24} className="text-indigo-600" />
+                    <BookOpen size={24} className="text-cyan-600" />
                     Regional Industry Insights
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {insights.map((insight, index) => (
                         <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <h4 className="font-bold text-indigo-700 mb-2">{insight.title}</h4>
+                            <h4 className="font-bold text-cyan-600 mb-2">{insight.title}</h4>
                             <p className="text-sm text-gray-700 leading-relaxed">{insight.content}</p>
                         </div>
                     ))}
@@ -463,7 +523,7 @@ const DKEducationDashboard = () => {
             <div className="bg-white rounded-lg shadow-lg p-6">
                 {/* ... existing Industry Hiring Demand ... */}
                 <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Briefcase size={24} className="text-indigo-600" />
+                    <Briefcase size={24} className="text-cyan-600" />
                     Industry Hiring Demand
                 </h3>
                 <div className="overflow-x-auto">
@@ -483,18 +543,22 @@ const DKEducationDashboard = () => {
                                 const gap = industry.demand - industry.available;
                                 const gapPct = ((gap / industry.demand) * 100).toFixed(0);
                                 return (
-                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                                    <tr
+                                        key={index}
+                                        className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+                                        onClick={() => openInsight(industry, 'industry')}
+                                    >
                                         <td className="p-3 font-semibold text-gray-800">{industry.sector}</td>
                                         <td className="p-3 text-center text-gray-700">{industry.demand.toLocaleString()}</td>
                                         <td className="p-3 text-center text-gray-700">{industry.available.toLocaleString()}</td>
                                         <td className="p-3 text-center">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${Number(gapPct) > 40 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${Number(gapPct) > 40 ? 'bg-orange-100 text-orange-600' : 'bg-fuchsia-100 text-fuchsia-600'
                                                 }`}>
                                                 {gap.toLocaleString()}
                                             </span>
                                         </td>
-                                        <td className="p-3 text-center font-semibold text-green-600">₹{industry.avg_salary}L</td>
-                                        <td className="p-3 text-center text-blue-600 font-semibold">↑{industry.growth}%</td>
+                                        <td className="p-3 text-center font-semibold text-lime-600">₹{industry.avg_salary}L</td>
+                                        <td className="p-3 text-center text-cyan-600 font-semibold">↑{industry.growth}%</td>
                                     </tr>
                                 );
                             })}
@@ -505,19 +569,19 @@ const DKEducationDashboard = () => {
 
             {/* ... existing stats grid ... */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-lime-500/90 backdrop-blur-sm rounded-lg p-6 text-white shadow-lg">
                     <h4 className="text-sm opacity-90 mb-2">Total Job Openings</h4>
                     <p className="text-4xl font-bold">14,580</p>
                     <p className="text-xs mt-2 opacity-75">Across all sectors</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-orange-400/90 backdrop-blur-sm rounded-lg p-6 text-white shadow-lg">
                     <h4 className="text-sm opacity-90 mb-2">Talent Shortage</h4>
                     <p className="text-4xl font-bold">5,250</p>
                     <p className="text-xs mt-2 opacity-75">36% gap</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="bg-cyan-500/90 backdrop-blur-sm rounded-lg p-6 text-white shadow-lg">
                     <h4 className="text-sm opacity-90 mb-2">Avg Growth</h4>
                     <p className="text-4xl font-bold">12.4%</p>
                     <p className="text-xs mt-2 opacity-75">Year-over-year</p>
@@ -525,11 +589,11 @@ const DKEducationDashboard = () => {
             </div>
 
             {/* ... existing Action Plan ... */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-lg p-6 border border-blue-200">
+            <div className="bg-cyan-50/50 rounded-lg shadow-lg p-6 border border-cyan-100">
                 <h3 className="text-lg font-bold text-gray-800 mb-3">Action Plan</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white rounded p-4">
-                        <h4 className="font-semibold text-indigo-600 mb-2">For Academia</h4>
+                    <div className="bg-white/80 rounded p-4">
+                        <h4 className="font-semibold text-cyan-600 mb-2">For Academia</h4>
                         <ul className="space-y-1 text-sm text-gray-700">
                             <li>• Align curriculum with IT demand</li>
                             <li>• Establish skill labs</li>
@@ -537,8 +601,8 @@ const DKEducationDashboard = () => {
                             <li>• Employability programs</li>
                         </ul>
                     </div>
-                    <div className="bg-white rounded p-4">
-                        <h4 className="font-semibold text-indigo-600 mb-2">For Industry</h4>
+                    <div className="bg-white/80 rounded p-4">
+                        <h4 className="font-semibold text-cyan-600 mb-2">For Industry</h4>
                         <ul className="space-y-1 text-sm text-gray-700">
                             <li>• Offer internships</li>
                             <li>• Guest lectures & mentorship</li>
@@ -551,22 +615,22 @@ const DKEducationDashboard = () => {
         </div>
     );
 
-
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 shadow-lg">
-                <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold mb-2">Dakshina Kannada District</h1>
-                    <p className="text-indigo-100">Education & Skills Development Dashboard</p>
+        <div className="min-h-screen bg-background dark:bg-slate-900 transition-colors duration-300">
+            <div className="bg-cyan-600 text-white p-6 shadow-lg">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">Dakshina Kannada District</h1>
+                        <p className="text-white/80">Education & Skills Development Dashboard</p>
+                    </div>
 
-                    <div className="flex gap-4 mt-4 flex-wrap">
+                    <div className="flex gap-4 items-end">
                         <div>
                             <label className="text-xs opacity-90 block mb-1">Academic Year</label>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className="bg-white text-gray-800 rounded px-3 py-2 text-sm font-semibold"
+                                className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white rounded px-3 py-2 text-sm font-semibold"
                             >
                                 {years.map(year => (
                                     <option key={year} value={year}>{year}</option>
@@ -578,21 +642,25 @@ const DKEducationDashboard = () => {
                             <select
                                 value={selectedTaluk}
                                 onChange={(e) => setSelectedTaluk(e.target.value)}
-                                className="bg-white text-gray-800 rounded px-3 py-2 text-sm font-semibold"
+                                className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white rounded px-3 py-2 text-sm font-semibold"
                             >
                                 {taluks.map(taluk => (
                                     <option key={taluk} value={taluk}>{taluk}</option>
                                 ))}
                             </select>
                         </div>
-
+                        <button
+                            onClick={() => setShowRecommendations(true)}
+                            className="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors h-[38px]"
+                        >
+                            <Sparkles size={16} className="text-yellow-300" />
+                            <span className="font-semibold text-sm">DK Intelligence</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-
-
-            <div className="bg-white shadow-md border-b border-gray-200">
+            <div className="bg-white dark:bg-slate-800 shadow-md border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex gap-1 overflow-x-auto">
                         {[
@@ -607,8 +675,8 @@ const DKEducationDashboard = () => {
                                 key={tab.id}
                                 onClick={() => setActiveView(tab.id)}
                                 className={`px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap ${activeView === tab.id
-                                    ? 'border-b-3 border-indigo-600 text-indigo-600'
-                                    : 'text-gray-600 hover:text-gray-800'
+                                    ? 'border-b-3 border-cyan-500 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+                                    : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
                                     }`}
                             >
                                 {tab.label}
@@ -626,6 +694,37 @@ const DKEducationDashboard = () => {
                 {activeView === 'industry' && <IndustryDashboard />}
                 {activeView === 'graph' && <KnowledgeGraph />}
             </div>
+
+            {/* Modals */}
+            <InsightModal
+                isOpen={selectedInsight.isOpen}
+                onClose={closeInsight}
+                title={selectedInsight.type === 'skill' ? 'Skill Gap Details' : selectedInsight.type === 'industry' ? 'Industry Sector Insights' : 'Education Stream Analytics'}
+                data={selectedInsight.data}
+                type={selectedInsight.type || 'skill'}
+                onViewReport={
+                    selectedInsight.type === 'skill'
+                        ? () => handleViewReport(selectedInsight.data.skill)
+                        : selectedInsight.type === 'industry'
+                            ? () => handleViewReport(selectedInsight.data.sector)
+                            : undefined
+                }
+            />
+
+            {reportConfig.isOpen && (
+                <DetailedReport
+                    skill={reportConfig.skill}
+                    onClose={closeReport}
+                />
+            )}
+
+            {showRecommendations && (
+                <DKRecommendations onClose={() => setShowRecommendations(false)} />
+            )}
+
+            {showRecommendations && (
+                <DKRecommendations onClose={() => setShowRecommendations(false)} />
+            )}
         </div >
     );
 };
