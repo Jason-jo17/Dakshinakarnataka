@@ -236,8 +236,7 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                         Reset All Filters
                     </Button>
                 </div>
-            </div>
-        </CardContent>
+            </CardContent>
         </Card >
     );
 }
