@@ -5,6 +5,7 @@ import Sidebar from './components/layout/Sidebar';
 import InstitutionDetail from './components/institution/InstitutionDetail';
 import DKEducationDashboard from './components/dashboard/DKEducationDashboard';
 import DistrictDashboard from './components/pages/DistrictDashboard';
+import EEEOverview from './components/pages/EEEOverview';
 import InstitutionsView from './components/pages/InstitutionsView';
 import AssessmentsView from './components/pages/AssessmentsView';
 import IndustryDemandView from './components/pages/IndustryDemandView';
@@ -22,7 +23,7 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
-  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('map');
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('map');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -69,7 +70,15 @@ function App() {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <DistrictDashboard onNavigate={(view) => setCurrentView(view as any)} />;
+        return <DistrictDashboard onNavigate={(view, tab) => {
+          setCurrentView(view as any);
+          if (view === 'analytics' && tab) setDashboardTab(tab);
+        }} />;
+      case 'eee-overview':
+        return <EEEOverview onNavigate={(view, tab) => {
+          setCurrentView(view as any);
+          if (view === 'analytics' && tab) setDashboardTab(tab);
+        }} />;
       case 'analytics':
         return <DKEducationDashboard
           initialTab={dashboardTab}

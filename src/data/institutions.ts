@@ -78,8 +78,16 @@ const remainingLegacyInstitutions = legacyInstitutions.filter(l =>
 const rawInstitutions = [
     ...mergedUserInstitutions,
     ...remainingLegacyInstitutions,
+
     ...COMPANIES
 ];
+
+console.log('Institutions Debug:', {
+    user: mergedUserInstitutions.length,
+    legacy: legacyInstitutions.length,
+    remaining: remainingLegacyInstitutions.length,
+    raw: rawInstitutions.length
+});
 
 export const INSTITUTIONS: Institution[] = rawInstitutions.map(inst => {
     try {

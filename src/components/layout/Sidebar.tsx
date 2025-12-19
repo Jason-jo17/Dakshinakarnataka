@@ -1,13 +1,13 @@
 import React from 'react';
 import type { Institution } from '../../types/institution';
-import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search } from 'lucide-react';
+import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap } from 'lucide-react';
 
 interface SidebarProps {
     institutions: Institution[];
     selectedId: string | null;
     onSelect: (id: string) => void;
-    currentView: 'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics';
-    onViewChange: (view: 'map' | 'dashboard' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics') => void;
+    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics';
+    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics') => void;
     showHeatmap: boolean;
     onToggleHeatmap: () => void;
     isDarkMode: boolean;
@@ -75,6 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 
                 <MenuItem view="dashboard" icon={LayoutDashboard} label="Dashboard" />
+                <MenuItem view="eee-overview" icon={Zap} label="EEE Overview" />
 
                 <div className="my-2 text-xs font-semibold text-slate-500 uppercase tracking-wider px-4">Map Control</div>
                 <MenuItem view="map" icon={MapPin} label="Interactive Map" />

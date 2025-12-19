@@ -21,5 +21,9 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['leaflet']
+  },
+  server: {
+    port: 3015,
+    host: true
   }
 })

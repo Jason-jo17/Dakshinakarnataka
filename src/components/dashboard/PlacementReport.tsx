@@ -16,28 +16,27 @@ const ecosystemData = [
         avg: 16.25,
         highest: 55.00,
         rate: 93,
-        strength: 'National Benchmark / PSUs',
-        narrative: "The Apex Fortress: NITK remains the benchmark, insulated from the worst of the downturn by strong PSU hiring (Chemical/Mech) and elite tech retention. However, even here, IT placement rates dipped from ~100% to 74%, signaling that the 'mass-premium' segment is freezing even for IIT/NIT graduates.",
+        strength: 'National Benchmark',
+        narrative: "The Apex Fortress: NITK demonstrated resilience with a 93% placement rate (up from 75% in previous dip), reinforced by PSU hiring and elite tech retention. Average packages consolidated at ₹16.25 LPA, reflecting market realism.",
         chartType: 'bar',
         chartLabel: 'Salary Distribution (LPA)',
         chartData: [
             { name: 'Median', value: 14.21 },
             { name: 'Average', value: 16.25 },
-            { name: 'CSE Avg', value: 25.00 },
-            { name: 'IT Avg', value: 24.56 }
+            { name: 'Highest', value: 55.00 }
         ]
     },
     {
         id: 'manipal',
-        name: 'MIT Manipal (MAHE)',
+        name: 'MIT Manipal',
         category: 'Private University',
         color: '#FDBA74CC', // Mellow Orange-300
         median: 10.05,
         avg: 12.31,
         highest: 69.25,
-        rate: 80,
-        strength: 'Scale & Alumni Network',
-        narrative: "The V-Shaped Recovery: MIT saw a sharp correction in 2024 (dropping to 73%) but rebounded to 80% in 2025. It exhibits a classic 'Barbell' profile: The top 5% secure massive 50LPA+ offers (Microsoft/Amazon), while the median has finally corrected upwards to 10LPA, distancing itself from regional peers.",
+        rate: 80.1,
+        strength: 'Scale & Network',
+        narrative: "Strong Recovery: MIT improved its placement rate to 80.1%, with a massive ₹69.25 LPA top offer. The institution maintains a 'Barbell' profile, balancing elite tech offers with mass recruitment volume.",
         chartType: 'line',
         chartLabel: 'Placement Rate Trend (%)',
         chartData: [
@@ -47,22 +46,41 @@ const ecosystemData = [
         ]
     },
     {
+        id: 'nmamit',
+        name: 'NMAMIT (Nitte)',
+        category: 'Private University',
+        color: '#818CF8CC', // Mellow Indigo-400
+        median: 8.5, // Estimated from Avg 10
+        avg: 10.00,
+        highest: 52.00,
+        rate: 88, // Midpoint of 75-100%
+        strength: 'Core & Tech Mix',
+        narrative: "Quality Leap: NMAMIT has seen average packages rise to ₹10 LPA, bridging the gap with top-tier peers. With offers up to ₹52 LPA and a strong placement rate range (75-100%), it cements its status as a premier regional choice.",
+        chartType: 'bar',
+        chartLabel: 'Salary Growth (LPA)',
+        chartData: [
+            { name: 'Prior Avg', value: 7.5 },
+            { name: 'Curr Avg', value: 10.0 },
+            { name: 'Highest', value: 52.0 }
+        ]
+    },
+    {
         id: 'sjec',
         name: 'St. Joseph (SJEC)',
         category: 'Tier-2 Stable',
         color: '#86EFACCC', // Mellow Green-300
         median: 5.60,
-        avg: 6.00,
-        highest: 24.00,
-        rate: 77,
-        strength: 'Median Stability',
-        narrative: "The Bell Curve Leader: SJEC prioritizes consistency. It boasts the highest median (5.6 LPA) among affiliated colleges, outperforming Sahyadri and MITE in this metric. It avoided the massive rate drops of peers (holding ~77%), suggesting a loyal recruiter base that values disciplined graduates over flash.",
+        avg: 5.60,
+        highest: 24.50,
+        rate: 71,
+        strength: 'Consistency',
+        narrative: "Disciplined Output: SJEC continues to deliver consistent results with a 71% placement rate and average packages around ₹5.6 LPA. Top offers reached ₹24.50 LPA, showcasing access to high-value roles.",
         chartType: 'pie',
         chartLabel: 'Recruiter Mix Est.',
         chartData: [
-            { name: 'High Value', value: 15 },
-            { name: 'Mass/Core', value: 65 },
-            { name: 'Service', value: 20 }
+            { name: 'Product/Core', value: 25 },
+            { name: 'Services', value: 60 },
+            { name: 'Other', value: 15 }
         ]
     },
     {
@@ -72,55 +90,70 @@ const ecosystemData = [
         color: '#FCA5A5CC', // Mellow Red-300
         median: 4.75,
         avg: 6.30,
-        highest: 72.00,
-        rate: 57,
-        strength: 'Japanese Corridor',
-        narrative: "The Record Breaker: Sahyadri has shattered regional records with a massive 72 LPA top offer. While its general placement rate (57%) shows a 'Barbell' distribution, the Japanese corridor (Belc, Aisan) combined with this new peak confirms it as the top destination for high-risk, high-reward outliers.",
+        highest: 47.24,
+        rate: 53,
+        strength: 'Innovation Hub',
+        narrative: "The Outlier Factory: Sahyadri continues to produce high-value outliers with a ₹47.24 LPA top package and an average of ₹6.30 LPA. While the overall rate is 53%, the focus remains on high-quality, specialized placements.",
         chartType: 'bar',
-        chartLabel: 'Top Recruiter Packages (LPA)',
+        chartLabel: 'Top Packages (LPA)',
         chartData: [
-            { name: 'Top Global', value: 72.00 },
-            { name: 'Belc', value: 47.24 },
+            { name: 'Top Offer', value: 47.24 },
             { name: 'Microsoft', value: 40.00 },
-            { name: 'IMV', value: 36.04 },
-            { name: 'Aisan', value: 34.42 }
+            { name: 'Avg Top 10', value: 28.00 }
         ]
     },
     {
-        id: 'nmamit',
-        name: 'NMAMIT (Nitte)',
-        category: 'Private University',
-        color: '#818CF8CC', // Mellow Indigo-400
-        median: 5.50,
-        avg: 7.50,
-        highest: 52.00,
-        rate: 70,
-        strength: 'Core Engineering',
-        narrative: "Bridging the Gap: NMAMIT sits between the regional colleges and Manipal. Its median has risen to 5.5 LPA (UG) and 8.5 LPA (PG). Like Sahyadri, it has a Japanese channel, but maintains a more balanced engineering profile. Note the drop in total offers (-27%) despite more companies visiting.",
+        id: 'srinivas',
+        name: 'Srinivas Institute',
+        category: 'Volume Leader',
+        color: '#A78BFA', // Purple 400
+        median: 4.0,
+        avg: 4.48,
+        highest: 5.0,
+        rate: 86.9,
+        strength: 'High Placement Rate',
+        narrative: "Mass Consistency: Srinivas Institute boasts a remarkable 86.9% placement rate, focusing on high employability for mass-recruiting roles with consistent packages averaging ₹4.48 LPA.",
         chartType: 'bar',
-        chartLabel: 'Median Growth (LPA)',
+        chartLabel: 'Placement Stats',
         chartData: [
-            { name: '21-22', value: 4.5 },
-            { name: '22-23', value: 4.5 },
-            { name: '23-24', value: 5.5 }
+            { name: 'Avg', value: 4.48 },
+            { name: 'Highest', value: 5.0 }
         ]
     },
     {
-        id: 'mite',
-        name: 'MITE Moodbidri',
+        id: 'canara',
+        name: 'Canara Engineering',
         category: 'Tier-2 Stable',
-        color: '#FF9800', // Warning Orange
-        median: 4.60,
-        avg: 5.00,
-        highest: 50.00,
-        rate: 86,
-        strength: 'Rate Retention',
-        narrative: "The Retention Anomaly: MITE reported an 86% placement rate when others fell to 60%. This retention is its key strength, alongside breaking the 50LPA barrier in 2024. Strong ties with the 'Big 4' (EY, PWC) indicate a focus on Tech-Consulting roles.",
+        color: '#2DD4BF', // Teal 400
+        median: 5.0,
+        avg: 5.95,
+        highest: 23.68,
+        rate: 58,
+        strength: 'Core Focus',
+        narrative: "Value Engineering: Canara Engineering delivers solid value with a ₹5.95 LPA average and offers peaking at ₹23.68 LPA, maintaining a 58% placement rate in a challenging market.",
         chartType: 'bar',
-        chartLabel: 'Placement Rate Comparison (%)',
+        chartLabel: 'Salary Stats',
         chartData: [
-            { name: 'MITE', value: 86 },
-            { name: 'Peer Avg', value: 65 }
+            { name: 'Avg', value: 5.95 },
+            { name: 'Highest', value: 23.68 }
+        ]
+    },
+    {
+        id: 'alvas',
+        name: 'Alva\'s Institute',
+        category: 'Rural Champion',
+        color: '#F472B6', // Pink 400
+        median: 4.5,
+        avg: 5.0,
+        highest: 21.0,
+        rate: 80,
+        strength: 'Rural Outreach',
+        narrative: "Talent Hub: Alva's Institute achieves a strong 80% placement rate with top offers reaching ₹21 LPA, proving that rural-located institutes can compete with city-based peers.",
+        chartType: 'bar',
+        chartLabel: 'Performance',
+        chartData: [
+            { name: 'Avg', value: 5.0 },
+            { name: 'Highest', value: 21.0 }
         ]
     }
 ];
