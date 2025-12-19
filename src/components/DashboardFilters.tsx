@@ -196,10 +196,7 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                             <SelectItem value="AJ Institute">AJ Institute of Engineering</SelectItem>
                         </SelectContent>
                     </Select>
-                </div>
 
-                {/* Third Row: Company Type & Reset */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
                     {/* Company Type Filter */}
                     <Select value={filters.companyType || 'all'} onValueChange={(v: string) => handleChange('companyType', v)}>
                         <SelectTrigger className="h-9 text-xs">
@@ -216,30 +213,31 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                             <SelectItem value="Product Company">Product Company</SelectItem>
                         </SelectContent>
                     </Select>
-
-                    {/* Reset Button */}
-                    <div className="md:col-span-3 flex justify-end">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
-                            onClick={() => {
-                                onFilterChange({
-                                    sector: 'all',
-                                    industry: 'all',
-                                    branch: 'all',
-                                    domain: 'all',
-                                    institution: 'all',
-                                    companyType: 'all'
-                                });
-                            }}
-                        >
-                            <RefreshCw size={16} className="mr-2" />
-                            Reset All Filters
-                        </Button>
-                    </div>
                 </div>
-            </CardContent>
-        </Card>
+
+                {/* Reset Button */}
+                <div className="flex justify-end">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 text-slate-500 hover:text-blue-600 hover:bg-blue-50"
+                        onClick={() => {
+                            onFilterChange({
+                                sector: 'all',
+                                industry: 'all',
+                                branch: 'all',
+                                domain: 'all',
+                                institution: 'all',
+                                companyType: 'all'
+                            });
+                        }}
+                    >
+                        <RefreshCw size={16} className="mr-2" />
+                        Reset All Filters
+                    </Button>
+                </div>
+            </div>
+        </CardContent>
+        </Card >
     );
 }
