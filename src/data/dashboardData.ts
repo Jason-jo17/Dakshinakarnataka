@@ -473,7 +473,7 @@ export const dashboardData = {
         { year: '2021', rate: 62, avgPackage: 4.0, studentsPlaced: 2350 },
         { year: '2022', rate: 68, avgPackage: 4.3, studentsPlaced: 2700 },
         { year: '2023', rate: 64, avgPackage: 4.5, studentsPlaced: 2850 },
-        { year: '2024', rate: 72, avgPackage: 4.8, studentsPlaced: 3400 }
+        { year: '2024', rate: 62, avgPackage: 4.2, studentsPlaced: 3400 }
     ],
 
     // Top recruiters with actual data

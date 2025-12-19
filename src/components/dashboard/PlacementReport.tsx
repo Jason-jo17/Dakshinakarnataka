@@ -100,7 +100,7 @@ const PlacementReport = () => {
                             <TrendingUp size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">62%</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{dashboardData.overview.placementRate}%</h3>
                     <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
                         <TrendingUp size={12} />
                         <span>4%</span>
@@ -128,7 +128,7 @@ const PlacementReport = () => {
                             <DollarSign size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">₹4.2 LPA</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">₹{dashboardData.overview.avgFresherSalary} LPA</h3>
                 </div>
 
                 {/* Card 4: Highest Package */}
