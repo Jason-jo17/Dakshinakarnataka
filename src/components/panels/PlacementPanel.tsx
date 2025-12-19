@@ -1,4 +1,3 @@
-import React from 'react';
 import StatCard from '../StatCard';
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { DollarSign, Briefcase, TrendingUp, Building, Trophy, Users } from "lucide-react";
@@ -7,7 +6,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Badge } from "../ui/badge";
 import { dashboardData } from '../../data/dashboardData';
 
-export default function PlacementPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function PlacementPanel({ filters }: PanelProps) {
     const placementTrend = dashboardData.placementTrends;
     const recruiters = dashboardData.topRecruiters;
     const salaryData = dashboardData.salaryBenchmarks.slice(0, 6);

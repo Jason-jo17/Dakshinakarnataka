@@ -64,7 +64,17 @@ const Progress = ({ value, className = "", indicatorClassName = "" }: any) => (
 
 // --- MAIN COMPONENT ---
 
-export default function GapPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function GapPanel({ filters }: PanelProps) {
+    void filters;
     // RESEARCH DATA: Hardware & Robotics for Dakshina Kannada Region
     // Added to supplement existing dashboard data
     const hardwareInsights = [
@@ -155,8 +165,8 @@ export default function GapPanel() {
                                             <td className="p-4 align-middle text-right">
                                                 <div className="flex flex-col items-end gap-1">
                                                     <span className={`font-bold ${s.gapPercentage >= 50 ? 'text-red-600' :
-                                                            s.gapPercentage >= 30 ? 'text-orange-600' :
-                                                                'text-yellow-600'
+                                                        s.gapPercentage >= 30 ? 'text-orange-600' :
+                                                            'text-yellow-600'
                                                         }`}>
                                                         {s.gapPercentage}%
                                                     </span>

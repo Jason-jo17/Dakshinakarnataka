@@ -1,12 +1,21 @@
 import React from 'react';
 import StatCard from '../StatCard';
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Target, Zap, Settings, Award, Building2, GraduationCap, TrendingUp, AlertCircle } from "lucide-react";
+import { Target, Zap, Settings, Award, Building2, GraduationCap, TrendingUp } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
-export default function CoePanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function CoePanel({ filters }: PanelProps) {
     // Expanded COEs and Training Infrastructure
     const coes = [
         // Academic COEs
@@ -286,14 +295,14 @@ export default function CoePanel() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <StatCard
                     title="Total COEs & Training Centers"
-                    value={stats.total}
+                    value={stats.total.toString()}
                     icon={Target}
                     color="blue"
                     subtitle="Academic + Govt + Industry"
                 />
                 <StatCard
                     title="High Performing"
-                    value={stats.highPerforming}
+                    value={stats.highPerforming.toString()}
                     icon={Zap}
                     color="green"
                     subtitle="Score > 80"
@@ -450,8 +459,8 @@ export default function CoePanel() {
                                             <Badge
                                                 variant="outline"
                                                 className={`text-xs ${coe.type === 'Academic COE' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                        coe.type.includes('Government') ? 'bg-green-50 text-green-700 border-green-200' :
-                                                            'bg-orange-50 text-orange-700 border-orange-200'
+                                                    coe.type.includes('Government') ? 'bg-green-50 text-green-700 border-green-200' :
+                                                        'bg-orange-50 text-orange-700 border-orange-200'
                                                     }`}
                                             >
                                                 {coe.type}
@@ -465,8 +474,8 @@ export default function CoePanel() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <span className={`font-bold text-lg ${coe.performance_score >= 85 ? 'text-green-600' :
-                                                    coe.performance_score >= 75 ? 'text-blue-600' :
-                                                        'text-orange-600'
+                                                coe.performance_score >= 75 ? 'text-blue-600' :
+                                                    'text-orange-600'
                                                 }`}>
                                                 {coe.performance_score}
                                             </span>

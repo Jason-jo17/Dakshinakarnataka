@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, TrendingUp, Target, MapPin, GraduationCap, Briefcase, BookOpen, Sparkles, Activity, DollarSign, Percent } from 'lucide-react';
+import { Users, TrendingUp, Target, MapPin, Briefcase, BookOpen, Sparkles, Activity, DollarSign, Percent } from 'lucide-react';
 import KnowledgeGraph from './KnowledgeGraph';
 import { INSTITUTIONS } from '../../data/institutions';
 import SkillsRadarChart from './SkillsRadarChart';

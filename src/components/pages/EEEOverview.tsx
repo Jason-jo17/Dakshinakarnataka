@@ -207,7 +207,7 @@ const EEEOverview: React.FC<{ onNavigate: (view: 'map' | 'institutions' | 'indus
 
             {/* Leading Companies Section */}
             <div className="pt-4">
-                <LeadingCompanies onNavigate={onNavigate} />
+                <LeadingCompanies />
             </div>
         </div>
     );

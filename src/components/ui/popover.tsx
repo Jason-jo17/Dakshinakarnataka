@@ -9,13 +9,13 @@ export const Popover = ({ children }) => {
     </PopoverContext.Provider>
 }
 
-export const PopoverTrigger = ({ asChild, children }) => {
+export const PopoverTrigger = ({ asChild, children }: { asChild?: boolean; children: React.ReactNode }) => {
     const ctx = React.useContext(PopoverContext)
-    const child = asChild ? React.Children.only(children) : children
+    const child = asChild && React.isValidElement(children) ? React.Children.only(children) : children
     return React.cloneElement(child as React.ReactElement, {
-        onClick: (e) => {
-            child.props.onClick?.(e)
-            ctx.setOpen(!ctx.open)
+        onClick: (e: React.MouseEvent) => {
+            (child as React.ReactElement).props.onClick?.(e)
+            ctx?.setOpen(!ctx.open)
         }
     })
 }

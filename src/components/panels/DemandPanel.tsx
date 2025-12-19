@@ -62,7 +62,19 @@ const CustomContent = (props: any) => {
     );
 };
 
-export default function DemandPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function DemandPanel({ filters }: PanelProps) {
+    // Suppress unused warning until filter logic is fully implemented
+    void filters;
+
     // Tree map data from actual Dakshina Kannada job market
     const treeMapData = [
         { name: 'Python Dev', size: 398, fill: '#3b82f6', companies: 'UniCourt, Winman, Bix Bytes' },

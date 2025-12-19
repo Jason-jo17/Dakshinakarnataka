@@ -38,7 +38,17 @@ const Progress = ({ value, className, indicatorClassName }: any) => (
     </div>
 );
 
-export default function AcceleratorPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function AcceleratorPanel({ filters }: PanelProps) {
+    void filters;
     // Data for 17 Unique Dakshina Kannada Institutions (Excluding Udupi/Manipal/Nitte)
     const funnelData = [
         { value: 24500, name: 'Total Students', fill: '#94a3b8' },

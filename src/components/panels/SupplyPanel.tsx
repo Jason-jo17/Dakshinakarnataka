@@ -53,7 +53,18 @@ const StatCard = ({ title, value, icon: Icon, color }: any) => {
     );
 };
 
-export default function SupplyPanel() {
+
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function SupplyPanel({ filters }: PanelProps) {
+    void filters;
     // Calculate dynamic stats
     const totalStudents = 34700;
     const annualGraduates = Math.round(totalStudents / 4); // Approx 4-year programs

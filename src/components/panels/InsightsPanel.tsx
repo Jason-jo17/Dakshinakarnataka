@@ -1,9 +1,18 @@
-import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Lightbulb, AlertTriangle, ArrowRight, Zap, TrendingUp } from "lucide-react";
 import { Button } from "../ui/button";
 
-export default function InsightsPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function InsightsPanel({ filters }: PanelProps) {
+    void filters;
     return (
         <div className="space-y-6">
             {/* Main Action Cards Grid */}

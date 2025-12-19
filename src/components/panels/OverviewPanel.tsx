@@ -1,11 +1,19 @@
-import React from 'react';
 import StatCard from '../StatCard';
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Briefcase, Users, TrendingUp, DollarSign, Activity, Percent } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { dashboardData } from '../../data/dashboardData';
 
-export default function OverviewPanel() {
+interface PanelProps {
+    filters: {
+        sector: string;
+        industry: string;
+        domain: string;
+        institution: string;
+    };
+}
+
+export default function OverviewPanel({ filters }: PanelProps) {
     // Real Dakshina Kannada sector-wise data
     const demandSupplyData = [
         { name: 'IT/ITES', demand: 850, supply: 620, sector: 'Primary' },
