@@ -2,10 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "./ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
-import { Calendar as CalendarIcon, Filter, RefreshCw } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Calendar } from "./ui/calendar";
-import { format } from "date-fns";
+import { Filter, RefreshCw } from "lucide-react";
 
 interface FilterState {
     sector: string;
@@ -22,8 +19,6 @@ interface DashboardFiltersProps {
 }
 
 export default function DashboardFilters({ filters, onFilterChange }: DashboardFiltersProps) {
-    const [date, setDate] = React.useState<Date | null>(null);
-
     const handleChange = (key: keyof FilterState, value: string) => {
         onFilterChange({ ...filters, [key]: value });
     };
@@ -201,27 +196,6 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                             <SelectItem value="AJ Institute">AJ Institute of Engineering</SelectItem>
                         </SelectContent>
                     </Select>
-
-                    {/* Date Picker */}
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant={"outline"}
-                                className={`h-9 text-xs justify-start text-left font-normal ${!date && "text-muted-foreground"}`}
-                            >
-                                <CalendarIcon className="mr-2 h-3 w-3" />
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={(d: any) => setDate(d)}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
                 </div>
 
                 {/* Third Row: Company Type & Reset */}
@@ -258,7 +232,6 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                                     institution: 'all',
                                     companyType: 'all'
                                 });
-                                setDate(null);
                             }}
                         >
                             <RefreshCw size={16} className="mr-2" />

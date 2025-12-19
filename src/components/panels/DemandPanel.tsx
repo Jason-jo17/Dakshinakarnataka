@@ -5,6 +5,7 @@ import { ResponsiveContainer, Treemap, Tooltip } from 'recharts';
 import StatCard from '../StatCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { dashboardData } from '../../data/dashboardData';
+import LeadingCompanies from '../dashboard/LeadingCompanies';
 
 const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -368,6 +369,9 @@ export default function DemandPanel({ filters }: PanelProps) {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Leading Companies Section */}
+            <LeadingCompanies />
         </div>
     );
 }
