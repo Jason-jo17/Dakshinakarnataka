@@ -3,6 +3,8 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMont
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export const Calendar = ({ mode, selected, onSelect, className, initialFocus }: { mode?: string, selected?: Date | null, onSelect?: (date: Date | null) => void, className?: string, initialFocus?: boolean } & React.HTMLAttributes<HTMLDivElement>) => {
+    void mode;
+    void initialFocus;
     const [currentMonth, setCurrentMonth] = React.useState(new Date())
 
     const days = eachDayOfInterval({
