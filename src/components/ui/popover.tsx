@@ -2,7 +2,7 @@ import * as React from "react"
 
 const PopoverContext = React.createContext<{ open: boolean; setOpen: (v: boolean) => void } | null>(null)
 
-export const Popover = ({ children }) => {
+export const Popover = ({ children }: { children: React.ReactNode }) => {
     const [open, setOpen] = React.useState(false)
     return <PopoverContext.Provider value={{ open, setOpen }}>
         <div className="relative inline-block">{children}</div>
@@ -11,12 +11,15 @@ export const Popover = ({ children }) => {
 
 export const PopoverTrigger = ({ asChild, children }: { asChild?: boolean; children: React.ReactNode }) => {
     const ctx = React.useContext(PopoverContext)
-    const child = asChild && React.isValidElement(children) ? React.Children.only(children) : children
-    return React.cloneElement(child as React.ReactElement, {
+    const child = asChild && React.isValidElement(children) ? React.Children.only(children) : <button>{children}</button>
+
+    // safe cast to handle props
+    const childElement = child as React.ReactElement<any>;
+
+    return React.cloneElement(childElement, {
         onClick: (e: React.MouseEvent) => {
-            const childProps = (child as React.ReactElement).props;
-            if (childProps && typeof childProps.onClick === 'function') {
-                childProps.onClick(e);
+            if (childElement.props && typeof childElement.props.onClick === 'function') {
+                childElement.props.onClick(e);
             }
             ctx?.setOpen(!ctx.open)
         }
