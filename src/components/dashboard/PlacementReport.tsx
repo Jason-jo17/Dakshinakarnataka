@@ -3,7 +3,7 @@ import {
     ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
-import { Trophy, TrendingDown, TrendingUp, Globe, Activity, ChevronRight, Users, DollarSign, Building, Briefcase } from 'lucide-react';
+import { Trophy, TrendingUp, ChevronRight, Users, DollarSign, Building, Briefcase } from 'lucide-react';
 import { dashboardData } from '../../data/dashboardData';
 
 // --- RICH DATA OVERRIDES (Narratives & Colors) ---

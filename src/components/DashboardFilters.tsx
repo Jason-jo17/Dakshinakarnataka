@@ -217,7 +217,7 @@ export default function DashboardFilters({ filters, onFilterChange }: DashboardF
                             <Calendar
                                 mode="single"
                                 selected={date}
-                                onSelect={(d: Date | null) => setDate(d)}
+                                onSelect={(d: any) => setDate(d)}
                                 initialFocus
                             />
                         </PopoverContent>

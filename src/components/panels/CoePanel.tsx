@@ -16,6 +16,7 @@ interface PanelProps {
 }
 
 export default function CoePanel({ filters }: PanelProps) {
+    void filters;
     // Expanded COEs and Training Infrastructure
     const coes = [
         // Academic COEs

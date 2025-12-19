@@ -15,6 +15,7 @@ interface DashboardProps {
 }
 
 const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview', onNavigate }) => {
+    void onNavigate;
     const [activeView, setActiveView] = useState(initialTab);
     const [selectedTaluk, setSelectedTaluk] = useState('All');
     const [selectedYear, setSelectedYear] = useState('2024-25');

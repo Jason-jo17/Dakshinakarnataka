@@ -1,5 +1,6 @@
+```
 import React from 'react';
-import { ArrowLeft, Download, School, Trophy, Briefcase, TrendingUp, Cpu, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Download, School, Trophy, Briefcase, Cpu, AlertTriangle } from 'lucide-react';
 
 interface ReportProps {
     onBack: () => void;
@@ -188,7 +189,7 @@ const EngineeringEcosystemReport: React.FC<ReportProps> = ({ onBack }) => {
                                         <span className="text-xs text-slate-500">Target: {s.employer}</span>
                                     </div>
                                     <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-500" style={{ width: `${(s.val / 40) * 100}%` }}></div>
+                                        <div className="h-full bg-purple-500" style={{ width: `${ (s.val / 40) * 100 }% ` }}></div>
                                     </div>
                                 </div>
                             ))}
@@ -217,10 +218,11 @@ const EngineeringEcosystemReport: React.FC<ReportProps> = ({ onBack }) => {
                             <div key={idx} className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                                 <div className="flex justify-between items-start mb-2">
                                     <h4 className="font-bold text-slate-800 dark:text-white">{gap.skill}</h4>
-                                    <span className={`px-2 py-0.5 text-xs font-bold rounded ${gap.gap === 'Critical' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                        gap.gap === 'High' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                        }`}>{gap.gap} Gap</span>
+                                    <span className={`px - 2 py - 0.5 text - xs font - bold rounded ${
+    gap.gap === 'Critical' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+    gap.gap === 'High' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+} `}>{gap.gap} Gap</span>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                                     {gap.desc}

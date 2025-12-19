@@ -14,6 +14,7 @@ interface PanelProps {
 }
 
 export default function OverviewPanel({ filters }: PanelProps) {
+    void filters;
     // Real Dakshina Kannada sector-wise data
     const demandSupplyData = [
         { name: 'IT/ITES', demand: 850, supply: 620, sector: 'Primary' },

@@ -16,6 +16,7 @@ interface PanelProps {
 }
 
 export default function PlacementPanel({ filters }: PanelProps) {
+    void filters;
     const placementTrend = dashboardData.placementTrends;
     const recruiters = dashboardData.topRecruiters;
     const salaryData = dashboardData.salaryBenchmarks.slice(0, 6);

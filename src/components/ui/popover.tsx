@@ -14,7 +14,10 @@ export const PopoverTrigger = ({ asChild, children }: { asChild?: boolean; child
     const child = asChild && React.isValidElement(children) ? React.Children.only(children) : children
     return React.cloneElement(child as React.ReactElement, {
         onClick: (e: React.MouseEvent) => {
-            (child as React.ReactElement).props.onClick?.(e)
+            const childProps = (child as React.ReactElement).props;
+            if (childProps && typeof childProps.onClick === 'function') {
+                childProps.onClick(e);
+            }
             ctx?.setOpen(!ctx.open)
         }
     })

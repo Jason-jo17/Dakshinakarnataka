@@ -2,7 +2,7 @@ import * as React from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay } from "date-fns"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-export const Calendar = ({ mode, selected, onSelect, className, initialFocus, ...props }: { mode?: string, selected?: Date | null, onSelect?: (date: Date | null) => void, className?: string, initialFocus?: boolean } & React.HTMLAttributes<HTMLDivElement>) => {
+export const Calendar = ({ mode, selected, onSelect, className, initialFocus }: { mode?: string, selected?: Date | null, onSelect?: (date: Date | null) => void, className?: string, initialFocus?: boolean } & React.HTMLAttributes<HTMLDivElement>) => {
     const [currentMonth, setCurrentMonth] = React.useState(new Date())
 
     const days = eachDayOfInterval({
@@ -19,7 +19,7 @@ export const Calendar = ({ mode, selected, onSelect, className, initialFocus, ..
             </div>
             <div className="grid grid-cols-7 gap-1 text-center text-xs">
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => <div key={d} className="text-muted-foreground">{d}</div>)}
-                {days.map((day, i) => (
+                {days.map((day) => (
                     <button
                         key={day.toString()}
                         onClick={() => onSelect && onSelect(day)}
