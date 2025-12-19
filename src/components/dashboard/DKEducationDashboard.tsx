@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, TrendingUp, Target, MapPin, GraduationCap, Briefcase, BookOpen, Sparkles } from 'lucide-react';
+import { Users, TrendingUp, Target, MapPin, GraduationCap, Briefcase, BookOpen, Sparkles, Activity, DollarSign, Percent } from 'lucide-react';
 import KnowledgeGraph from './KnowledgeGraph';
 import { INSTITUTIONS } from '../../data/institutions';
 import SkillsRadarChart from './SkillsRadarChart';
@@ -269,51 +269,97 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
 
     const OverviewDashboard = () => (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-blue-50/80 dark:bg-blue-900/30 backdrop-blur-sm rounded-lg p-6 text-blue-900 dark:text-blue-100 shadow-sm border border-blue-100 dark:border-blue-700">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium opacity-90">Engineering Students</p>
-                            <h3 className="text-3xl font-bold mt-1">{(stats.totalStudents / 1000).toFixed(1)}K+</h3>
-                            <p className="text-xs mt-2 font-medium opacity-75">Approx. Enrollment</p>
-                        </div>
-                        <Users size={40} className="opacity-80" />
-                    </div>
-                </div>
-
+            {/* Top Stats Row - Clickable for Navigation */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* 1. Active Job Openings */}
                 <div
-                    className="bg-indigo-50/80 dark:bg-indigo-900/30 backdrop-blur-sm rounded-lg p-6 text-indigo-900 dark:text-indigo-100 shadow-sm border border-indigo-100 dark:border-indigo-700 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                    onClick={() => setActiveView('industry')}
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium opacity-90">Institutions</p>
-                            <h3 className="text-3xl font-bold mt-1">{stats.totalInstitutions}+</h3>
-                            <p className="text-xs mt-2 font-medium opacity-75">Major Colleges</p>
+                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Job Openings</p>
+                        <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
+                            <Briefcase size={16} />
                         </div>
-                        <GraduationCap size={40} className="opacity-80" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">1,000</h3>
+                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
+                        <TrendingUp size={12} />
+                        <span>15%</span>
                     </div>
                 </div>
 
-                <div className="bg-emerald-50/80 dark:bg-emerald-900/30 backdrop-blur-sm rounded-lg p-6 text-emerald-900 dark:text-emerald-100 shadow-sm border border-emerald-100 dark:border-emerald-700">
-                    <div className="flex items-center justify-between">
+                {/* 2. Students Placed */}
+                <div
+                    onClick={() => setActiveView('placement')}
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                    <div className="flex justify-between items-start mb-2">
                         <div>
-                            <p className="text-sm opacity-90">Annual Placements</p>
-                            <h3 className="text-3xl font-bold mt-1">4.5K+</h3>
-                            <p className="text-xs mt-2 opacity-75">2024-25 Season</p>
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Students Placed</p>
+                            <p className="text-[10px] text-gray-400">(2024-25)</p>
                         </div>
-                        <TrendingUp size={40} className="opacity-80" />
+                        <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-100 transition-colors">
+                            <Users size={16} />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">3,400</h3>
+                </div>
+
+                {/* 3. Skill Gap Index */}
+                <div
+                    onClick={() => setActiveView('skills')}
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                    <div className="flex justify-between items-start mb-1">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Skill Gap Index</p>
+                        <div className="p-1.5 bg-orange-50 rounded-lg text-orange-600 group-hover:bg-orange-100 transition-colors">
+                            <Activity size={16} />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">28%</h3>
+                    <p className="text-[10px] text-gray-400 leading-tight mt-1 mb-2">Diff. between industry demand & student readiness</p>
+                    <div className="flex items-center gap-1 text-xs font-medium text-red-500">
+                        <TrendingUp size={12} className="transform rotate-180" />
+                        <span>-5% vs last year</span>
                     </div>
                 </div>
 
-                <div className="bg-amber-50/80 dark:bg-amber-900/30 backdrop-blur-sm rounded-lg p-6 text-amber-900 dark:text-amber-100 shadow-sm border border-amber-100 dark:border-amber-700">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm opacity-90">Active Job Openings</p>
-                            <h3 className="text-3xl font-bold mt-1">850-900</h3>
-                            <p className="text-xs mt-2 opacity-75">Tech Positions</p>
+                {/* 4. Avg Placement Rate */}
+                <div
+                    onClick={() => setActiveView('placement')}
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg Placement Rate</p>
+                        <div className="p-1.5 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
+                            <Percent size={16} />
                         </div>
-                        <Briefcase size={40} className="opacity-80" />
                     </div>
+                    <h3 className="text-2xl font-bold text-gray-900">62%</h3>
+                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
+                        <TrendingUp size={12} />
+                        <span>4%</span>
+                    </div>
+                </div>
+
+                {/* 5. Avg Fresher Salary */}
+                <div
+                    onClick={() => setActiveView('placement')}
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg Fresher Salary</p>
+                        <div className="p-1.5 bg-cyan-50 rounded-lg text-cyan-600 group-hover:bg-cyan-100 transition-colors">
+                            <DollarSign size={16} />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">₹4.2 LPA</h3>
                 </div>
             </div>
 
@@ -727,7 +773,7 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                             { id: 'placement', label: 'Placement Analysis' },
                             { id: 'streams', label: 'Stream Analysis' },
                             { id: 'skills', label: 'Skill Gaps' },
-                            { id: 'industry', label: 'Industry Demand' },
+                            { id: 'industry', label: 'Skill Demand' },
                             { id: 'graph', label: 'Knowledge Graph' }
                         ].map(tab => (
                             <button

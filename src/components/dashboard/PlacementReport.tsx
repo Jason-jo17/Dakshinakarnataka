@@ -3,163 +3,70 @@ import {
     ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
     BarChart, Bar, Legend, LineChart, Line, PieChart, Pie, Cell
 } from 'recharts';
-import { Trophy, TrendingDown, Globe, Activity, ChevronRight } from 'lucide-react';
+import { Trophy, TrendingDown, TrendingUp, Globe, Activity, ChevronRight, Users, DollarSign, Building, Briefcase } from 'lucide-react';
+import { dashboardData } from '../../data/dashboardData';
 
-// --- DATA ---
-const ecosystemData = [
-    {
-        id: 'nitk',
-        name: 'NITK Surathkal',
-        category: 'Elite National',
-        color: '#60A5FACC', // Mellow Blue-400
-        median: 14.21,
-        avg: 16.25,
-        highest: 55.00,
-        rate: 93,
-        strength: 'National Benchmark',
-        narrative: "The Apex Fortress: NITK demonstrated resilience with a 93% placement rate (up from 75% in previous dip), reinforced by PSU hiring and elite tech retention. Average packages consolidated at ₹16.25 LPA, reflecting market realism.",
+// --- RICH DATA OVERRIDES (Narratives & Colors) ---
+const richDataOverrides: Record<string, any> = {
+    "NITK Surathkal": {
+        color: '#60A5FACC',
+        narrative: "The Apex Fortress: NITK demonstrated resilience with a 93% placement rate, reinforced by PSU hiring and elite tech retention. Average packages consolidated at ₹16.25 LPA."
+    },
+    "Srinivas Institute of Technology": {
+        color: '#A78BFA',
+        narrative: "Mass Consistency: Srinivas Institute boasts a remarkable placement rate, focusing on high employability for mass-recruiting roles with consistent packages."
+    },
+    "St Joseph Engineering College": {
+        color: '#86EFACCC',
+        narrative: "Disciplined Output: SJEC continues to deliver consistent results with stable placement rates and average packages around ₹5.6 LPA."
+    },
+    "Sahyadri College of Engineering": {
+        color: '#FCA5A5CC',
+        narrative: "The Outlier Factory: Sahyadri continues to produce high-value outliers with a ₹72.00 LPA top package (Rolls Royce). Focus remains on high-quality, specialized placements."
+    },
+    "Yenepoya Institute of Technology": {
+        color: '#FDBA74CC',
+        narrative: "Emerging Contender: Yenepoya is rapidly gaining traction with improved placement metrics and growing recruiter interest."
+    },
+    "Canara Engineering College": {
+        color: '#2DD4BF',
+        narrative: "Value Engineering: Canara Engineering delivers solid value with consistent average packages and competitive top offers."
+    },
+    "Alva's Institute of Engineering": {
+        color: '#F472B6',
+        narrative: "Rural Champion: Alva's achieves strong placement rates, proving that rural-located institutes can effectively compete with city-based peers."
+    }
+};
+
+// --- MERGED DATA ---
+const ecosystemData = dashboardData.institutions.map(inst => {
+    const override = richDataOverrides[inst.name] || {};
+    // Use override color or generate one based on ID
+    const color = override.color || `hsl(${inst.id * 40}, 70%, 60%)`;
+
+    return {
+        id: inst.id.toString(),
+        name: inst.name,
+        category: inst.type,
+        color: color,
+        median: inst.median_package,
+        avg: inst.average_package,
+        highest: inst.highest_package,
+        rate: inst.placement_rate,
+        strength: override.narrative ? "Established" : "Growing",
+        narrative: override.narrative || `${inst.name} reports a placement rate of ${inst.placement_rate}% with an average package of ₹${inst.average_package} LPA. Top recruiters include ${inst.top_recruiters.slice(0, 2).join(', ')}.`,
         chartType: 'bar',
         chartLabel: 'Salary Distribution (LPA)',
         chartData: [
-            { name: 'Median', value: 14.21 },
-            { name: 'Average', value: 16.25 },
-            { name: 'Highest', value: 55.00 }
+            { name: 'Median', value: inst.median_package },
+            { name: 'Average', value: inst.average_package },
+            { name: 'Highest', value: inst.highest_package }
         ]
-    },
-    {
-        id: 'manipal',
-        name: 'MIT Manipal',
-        category: 'Private University',
-        color: '#FDBA74CC', // Mellow Orange-300
-        median: 10.05,
-        avg: 12.31,
-        highest: 69.25,
-        rate: 80.1,
-        strength: 'Scale & Network',
-        narrative: "Strong Recovery: MIT improved its placement rate to 80.1%, with a massive ₹69.25 LPA top offer. The institution maintains a 'Barbell' profile, balancing elite tech offers with mass recruitment volume.",
-        chartType: 'line',
-        chartLabel: 'Placement Rate Trend (%)',
-        chartData: [
-            { name: '2023', value: 92.9 },
-            { name: '2024', value: 73.0 },
-            { name: '2025', value: 80.1 }
-        ]
-    },
-    {
-        id: 'nmamit',
-        name: 'NMAMIT (Nitte)',
-        category: 'Private University',
-        color: '#818CF8CC', // Mellow Indigo-400
-        median: 8.5, // Estimated from Avg 10
-        avg: 10.00,
-        highest: 52.00,
-        rate: 88, // Midpoint of 75-100%
-        strength: 'Core & Tech Mix',
-        narrative: "Quality Leap: NMAMIT has seen average packages rise to ₹10 LPA, bridging the gap with top-tier peers. With offers up to ₹52 LPA and a strong placement rate range (75-100%), it cements its status as a premier regional choice.",
-        chartType: 'bar',
-        chartLabel: 'Salary Growth (LPA)',
-        chartData: [
-            { name: 'Prior Avg', value: 7.5 },
-            { name: 'Curr Avg', value: 10.0 },
-            { name: 'Highest', value: 52.0 }
-        ]
-    },
-    {
-        id: 'sjec',
-        name: 'St. Joseph (SJEC)',
-        category: 'Tier-2 Stable',
-        color: '#86EFACCC', // Mellow Green-300
-        median: 5.60,
-        avg: 5.60,
-        highest: 24.50,
-        rate: 71,
-        strength: 'Consistency',
-        narrative: "Disciplined Output: SJEC continues to deliver consistent results with a 71% placement rate and average packages around ₹5.6 LPA. Top offers reached ₹24.50 LPA, showcasing access to high-value roles.",
-        chartType: 'pie',
-        chartLabel: 'Recruiter Mix Est.',
-        chartData: [
-            { name: 'Product/Core', value: 25 },
-            { name: 'Services', value: 60 },
-            { name: 'Other', value: 15 }
-        ]
-    },
-    {
-        id: 'sahyadri',
-        name: 'Sahyadri (SCEM)',
-        category: 'High Variance',
-        color: '#FCA5A5CC', // Mellow Red-300
-        median: 4.75,
-        avg: 6.30,
-        highest: 47.24,
-        rate: 53,
-        strength: 'Innovation Hub',
-        narrative: "The Outlier Factory: Sahyadri continues to produce high-value outliers with a ₹47.24 LPA top package and an average of ₹6.30 LPA. While the overall rate is 53%, the focus remains on high-quality, specialized placements.",
-        chartType: 'bar',
-        chartLabel: 'Top Packages (LPA)',
-        chartData: [
-            { name: 'Top Offer', value: 47.24 },
-            { name: 'Microsoft', value: 40.00 },
-            { name: 'Avg Top 10', value: 28.00 }
-        ]
-    },
-    {
-        id: 'srinivas',
-        name: 'Srinivas Institute',
-        category: 'Volume Leader',
-        color: '#A78BFA', // Purple 400
-        median: 4.0,
-        avg: 4.48,
-        highest: 5.0,
-        rate: 86.9,
-        strength: 'High Placement Rate',
-        narrative: "Mass Consistency: Srinivas Institute boasts a remarkable 86.9% placement rate, focusing on high employability for mass-recruiting roles with consistent packages averaging ₹4.48 LPA.",
-        chartType: 'bar',
-        chartLabel: 'Placement Stats',
-        chartData: [
-            { name: 'Avg', value: 4.48 },
-            { name: 'Highest', value: 5.0 }
-        ]
-    },
-    {
-        id: 'canara',
-        name: 'Canara Engineering',
-        category: 'Tier-2 Stable',
-        color: '#2DD4BF', // Teal 400
-        median: 5.0,
-        avg: 5.95,
-        highest: 23.68,
-        rate: 58,
-        strength: 'Core Focus',
-        narrative: "Value Engineering: Canara Engineering delivers solid value with a ₹5.95 LPA average and offers peaking at ₹23.68 LPA, maintaining a 58% placement rate in a challenging market.",
-        chartType: 'bar',
-        chartLabel: 'Salary Stats',
-        chartData: [
-            { name: 'Avg', value: 5.95 },
-            { name: 'Highest', value: 23.68 }
-        ]
-    },
-    {
-        id: 'alvas',
-        name: 'Alva\'s Institute',
-        category: 'Rural Champion',
-        color: '#F472B6', // Pink 400
-        median: 4.5,
-        avg: 5.0,
-        highest: 21.0,
-        rate: 80,
-        strength: 'Rural Outreach',
-        narrative: "Talent Hub: Alva's Institute achieves a strong 80% placement rate with top offers reaching ₹21 LPA, proving that rural-located institutes can compete with city-based peers.",
-        chartType: 'bar',
-        chartLabel: 'Performance',
-        chartData: [
-            { name: 'Avg', value: 5.0 },
-            { name: 'Highest', value: 21.0 }
-        ]
-    }
-];
+    };
+});
 
 const PlacementReport = () => {
-    const [selectedInstId, setSelectedInstId] = useState('nitk');
+    const [selectedInstId, setSelectedInstId] = useState(ecosystemData[0]?.id || '1');
     const selectedInst = ecosystemData.find(i => i.id === selectedInstId) || ecosystemData[0];
 
     // Data for Risk/Reward Scatter
@@ -182,90 +89,85 @@ const PlacementReport = () => {
     return (
         <div className="space-y-8 animate-fade-in">
 
-            {/* 1. Executive Summary */}
-            <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="col-span-1 md:col-span-4 mb-2 flex justify-between items-start">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Market Correction Overview (2024-25)</h2>
-                        <p className="text-gray-600">The "Tech Winter" has bifurcated the region's outcomes. While elite talent secures global pay, mass recruitment has contracted, placing a premium on <strong>Median Stability</strong> over headline numbers.</p>
+            {/* 1. Statistics Cards */}
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                {/* Card 1: Placement Rate */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Placement Rate</p>
+                        <div className="p-1.5 bg-green-50 rounded-lg text-green-600">
+                            <TrendingUp size={16} />
+                        </div>
                     </div>
-                    <button
-                        onClick={() => {
-                            try {
-                                const reportMeta = {
-                                    title: 'Placement Market Correction 2024-25',
-                                    type: 'Analytics',
-                                    size: '1.2 MB',
-                                    date: new Date().toLocaleDateString(),
-                                    action: null
-                                };
-                                const existingStr = localStorage.getItem('generated_reports');
-                                let existing = [];
-                                if (existingStr) {
-                                    existing = JSON.parse(existingStr);
-                                }
-                                localStorage.setItem('generated_reports', JSON.stringify([reportMeta, ...existing]));
-                                alert('Placement Analysis Report saved to Reports!');
-                            } catch (e) {
-                                alert("Could not save report.");
-                            }
-                        }}
-                        className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg shadow hover:bg-primary/90 transition-colors flex items-center gap-2"
-                    >
-                        Save Analysis Report
-                    </button>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Regional Highest Offer</p>
-                            <h3 className="text-2xl font-bold text-primary">72.00 LPA</h3>
-                            <p className="text-xs text-gray-400 mt-1">Sahyadri (SCEM) 2025</p>
-                        </div>
-                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                            <Trophy size={20} />
-                        </div>
+                    <h3 className="text-2xl font-bold text-gray-900">62%</h3>
+                    <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
+                        <TrendingUp size={12} />
+                        <span>4%</span>
                     </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Top Tier-2 Median</p>
-                            <h3 className="text-2xl font-bold text-success">5.60 LPA</h3>
-                            <p className="text-xs text-gray-400 mt-1">SJEC (Stability Leader)</p>
-                        </div>
-                        <div className="p-2 bg-success/10 rounded-lg text-success">
-                            <Activity size={20} />
+                {/* Card 2: Students Placed */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Students Placed</p>
+                        <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600">
+                            <Users size={16} />
                         </div>
                     </div>
+                    <h3 className="text-2xl font-bold text-gray-900">3,400</h3>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Placement Rate Volatility</p>
-                            <h3 className="text-2xl font-bold text-danger">-15% to -30%</h3>
-                            <p className="text-xs text-gray-400 mt-1">Drop in Pvt. Colleges (2024)</p>
-                        </div>
-                        <div className="p-2 bg-danger/10 rounded-lg text-danger">
-                            <TrendingDown size={20} />
+                {/* Card 3: Avg Package */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-slate-800"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg Package</p>
+                        <div className="p-1.5 bg-purple-50 rounded-lg text-purple-600">
+                            <DollarSign size={16} />
                         </div>
                     </div>
+                    <h3 className="text-2xl font-bold text-gray-900">₹4.2 LPA</h3>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500">Japanese Packages</p>
-                            <h3 className="text-2xl font-bold text-warning">30-47 LPA</h3>
-                            <p className="text-xs text-gray-400 mt-1">Sahyadri & Nitte Corridor</p>
-                        </div>
-                        <div className="p-2 bg-warning/10 rounded-lg text-warning">
-                            <Globe size={20} />
+                {/* Card 4: Highest Package */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Highest Package</p>
+                        <div className="p-1.5 bg-orange-50 rounded-lg text-orange-600">
+                            <Trophy size={16} />
                         </div>
                     </div>
+                    <h3 className="text-2xl font-bold text-gray-900">₹72 LPA</h3>
+                    <p className="text-xs text-gray-400 mt-1">Sahyadri (Rolls Royce)</p>
+                </div>
+
+                {/* Card 5: Top Recruiter */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Top Recruiter</p>
+                        <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600">
+                            <Building size={16} />
+                        </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 leading-tight">Infosys BPM</h3>
+                    <p className="text-xs text-gray-400 mt-1">450 hires</p>
+                </div>
+
+                {/* Card 6: Top Sector */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                    <div className="flex justify-between items-start mb-2">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Top Sector</p>
+                        <div className="p-1.5 bg-cyan-50 rounded-lg text-cyan-600">
+                            <Briefcase size={16} />
+                        </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900">IT/ITES</h3>
+                    <p className="text-xs text-gray-400 mt-1">85% placements</p>
                 </div>
             </section>
 
