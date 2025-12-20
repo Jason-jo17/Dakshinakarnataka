@@ -26,6 +26,12 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
     const [headerSearch, setHeaderSearch] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+    const [activeTab, setActiveTab] = useState("overview");
+
+    const handleTabSwitch = (tabValue: string) => {
+        setActiveTab(tabValue);
+    };
+
     // Helper to get active filters for display chips
     const getActiveFilters = () => {
         return Object.entries(filters).filter(([, value]) => value !== 'all' && value !== undefined);
@@ -109,10 +115,10 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                 </div>
 
                 {/* Rich Context Banner */}
-                <FilterContextBanner filters={filters} onNavigate={onNavigate} />
+                <FilterContextBanner filters={filters} onNavigate={onNavigate} onTabChange={handleTabSwitch} />
 
                 {/* Tab Navigation */}
-                <Tabs defaultValue="overview" className="space-y-6">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setIsFilterOpen(true)}
