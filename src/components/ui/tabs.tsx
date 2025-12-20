@@ -7,11 +7,30 @@ type TabsContextType = {
 
 const TabsContext = createContext<TabsContextType | undefined>(undefined);
 
-export const Tabs: React.FC<{ defaultValue: string, className?: string, children: React.ReactNode }> = ({ defaultValue, className, children }) => {
-    const [activeTab, setActiveTab] = useState(defaultValue);
+export interface TabsProps {
+    defaultValue?: string;
+    value?: string;
+    onValueChange?: (value: string) => void;
+    className?: string;
+    children: React.ReactNode;
+}
+
+export const Tabs: React.FC<TabsProps> = ({ defaultValue, value, onValueChange, className, children }) => {
+    const [localActiveTab, setLocalActiveTab] = useState(defaultValue || "");
+    const isControlled = value !== undefined;
+    const currentTab = isControlled ? value : localActiveTab;
+
+    const handleTabChange = (newValue: string) => {
+        if (!isControlled) {
+            setLocalActiveTab(newValue);
+        }
+        if (onValueChange) {
+            onValueChange(newValue);
+        }
+    };
 
     return (
-        <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+        <TabsContext.Provider value={{ activeTab: currentTab || "", setActiveTab: handleTabChange }}>
             <div className={className}>
                 {children}
             </div>
