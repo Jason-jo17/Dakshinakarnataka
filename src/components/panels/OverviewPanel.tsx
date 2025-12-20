@@ -21,10 +21,10 @@ export default function OverviewPanel({ filters }: PanelProps) {
     // Example: If 'Sector' is filtered, we only show that sector in the Demand/Supply chart.
     const rawDemandSupplyData = [
         { name: 'IT/ITES', demand: 850, supply: 620, sector: 'Primary' },
-        { name: 'BPO/KPO', demand: 450, supply: 580, sector: 'Primary' },
-        { name: 'Manufacturing', demand: 180, supply: 240, sector: 'Secondary' },
-        { name: 'Automotive', demand: 95, supply: 110, sector: 'Secondary' },
-        { name: 'Healthcare', demand: 65, supply: 45, sector: 'Tertiary' },
+        { name: 'BPO/KPO', demand: 450, supply: 380, sector: 'Primary' },
+        { name: 'Manufacturing', demand: 280, supply: 240, sector: 'Secondary' },
+        { name: 'Automotive', demand: 150, supply: 110, sector: 'Secondary' },
+        { name: 'Healthcare', demand: 95, supply: 65, sector: 'Tertiary' },
     ];
 
     const demandSupplyData = rawDemandSupplyData.filter(item => {

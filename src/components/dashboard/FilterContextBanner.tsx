@@ -118,6 +118,42 @@ export default function FilterContextBanner({ filters, onNavigate }: FilterConte
         });
     }
 
+    // 4. Skill Domain Filter Selected
+    if (filters.domain !== 'all') {
+        return renderBanner({
+            title: `Skill Domain: ${filters.domain}`,
+            subtitle: `Analyzing proficiency and demand for ${filters.domain} across the district.`,
+            icon: GraduationCap,
+            stats: [
+                { label: "Job Openings: 120+", icon: MapPin },
+                { label: "Certified Students: 340", icon: Users }
+            ],
+            action: (
+                <Button className="bg-blue-600 text-white" onClick={() => onNavigate('demand')}>
+                    View Skill Demand
+                </Button>
+            )
+        });
+    }
+
+    // 5. Company Type Filter Selected
+    if (filters.companyType !== 'all') {
+        return renderBanner({
+            title: `Company Type: ${filters.companyType}`,
+            subtitle: `Insights into ${filters.companyType} ecosystem and hiring patterns.`,
+            icon: MapPin,
+            stats: [
+                { label: "Active Companies: 15", icon: Building2 },
+                { label: "Avg Salary: ₹6.5 LPA", icon: Users }
+            ],
+            action: (
+                <Button className="bg-blue-600 text-white" onClick={() => onNavigate('accelerator')}>
+                    View Ecosystem
+                </Button>
+            )
+        });
+    }
+
     // Default Fallback (Branch, Domain, etc.)
     return renderBanner({
         title: "Filtered View Active",
@@ -131,15 +167,3 @@ export default function FilterContextBanner({ filters, onNavigate }: FilterConte
         )
     });
 }
-
-function FilterIcon({ filters }: { filters: any }) {
-    if (filters.sector !== 'all') return <BriefcaseIcon />;
-    return <FilterGenericIcon />;
-}
-
-const BriefcaseIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500"><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
-);
-const FilterGenericIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
-);
