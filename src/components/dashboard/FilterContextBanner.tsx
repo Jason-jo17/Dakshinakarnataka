@@ -1,3 +1,4 @@
+import { Card, CardContent } from "../ui/card";
 import { MapPin, Users, GraduationCap, Building2, ExternalLink } from "lucide-react";
 import { Button } from "../ui/button";
 
