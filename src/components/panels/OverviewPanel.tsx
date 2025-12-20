@@ -177,11 +177,10 @@ export default function OverviewPanel({ filters }: PanelProps) {
                                 <Tooltip
                                     cursor={{ fill: 'transparent' }}
                                     contentStyle={{ borderRadius: '8px' }}
-                                    formatter={(value, name) => [value, name === 'demand' ? 'Job Openings' : 'Students Placed']}
+                                    formatter={(value, name) => [value, name === 'Demand' ? 'Job Openings' : 'Students Placed']}
                                 />
                                 <Legend
                                     iconType="circle"
-                                    formatter={(value) => value === 'demand' ? 'Job Openings' : 'Students Placed'}
                                 />
                                 <Bar dataKey="demand" name="Demand" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} />
                                 <Bar dataKey="supply" name="Supply" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />

@@ -91,6 +91,8 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                         <SelectItem value="BPO/KPO">BPO/KPO</SelectItem>
                                         <SelectItem value="Manufacturing">Manufacturing</SelectItem>
                                         <SelectItem value="Healthcare">Healthcare</SelectItem>
+                                        <SelectItem value="Construction">Construction</SelectItem>
+                                        <SelectItem value="Education">Education</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -101,6 +103,8 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                         <SelectItem value="Software Development">Software Development</SelectItem>
                                         <SelectItem value="Electronics Manufacturing">Electronics Manufacturing</SelectItem>
                                         <SelectItem value="Automotive Components">Automotive Components</SelectItem>
+                                        <SelectItem value="Banking & Finance">Banking & Finance</SelectItem>
+                                        <SelectItem value="Telecommunications">Telecommunications</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -109,8 +113,11 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                     <SelectContent>
                                         <SelectItem value="all">All Branches</SelectItem>
                                         <SelectItem value="Computer Science">Computer Science</SelectItem>
+                                        <SelectItem value="Information Science">Information Science</SelectItem>
                                         <SelectItem value="Electronics & Communication">Electronics & Comm</SelectItem>
                                         <SelectItem value="Mechanical">Mechanical</SelectItem>
+                                        <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                                        <SelectItem value="Data Science">Artificial Intelligence & DS</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -122,6 +129,9 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                         <SelectItem value="Java/Spring">Java</SelectItem>
                                         <SelectItem value="React">React</SelectItem>
                                         <SelectItem value="Data Science">Data Science</SelectItem>
+                                        <SelectItem value="Machine Learning">Machine Learning</SelectItem>
+                                        <SelectItem value="Cloud Computing">Cloud Computing</SelectItem>
+                                        <SelectItem value="DevOps">DevOps</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -132,6 +142,9 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                         <SelectItem value="NITK Surathkal">NITK Surathkal</SelectItem>
                                         <SelectItem value="Srinivas Institute">Srinivas Institute</SelectItem>
                                         <SelectItem value="Sahyadri College">Sahyadri College</SelectItem>
+                                        <SelectItem value="Mangalore Institute">Mangalore Institute (MITE)</SelectItem>
+                                        <SelectItem value="Canara Engineering">Canara Engineering College</SelectItem>
+                                        <SelectItem value="St Joseph College">St Joseph Engineering College</SelectItem>
                                     </SelectContent>
                                 </Select>
 
@@ -142,6 +155,7 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                         <SelectItem value="MNC">MNC</SelectItem>
                                         <SelectItem value="Startup">Startup</SelectItem>
                                         <SelectItem value="SME">SME</SelectItem>
+                                        <SelectItem value="Govt/Public">Govt/Public Sector</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
