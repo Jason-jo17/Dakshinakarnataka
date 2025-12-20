@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import FloatingFilter from '../FloatingFilter';
+import HeaderFilter from '../HeaderFilter';
 import { Search, X } from "lucide-react";
 import { Badge } from "../ui/badge";
 import OverviewPanel from '../panels/OverviewPanel';
@@ -49,15 +49,20 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                         </div>
 
                         {/* Search Bar in Header - Negative Space */}
-                        <div className="flex-1 max-w-xl mx-auto relative hidden md:block">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Search by college, skill, or company..."
-                                className="w-full pl-9 pr-4 py-2 bg-slate-100 border border-transparent rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/10 focus:border-blue-300 transition-all placeholder:text-slate-400"
-                                value={headerSearch}
-                                onChange={(e) => setHeaderSearch(e.target.value)}
-                            />
+                        <div className="flex-1 max-w-xl mx-auto flex items-center gap-2">
+                            <div className="relative flex-1 hidden md:block">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <input
+                                    type="text"
+                                    placeholder="Search by college, skill, or company..."
+                                    className="w-full pl-9 pr-4 py-2 bg-slate-100 border border-transparent rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/10 focus:border-blue-300 transition-all placeholder:text-slate-400"
+                                    value={headerSearch}
+                                    onChange={(e) => setHeaderSearch(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Header Filter Button (Next to Search) */}
+                            <HeaderFilter currentFilters={filters} onApply={setFilters} />
                         </div>
 
                         {/* Logo/Badge */}
@@ -92,7 +97,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                             </button>
                         </div>
                     ) : (
-                        <div className="text-xs text-slate-400 italic">No filters applied. Use the floating filter button to customize views.</div>
+                        <div className="text-xs text-slate-400 italic">No filters active.</div>
                     )}
                 </div>
 
@@ -120,9 +125,6 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                     <TabsContent value="insights" className="space-y-6"><InsightsPanel filters={filters} /></TabsContent>
                 </Tabs>
             </main>
-
-            {/* Floating Draggable Filter */}
-            <FloatingFilter currentFilters={filters} onApply={setFilters} />
 
             {/* Footer */}
             <footer className="bg-white border-t border-slate-200 mt-12 pb-8">
