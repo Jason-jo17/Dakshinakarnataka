@@ -31,7 +31,7 @@ export const SelectValue = ({ placeholder }: { placeholder: string }) => {
 export const SelectContent = ({ children, className }: { children: React.ReactNode; className?: string }) => {
     const ctx = React.useContext(SelectContext)
     if (!ctx?.open) return null
-    return <div className={`absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 text-slate-950 shadow-md ${className || ''}`}>
+    return <div className={`absolute z-50 min-w-[8rem] max-h-60 overflow-y-auto rounded-md border bg-white p-1 text-slate-950 shadow-md ${className || ''}`}>
         <div className="w-full p-1">{children}</div>
     </div>
 }

@@ -82,7 +82,7 @@ export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenCh
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-1">
                                 <Select value={tempFilters.sector} onValueChange={(v) => handleChange('sector', v)}>
                                     <SelectTrigger><SelectValue placeholder="Sector" /></SelectTrigger>
                                     <SelectContent>

@@ -4,6 +4,7 @@ import HeaderFilter from '../HeaderFilter';
 import { Search, X, Filter } from "lucide-react";
 import { Badge } from "../ui/badge";
 import OverviewPanel from '../panels/OverviewPanel';
+import FilterContextBanner from '../dashboard/FilterContextBanner';
 import SupplyPanel from '../panels/SupplyPanel';
 import DemandPanel from '../panels/DemandPanel';
 import GapPanel from '../panels/GapPanel';
@@ -12,7 +13,7 @@ import CoePanel from '../panels/CoePanel';
 import AcceleratorPanel from '../panels/AcceleratorPanel';
 import InsightsPanel from '../panels/InsightsPanel';
 
-const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void }> = () => {
+const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void }> = ({ onNavigate }) => {
     const [filters, setFilters] = useState({
         sector: 'all',
         industry: 'all',
@@ -106,6 +107,9 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                         <div className="text-xs text-slate-400 italic">No filters active.</div>
                     )}
                 </div>
+
+                {/* Rich Context Banner */}
+                <FilterContextBanner filters={filters} onNavigate={onNavigate} />
 
                 {/* Tab Navigation */}
                 <Tabs defaultValue="overview" className="space-y-6">
