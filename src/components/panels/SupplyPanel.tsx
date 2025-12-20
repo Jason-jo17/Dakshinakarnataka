@@ -64,17 +64,34 @@ interface PanelProps {
 }
 
 export default function SupplyPanel({ filters }: PanelProps) {
-    void filters;
-    // Calculate dynamic stats
-    const totalStudents = 34700;
-    const annualGraduates = Math.round(totalStudents / 4); // Approx 4-year programs
-    // Estimate: 60% of graduates get some form of certification/training
-    const certifiedStudents = Math.round(annualGraduates * 0.6);
-    const readinessScore = 65; // Static expert assessment
-    const totalInstitutions = dashboardData.institutions.length;
+    // Filter institutions based on props
+    const filteredInstitutions = dashboardData.institutions.filter(inst => {
+        let matches = true;
 
-    // Chart Data
-    const outputData = dashboardData.institutions
+        // Institution Name Filter
+        if (filters.institution !== 'all' && inst.name !== filters.institution) matches = false;
+
+        // Taluk/Location logic could be here if we had a Taluk filter. 
+        // For Sector/Industry: Since our mock data doesn't explicitly have 'sector' on institutions, 
+        // we generally assume all these engineering colleges supply to IT/Manufacturing.
+        // But if 'Healthcare' is selected, maybe we should show nothing or specific ones? 
+        // For this demo, let's assume if 'Healthcare' is picked, we filter out Engineering colleges if we had metadata.
+        // Currently, we'll focus on the 'Institution' filter which is very direct.
+
+        return matches;
+    });
+
+    // Recalculate dynamic stats based on filtered list
+    const totalStudents = filteredInstitutions.reduce((acc, curr) => acc + curr.total_students, 0);
+    const annualGraduates = Math.round(totalStudents / 4);
+    const certifiedStudents = Math.round(annualGraduates * 0.6);
+    // Average placement rate for the filtered set
+    const avgReadiness = filteredInstitutions.length > 0
+        ? Math.round(filteredInstitutions.reduce((acc, curr) => acc + (curr.placement_rate || 0), 0) / filteredInstitutions.length)
+        : 0;
+
+    // Chart Data uses the filtered list
+    const outputData = filteredInstitutions
         .sort((a, b) => b.total_students - a.total_students)
         .slice(0, 8)
         .map(inst => ({
@@ -155,13 +172,13 @@ export default function SupplyPanel({ filters }: PanelProps) {
                 />
                 <StatCard
                     title="Readiness Score"
-                    value={`${readinessScore}/100`}
+                    value={`${avgReadiness}/100`}
                     icon={CheckCircle}
                     color="orange"
                 />
                 <StatCard
                     title="Institutions"
-                    value={totalInstitutions}
+                    value={filteredInstitutions.length}
                     icon={MapPin}
                     color="red"
                 />

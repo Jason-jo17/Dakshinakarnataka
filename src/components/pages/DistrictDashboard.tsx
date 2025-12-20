@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import HeaderFilter from '../HeaderFilter';
-import { Search, X } from "lucide-react";
+import { Search, X, Filter } from "lucide-react";
 import { Badge } from "../ui/badge";
 import OverviewPanel from '../panels/OverviewPanel';
 import SupplyPanel from '../panels/SupplyPanel';
@@ -23,6 +23,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
     });
 
     const [headerSearch, setHeaderSearch] = useState("");
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     // Helper to get active filters for display chips
     const getActiveFilters = () => {
@@ -62,7 +63,12 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                             </div>
 
                             {/* Header Filter Button (Next to Search) */}
-                            <HeaderFilter currentFilters={filters} onApply={setFilters} />
+                            <HeaderFilter
+                                currentFilters={filters}
+                                onApply={setFilters}
+                                isOpen={isFilterOpen}
+                                onOpenChange={setIsFilterOpen}
+                            />
                         </div>
 
                         {/* Logo/Badge */}
@@ -103,16 +109,36 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
 
                 {/* Tab Navigation */}
                 <Tabs defaultValue="overview" className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-1 bg-white p-1 rounded-lg shadow-sm h-auto">
-                        <TabsTrigger value="overview" className="rounded-md py-2 text-xs font-medium">Overview</TabsTrigger>
-                        <TabsTrigger value="demand" className="rounded-md py-2 text-xs font-medium">Skill Demand</TabsTrigger>
-                        <TabsTrigger value="supply" className="rounded-md py-2 text-xs font-medium">Skill Supply</TabsTrigger>
-                        <TabsTrigger value="gap" className="rounded-md py-2 text-xs font-medium">Gap Analysis</TabsTrigger>
-                        <TabsTrigger value="accelerator" className="rounded-md py-2 text-xs font-medium">Accelerator</TabsTrigger>
-                        <TabsTrigger value="placements" className="rounded-md py-2 text-xs font-medium">Placements</TabsTrigger>
-                        <TabsTrigger value="coe" className="rounded-md py-2 text-xs font-medium">Infra (COE)</TabsTrigger>
-                        <TabsTrigger value="insights" className="rounded-md py-2 text-xs font-medium">Insights</TabsTrigger>
-                    </TabsList>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setIsFilterOpen(true)}
+                            className="bg-white p-2 rounded-lg border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-300 shadow-sm transition-all md:hidden"
+                            title="Open Filters"
+                        >
+                            <Search size={18} />
+                        </button>
+
+                        <div className="flex-1 overflow-x-auto">
+                            <TabsList className="grid w-full min-w-[800px] grid-cols-8 gap-1 bg-white p-1 rounded-lg shadow-sm h-auto">
+                                <TabsTrigger value="overview" className="rounded-md py-2 text-xs font-medium">Overview</TabsTrigger>
+                                <TabsTrigger value="demand" className="rounded-md py-2 text-xs font-medium">Skill Demand</TabsTrigger>
+                                <TabsTrigger value="supply" className="rounded-md py-2 text-xs font-medium">Skill Supply</TabsTrigger>
+                                <TabsTrigger value="gap" className="rounded-md py-2 text-xs font-medium">Gap Analysis</TabsTrigger>
+                                <TabsTrigger value="accelerator" className="rounded-md py-2 text-xs font-medium">Accelerator</TabsTrigger>
+                                <TabsTrigger value="placements" className="rounded-md py-2 text-xs font-medium">Placements</TabsTrigger>
+                                <TabsTrigger value="coe" className="rounded-md py-2 text-xs font-medium">Infra (COE)</TabsTrigger>
+                                <TabsTrigger value="insights" className="rounded-md py-2 text-xs font-medium">Insights</TabsTrigger>
+                            </TabsList>
+                        </div>
+                        {/* Desktop Secondary Filter Trigger near Tabs for convenience (User request) */}
+                        <button
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className={`hidden md:flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:border-blue-300 shadow-sm transition-all ${isFilterOpen ? 'ring-2 ring-blue-100 border-blue-400' : ''}`}
+                        >
+                            <Filter size={14} />
+                            <span className="hidden lg:inline">Filters</span>
+                        </button>
+                    </div>
 
                     {/* Tab Contents */}
                     <TabsContent value="overview" className="space-y-6"><OverviewPanel filters={filters} /></TabsContent>

@@ -14,15 +14,32 @@ interface PanelProps {
 }
 
 export default function OverviewPanel({ filters }: PanelProps) {
-    void filters;
-    // Real Dakshina Kannada sector-wise data
-    const demandSupplyData = [
+    // Filter logic for Overview
+    // Note: The static data below should ideally be computed from dashboardData based on filters.
+    // For this refactor, we will implement simple filtering where applicable or show a filtered state.
+
+    // Example: If 'Sector' is filtered, we only show that sector in the Demand/Supply chart.
+    const rawDemandSupplyData = [
         { name: 'IT/ITES', demand: 850, supply: 620, sector: 'Primary' },
         { name: 'BPO/KPO', demand: 450, supply: 580, sector: 'Primary' },
         { name: 'Manufacturing', demand: 180, supply: 240, sector: 'Secondary' },
         { name: 'Automotive', demand: 95, supply: 110, sector: 'Secondary' },
         { name: 'Healthcare', demand: 65, supply: 45, sector: 'Tertiary' },
     ];
+
+    const demandSupplyData = rawDemandSupplyData.filter(item => {
+        // Filter by Sector
+        if (filters.sector !== 'all') {
+            // Simple mapping or check. The values in Select are "IT/ITES", "Manufacturing", etc.
+            // Our data names match well.
+            return item.name === filters.sector || item.sector === filters.sector;
+        }
+        return true;
+    });
+
+    // If Industry filter is active, further narrow down if possible, or just rely on Sector for this high-level view.
+    // If Institution is filtered, this high-level view might not change much unless we aggregate from specific institution data.
+    // For now, let's make sure at least Sector filters work visibly.
 
     const readinessData = [
         { name: 'Job Ready', value: 72, color: '#22c55e' },

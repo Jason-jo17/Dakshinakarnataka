@@ -16,10 +16,12 @@ interface FilterState {
 interface HeaderFilterProps {
     currentFilters: FilterState;
     onApply: (filters: FilterState) => void;
+    isOpen: boolean;
+    onOpenChange: (open: boolean) => void;
 }
 
-export default function HeaderFilter({ currentFilters, onApply }: HeaderFilterProps) {
-    const [isOpen, setIsOpen] = useState(false);
+export default function HeaderFilter({ currentFilters, onApply, isOpen, onOpenChange }: HeaderFilterProps) {
+    // Local temp state still needed
     const [tempFilters, setTempFilters] = useState<FilterState>(currentFilters);
 
     useEffect(() => {
@@ -34,7 +36,7 @@ export default function HeaderFilter({ currentFilters, onApply }: HeaderFilterPr
 
     const handleApply = () => {
         onApply(tempFilters);
-        setIsOpen(false);
+        onOpenChange(false);
     };
 
     const handleReset = () => {
@@ -54,7 +56,7 @@ export default function HeaderFilter({ currentFilters, onApply }: HeaderFilterPr
             {/* Header Trigger Button */}
             <Button
                 variant="outline"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => onOpenChange(!isOpen)}
                 className={`flex items-center gap-2 border-slate-200 ${isOpen ? 'bg-slate-100 ring-2 ring-blue-100 border-blue-300' : 'bg-white hover:bg-slate-50'}`}
             >
                 <Filter size={16} className={isOpen ? "text-blue-600" : "text-slate-500"} />
@@ -66,16 +68,16 @@ export default function HeaderFilter({ currentFilters, onApply }: HeaderFilterPr
             {isOpen && (
                 <>
                     {/* Backdrop to close on click outside */}
-                    <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+                    <div className="fixed inset-0 z-40" onClick={() => onOpenChange(false)}></div>
 
-                    <Card className="absolute right-0 top-full mt-2 w-[90vw] md:w-[600px] shadow-xl border-slate-200 animate-in fade-in zoom-in-95 duration-150 z-50 origin-top-right">
+                    <Card className="absolute right-0 top-full mt-2 w-[90vw] md:w-[600px] bg-white shadow-xl border-slate-200 animate-in fade-in zoom-in-95 duration-150 z-50 origin-top-right">
                         <CardContent className="p-4 flex flex-col gap-4">
                             <div className="flex items-center justify-between border-b pb-3 mb-1">
                                 <h3 className="font-semibold text-slate-700 flex items-center gap-2">
                                     <Filter size={18} className="text-blue-600" />
                                     Filter Dashboard Data
                                 </h3>
-                                <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600">
+                                <button onClick={() => onOpenChange(false)} className="text-slate-400 hover:text-slate-600">
                                     <X size={20} />
                                 </button>
                             </div>
