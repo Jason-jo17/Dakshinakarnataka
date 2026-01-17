@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import HeaderFilter from '../HeaderFilter';
 import { Search, X, Filter } from "lucide-react";
@@ -12,6 +12,9 @@ import PlacementPanel from '../panels/PlacementPanel';
 import CoePanel from '../panels/CoePanel';
 import AcceleratorPanel from '../panels/AcceleratorPanel';
 import InsightsPanel from '../panels/InsightsPanel';
+import SearchSuggestions from '../SearchSuggestions';
+import { useDataStore } from '../../store/useDataStore';
+import { getSearchSuggestions, type SearchSuggestion } from '../../utils/searchUtils';
 
 const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void }> = ({ onNavigate }) => {
     const [filters, setFilters] = useState({
@@ -25,8 +28,14 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
 
     const [headerSearch, setHeaderSearch] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
     const [activeTab, setActiveTab] = useState("overview");
+
+    // Get data from store
+    const institutions = useDataStore(state => state.institutions);
+    const industryDemands = useDataStore(state => state.industryDemands);
 
     const handleTabSwitch = (tabValue: string) => {
         setActiveTab(tabValue);
@@ -40,6 +49,58 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
     const removeFilter = (key: string) => {
         setFilters(prev => ({ ...prev, [key]: 'all' }));
     };
+
+    // Get search suggestions
+    const suggestions = useMemo(() => {
+        if (!headerSearch || headerSearch.length < 2) return [];
+        return getSearchSuggestions(headerSearch, institutions, industryDemands, filters);
+    }, [headerSearch, institutions, industryDemands, filters]);
+
+    // Handle search input change
+    const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setHeaderSearch(value);
+        setShowSuggestions(value.length >= 2);
+        setSelectedSuggestionIndex(-1);
+    }, []);
+
+    // Handle suggestion selection
+    const handleSuggestionSelect = useCallback((suggestion: SearchSuggestion) => {
+        setHeaderSearch(suggestion.label);
+        setShowSuggestions(false);
+
+        // Apply filter based on suggestion type
+        if (suggestion.type === 'institution') {
+            setFilters(prev => ({ ...prev, institution: suggestion.label }));
+        } else if (suggestion.type === 'company') {
+            // Navigate to demand tab and set company filter
+            setActiveTab('demand');
+        } else if (suggestion.type === 'skill') {
+            // Navigate to gap tab for skills
+            setActiveTab('gap');
+        }
+    }, []);
+
+    // Handle keyboard navigation
+    const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!showSuggestions || suggestions.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedSuggestionIndex(prev =>
+                prev < suggestions.length - 1 ? prev + 1 : prev
+            );
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+        } else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+            e.preventDefault();
+            handleSuggestionSelect(suggestions[selectedSuggestionIndex]);
+        } else if (e.key === 'Escape') {
+            setShowSuggestions(false);
+            setSelectedSuggestionIndex(-1);
+        }
+    }, [showSuggestions, suggestions, selectedSuggestionIndex, handleSuggestionSelect]);
 
     return (
         <div className="min-h-screen bg-background relative">
@@ -66,8 +127,21 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                                     placeholder="Search by college, skill, or company..."
                                     className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-full text-sm focus:outline-none focus:bg-surface focus:ring-2 focus:ring-primary/10 focus:border-primary/50 transition-all placeholder:text-slate-400 text-text"
                                     value={headerSearch}
-                                    onChange={(e) => setHeaderSearch(e.target.value)}
+                                    onChange={handleSearchChange}
+                                    onKeyDown={handleSearchKeyDown}
+                                    onFocus={() => headerSearch.length >= 2 && setShowSuggestions(true)}
                                 />
+
+                                {/* Search Suggestions Dropdown */}
+                                {showSuggestions && (
+                                    <SearchSuggestions
+                                        suggestions={suggestions}
+                                        query={headerSearch}
+                                        selectedIndex={selectedSuggestionIndex}
+                                        onSelect={handleSuggestionSelect}
+                                        onClose={() => setShowSuggestions(false)}
+                                    />
+                                )}
                             </div>
 
                             {/* Header Filter Button (Next to Search) */}
