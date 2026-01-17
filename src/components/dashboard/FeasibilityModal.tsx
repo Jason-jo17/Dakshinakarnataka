@@ -12,7 +12,7 @@ interface FeasibilityModalProps {
 const FeasibilityModal: React.FC<FeasibilityModalProps> = ({ onClose, onApprove, type, title }) => {
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                 <div className="bg-primary p-6 text-white flex justify-between items-center">
                     <div>
@@ -30,17 +30,17 @@ const FeasibilityModal: React.FC<FeasibilityModalProps> = ({ onClose, onApprove,
                     {/* Key Metrics */}
                     <div className="grid grid-cols-3 gap-4">
                         <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-lg border border-emerald-100 dark:border-emerald-800 text-center">
-                            <h4 className="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1">Student Density</h4>
+                            <h4 className="text-xs uppercase font-semibold text-icon mb-1">Student Density</h4>
                             <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">High</p>
                             <span className="text-xs text-emerald-700 dark:text-emerald-300">12,000+ local</span>
                         </div>
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 text-center">
-                            <h4 className="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1">Industry Proximity</h4>
+                            <h4 className="text-xs uppercase font-semibold text-icon mb-1">Industry Proximity</h4>
                             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">8 km</p>
                             <span className="text-xs text-blue-700 dark:text-blue-300">Avg distance</span>
                         </div>
                         <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-100 dark:border-amber-800 text-center">
-                            <h4 className="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1">Skill Gap</h4>
+                            <h4 className="text-xs uppercase font-semibold text-icon mb-1">Skill Gap</h4>
                             <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">Critical</p>
                             <span className="text-xs text-amber-700 dark:text-amber-300">40% shortage</span>
                         </div>
@@ -48,20 +48,20 @@ const FeasibilityModal: React.FC<FeasibilityModalProps> = ({ onClose, onApprove,
 
                     {/* Impact Analysis */}
                     <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white mb-3">Projected Impact</h3>
+                        <h3 className="font-bold text-text mb-3">Projected Impact</h3>
                         <div className="space-y-3">
-                            <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
+                            <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={18} />
                                 <div>
-                                    <h4 className="font-semibold text-gray-800 dark:text-gray-200">Talent Pipeline</h4>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Expected to train 450+ students annually in specific domain skills.</p>
+                                    <h4 className="font-semibold text-text">Talent Pipeline</h4>
+                                    <p className="text-sm text-text">Expected to train 450+ students annually in specific domain skills.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
+                            <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                 <CheckCircle2 className="text-success shrink-0 mt-0.5" size={18} />
                                 <div>
-                                    <h4 className="font-semibold text-gray-800 dark:text-gray-200">Placement Boost</h4>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">Projected 15% increase in campus placements for associated colleges.</p>
+                                    <h4 className="font-semibold text-text">Placement Boost</h4>
+                                    <p className="text-sm text-text">Projected 15% increase in campus placements for associated colleges.</p>
                                 </div>
                             </div>
                         </div>
@@ -116,8 +116,8 @@ const FeasibilityModal: React.FC<FeasibilityModalProps> = ({ onClose, onApprove,
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-slate-700">
-                        <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700 rounded transition-colors">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                        <button onClick={onClose} className="px-4 py-2 text-text hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
                             Cancel
                         </button>
                         <button

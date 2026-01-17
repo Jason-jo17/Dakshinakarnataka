@@ -10,11 +10,11 @@ import LeadingCompanies from '../dashboard/LeadingCompanies';
 const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white p-3 border border-slate-200 rounded shadow-lg text-xs">
-                <p className="font-bold text-slate-800">{payload[0].payload.name}</p>
-                <p className="text-slate-600">Openings: <span className="font-bold text-blue-600">{payload[0].value}</span></p>
+            <div className="bg-surface p-3 border border-slate-200 dark:border-slate-700 rounded shadow-lg text-xs">
+                <p className="font-bold text-text">{payload[0].payload.name}</p>
+                <p className="text-icon">Openings: <span className="font-bold text-blue-600 dark:text-blue-400">{payload[0].value}</span></p>
                 {payload[0].payload.companies && (
-                    <p className="text-slate-500 text-[10px] mt-1">{payload[0].payload.companies}</p>
+                    <p className="text-icon text-[10px] mt-1">{payload[0].payload.companies}</p>
                 )}
             </div>
         );
@@ -160,7 +160,7 @@ export default function DemandPanel({ filters }: PanelProps) {
                 {/* Demand Volume Tree Map */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Job Demand by Skill (Tree Map)
                         </CardTitle>
                     </CardHeader>
@@ -177,7 +177,7 @@ export default function DemandPanel({ filters }: PanelProps) {
                                 <Tooltip content={<CustomTooltip />} />
                             </Treemap>
                         </ResponsiveContainer>
-                        <div className="text-xs text-center text-slate-500 mt-2">
+                        <div className="text-xs text-center text-icon mt-2">
                             Size represents number of active job postings • Data: Dec 2024
                         </div>
                     </CardContent>
@@ -186,13 +186,13 @@ export default function DemandPanel({ filters }: PanelProps) {
                 {/* Company Demand Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Top Hiring Companies - Dakshina Kannada
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="h-[350px] overflow-auto p-0">
                         <Table>
-                            <TableHeader className="sticky top-0 bg-white">
+                            <TableHeader className="sticky top-0 bg-surface">
                                 <TableRow>
                                     <TableHead className="font-semibold">Company</TableHead>
                                     <TableHead className="font-semibold">Sector</TableHead>
@@ -202,19 +202,21 @@ export default function DemandPanel({ filters }: PanelProps) {
                             </TableHeader>
                             <TableBody>
                                 {companyDemand.map((co, i) => (
-                                    <TableRow key={i} className={i < 3 ? 'bg-blue-50' : ''}>
-                                        <TableCell className="font-medium text-slate-800">
+                                    <TableRow key={i} className={i < 3 ? 'bg-blue-50 dark:bg-blue-900/20' : ''}>
+                                        <TableCell className="font-medium text-text">
                                             {co.company_name}
-                                            <div className="text-xs text-slate-500">{co.company_type}</div>
+                                            <div className="text-xs text-icon">{co.company_type}</div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className="text-xs">
+                                            <Badge variant="outline" className="text-xs border-slate-200 dark:border-slate-700 text-text">
                                                 {co.sector}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-sm text-slate-700">{co.job_role}</TableCell>
+                                        <TableCell className="text-sm text-icon">
+                                            {co.job_role}
+                                        </TableCell>
                                         <TableCell className="text-right">
-                                            <span className="font-bold text-blue-600 text-lg">{co.demand_count}</span>
+                                            <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{co.demand_count}</span>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -227,17 +229,17 @@ export default function DemandPanel({ filters }: PanelProps) {
             {/* Trending Job Roles */}
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-slate-800">Trending Job Roles in Dakshina Kannada</h3>
-                    <Badge variant="secondary" className="text-xs">Based on 1,000+ active listings</Badge>
+                    <h3 className="text-lg font-semibold text-text">Trending Job Roles in Dakshina Kannada</h3>
+                    <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-800 text-text">Based on 1,000+ active listings</Badge>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {jobRoles.map((role, i) => (
-                        <Card key={i} className="hover:shadow-lg transition-shadow border-l-4 border-l-blue-500">
+                        <Card key={i} className="hover:shadow-lg transition-shadow border-l-4 border-l-blue-500 dark:bg-surface">
                             <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <h4 className="font-bold text-slate-800 text-base">{role.title}</h4>
-                                        <div className="text-xs text-slate-500 mt-1">{role.companies}</div>
+                                        <h4 className="font-bold text-text text-base">{role.title}</h4>
+                                        <div className="text-xs text-icon mt-1">{role.companies}</div>
                                     </div>
                                     <Badge className="bg-blue-600 text-white font-bold">
                                         {role.openings}
@@ -245,14 +247,14 @@ export default function DemandPanel({ filters }: PanelProps) {
                                 </div>
                                 <div className="flex flex-wrap gap-1 mb-3">
                                     {role.skills.map(s => (
-                                        <Badge key={s} variant="secondary" className="text-xs py-0.5">
+                                        <Badge key={s} variant="secondary" className="text-xs py-0.5 bg-slate-100 dark:bg-slate-700 text-text">
                                             {s}
                                         </Badge>
                                     ))}
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-600">Exp: <span className="font-semibold">{role.exp}</span></span>
-                                    <span className="text-green-600 font-bold">{role.salary}</span>
+                                    <span className="text-icon">Exp: <span className="font-semibold">{role.exp}</span></span>
+                                    <span className="text-green-600 dark:text-green-400 font-bold">{role.salary}</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -262,9 +264,9 @@ export default function DemandPanel({ filters }: PanelProps) {
 
             {/* Market Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-blue-700 flex items-center gap-2">
+                        <CardTitle className="text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2">
                             <TrendingUp size={16} />
                             Highest Demand Skills
                         </CardTitle>
@@ -272,24 +274,24 @@ export default function DemandPanel({ filters }: PanelProps) {
                     <CardContent>
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-blue-800">1. Python</span>
+                                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">1. Python</span>
                                 <Badge className="bg-blue-600">398 jobs</Badge>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-blue-800">2. BPO/Voice</span>
+                                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">2. BPO/Voice</span>
                                 <Badge className="bg-blue-600">450 jobs</Badge>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-sm font-medium text-blue-800">3. Java/Spring Boot</span>
+                                <span className="text-sm font-medium text-blue-800 dark:text-blue-300">3. Java/Spring Boot</span>
                                 <Badge className="bg-blue-600">285 jobs</Badge>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-green-700 flex items-center gap-2">
+                        <CardTitle className="text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
                             <Building2 size={16} />
                             Major Employers
                         </CardTitle>
@@ -297,16 +299,16 @@ export default function DemandPanel({ filters }: PanelProps) {
                     <CardContent>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between items-center">
-                                <span className="font-medium text-green-800">Infosys BPM</span>
-                                <span className="text-green-600 text-xs">2,500+ employees</span>
+                                <span className="font-medium text-green-800 dark:text-green-300">Infosys BPM</span>
+                                <span className="text-green-600 dark:text-green-400 text-xs">2,500+ employees</span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="font-medium text-green-800">Cognizant</span>
-                                <span className="text-green-600 text-xs">2,000+ employees</span>
+                                <span className="font-medium text-green-800 dark:text-green-300">Cognizant</span>
+                                <span className="text-green-600 dark:text-green-400 text-xs">2,000+ employees</span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="font-medium text-green-800">STPI Registered</span>
-                                <span className="text-green-600 text-xs">250+ companies</span>
+                                <span className="font-medium text-green-800 dark:text-green-300">STPI Registered</span>
+                                <span className="text-green-600 dark:text-green-400 text-xs">250+ companies</span>
                             </div>
                         </div>
                     </CardContent>
@@ -316,50 +318,50 @@ export default function DemandPanel({ filters }: PanelProps) {
             {/* SWOT Analysis */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base font-semibold text-slate-700">
+                    <CardTitle className="text-base font-semibold text-text">
                         Dakshina Kannada Job Market - SWOT Analysis
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
-                            <h5 className="font-bold text-green-700 mb-2 flex items-center gap-2">
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-l-4 border-green-500">
+                            <h5 className="font-bold text-green-700 dark:text-green-400 mb-2 flex items-center gap-2">
                                 <span className="text-xl">✓</span> Strengths
                             </h5>
-                            <ul className="list-disc pl-5 text-sm text-green-800 space-y-1">
+                            <ul className="list-disc pl-5 text-sm text-green-800 dark:text-green-300 space-y-1">
                                 <li>Strong BPO/IT services sector (1,300+ openings)</li>
                                 <li>Growing tech ecosystem (225+ companies)</li>
                                 <li>Lower cost advantage vs Bengaluru (10-25%)</li>
                                 <li>Premier talent from NITK Surathkal</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
-                            <h5 className="font-bold text-red-700 mb-2 flex items-center gap-2">
+                        <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border-l-4 border-red-500">
+                            <h5 className="font-bold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
                                 <span className="text-xl">✗</span> Weaknesses
                             </h5>
-                            <ul className="list-disc pl-5 text-sm text-red-800 space-y-1">
+                            <ul className="list-disc pl-5 text-sm text-red-800 dark:text-red-300 space-y-1">
                                 <li>Limited advanced tech roles (Cloud: 120, DevOps: 95)</li>
                                 <li>Heavy dependence on IT services/BPO</li>
                                 <li>Product company presence still nascent</li>
                                 <li>Salary levels lower than tier-1 cities</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-                            <h5 className="font-bold text-blue-700 mb-2 flex items-center gap-2">
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+                            <h5 className="font-bold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-2">
                                 <span className="text-xl">◐</span> Opportunities
                             </h5>
-                            <ul className="list-disc pl-5 text-sm text-blue-800 space-y-1">
+                            <ul className="list-disc pl-5 text-sm text-blue-800 dark:text-blue-300 space-y-1">
                                 <li>KDEM ₹1,000 cr investment committed</li>
                                 <li>Beyond Bengaluru initiative targeting 10k+ jobs</li>
                                 <li>Growing GCC interest (BOSE, EG Danmark)</li>
                                 <li>Python/Cloud skill demand creates training market</li>
                             </ul>
                         </div>
-                        <div className="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
-                            <h5 className="font-bold text-orange-700 mb-2 flex items-center gap-2">
+                        <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border-l-4 border-orange-500">
+                            <h5 className="font-bold text-orange-700 dark:text-orange-400 mb-2 flex items-center gap-2">
                                 <span className="text-xl">⚠</span> Threats
                             </h5>
-                            <ul className="list-disc pl-5 text-sm text-orange-800 space-y-1">
+                            <ul className="list-disc pl-5 text-sm text-orange-800 dark:text-orange-300 space-y-1">
                                 <li>Competition from Bengaluru for talent</li>
                                 <li>Global tech slowdown affecting hiring</li>
                                 <li>Skill gaps in emerging tech (Cloud: 63% gap)</li>

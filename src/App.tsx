@@ -12,18 +12,27 @@ import IndustryDemandView from './components/pages/IndustryDemandView';
 import COEView from './components/pages/COEView';
 import CareerCentersView from './components/pages/CareerCentersView';
 import ReportsView from './components/pages/ReportsView';
-import { INSTITUTIONS } from './data/institutions';
 import { useFilters } from './hooks/useFilters';
 import { initializeGenAI } from './services/geminiService';
 import { FloatingFilterPanel } from './components/map/FloatingFilterPanel';
 import { JOBS } from './data/jobs';
 import { DCSearch } from './components/dashboard/DCSearch';
+import { useDataStore } from './store/useDataStore';
+import LoginPage from './components/auth/LoginPage';
+import InstitutionEntryForm from './components/entry/InstitutionEntryForm';
+import CompanyEntryForm from './components/entry/CompanyEntryForm';
+import CoeEntryForm from './components/entry/CoeEntryForm';
 
 function App() {
+  const institutions = useDataStore(state => state.institutions);
+
+  const [showLogin, setShowLogin] = useState(false);
+  const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | null>(null);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
-  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('map');
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('dashboard');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -53,7 +62,7 @@ function App() {
   }, [isDarkMode]);
 
   // Combine static and discovered data
-  const allData = [...INSTITUTIONS];
+  const allData = [...institutions];
 
   const { filteredData, filters, setSearch, toggleCategory, toggleDomain, toggleTool, toggleDegree, toggleCoe } = useFilters(allData);
 
@@ -117,8 +126,55 @@ function App() {
     }
   };
 
+  // Handle Login Navigation
+  if (showLogin) {
+    return (
+      <LoginPage
+        onBack={() => setShowLogin(false)}
+        onLogin={(role) => {
+          setShowLogin(false);
+          // Navigate to appropriate entry form based on role
+          if (role === 'institution') setShowEntryForm('institution');
+          else if (role === 'company') setShowEntryForm('company');
+          else if (role === 'coe') setShowEntryForm('coe');
+        }}
+      />
+    );
+  }
+
+  // Handle Entry Forms
+  if (showEntryForm === 'institution') {
+    return (
+      <InstitutionEntryForm
+        onSuccess={() => {
+          setShowEntryForm(null);
+          // Optional: Show success notification or navigate to specific view
+        }}
+        onCancel={() => setShowEntryForm(null)}
+      />
+    );
+  }
+
+  if (showEntryForm === 'company') {
+    return (
+      <CompanyEntryForm
+        onSuccess={() => setShowEntryForm(null)}
+        onCancel={() => setShowEntryForm(null)}
+      />
+    );
+  }
+
+  if (showEntryForm === 'coe') {
+    return (
+      <CoeEntryForm
+        onSuccess={() => setShowEntryForm(null)}
+        onCancel={() => setShowEntryForm(null)}
+      />
+    );
+  }
+
   return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden">
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Mobile Menu Button */}
       <button
         className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
@@ -141,7 +197,7 @@ function App() {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <Sidebar
-          institutions={currentView === 'map' ? filteredData : INSTITUTIONS}
+          institutions={currentView === 'map' ? filteredData : institutions}
           selectedId={selectedId}
           onSelect={(id) => {
             setSelectedId(id);
@@ -161,6 +217,12 @@ function App() {
           onSearchChange={setSearch}
           selectedCategories={filters.categories}
           onToggleCategory={toggleCategory}
+
+          // Partner Login
+          onLogin={() => {
+            setShowLogin(true);
+            setIsMobileMenuOpen(false);
+          }}
         />
       </div>
 

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Lightbulb, AlertTriangle, ArrowRight, Zap, TrendingUp } from "lucide-react";
+import { Lightbulb, AlertTriangle, ArrowRight, Zap, TrendingUp, Briefcase } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface PanelProps {
@@ -9,37 +9,42 @@ interface PanelProps {
         domain: string;
         institution: string;
     };
+    onTabChange?: (tab: string) => void;
 }
 
-export default function InsightsPanel({ filters }: PanelProps) {
+export default function InsightsPanel({ filters, onTabChange }: PanelProps) {
     void filters;
     return (
         <div className="space-y-6">
             {/* Main Action Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {/* Priority Skills - Real DK Data */}
                 <Card className="border-t-4 border-t-red-500 shadow-md">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base text-red-600">
+                        <CardTitle className="flex items-center gap-2 text-base text-red-600 dark:text-red-400">
                             <AlertTriangle size={20} /> Critical Skill Gaps
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ul className="space-y-2">
-                            <li className="p-2 bg-red-50 rounded text-sm font-medium text-red-800">
+                            <li className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm font-medium text-red-800 dark:text-red-200">
                                 1. Cloud/DevOps (63% gap)
-                                <div className="text-xs text-red-600 mt-0.5">120 demand, 45 supply</div>
+                                <div className="text-xs text-red-600 dark:text-red-400 mt-0.5">120 demand, 45 supply</div>
                             </li>
-                            <li className="p-2 bg-red-50 rounded text-sm font-medium text-red-800">
+                            <li className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm font-medium text-red-800 dark:text-red-200">
                                 2. Data Science (50% gap)
-                                <div className="text-xs text-red-600 mt-0.5">150 demand, 75 supply</div>
+                                <div className="text-xs text-red-600 dark:text-red-400 mt-0.5">150 demand, 75 supply</div>
                             </li>
-                            <li className="p-2 bg-red-50 rounded text-sm font-medium text-red-800">
+                            <li className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-sm font-medium text-red-800 dark:text-red-200">
                                 3. Soft Skills (40% gap)
-                                <div className="text-xs text-red-600 mt-0.5">Affects all sectors</div>
+                                <div className="text-xs text-red-600 dark:text-red-400 mt-0.5">Affects all sectors</div>
                             </li>
                         </ul>
-                        <Button variant="link" className="mt-3 text-red-600 p-0 h-auto text-xs">
+                        <Button
+                            variant="link"
+                            className="mt-3 text-red-600 dark:text-red-400 p-0 h-auto text-xs"
+                            onClick={() => onTabChange?.('gap')}
+                        >
                             View Complete Gap Analysis <ArrowRight size={12} className="ml-1" />
                         </Button>
                     </CardContent>
@@ -48,26 +53,26 @@ export default function InsightsPanel({ filters }: PanelProps) {
                 {/* Recommended Programs - Real Programs */}
                 <Card className="border-t-4 border-t-blue-500 shadow-md">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base text-blue-600">
+                        <CardTitle className="flex items-center gap-2 text-base text-blue-600 dark:text-blue-400">
                             <Lightbulb size={20} /> Recommended Programs
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ul className="space-y-2">
-                            <li className="p-2 bg-blue-50 rounded text-sm font-medium text-blue-800">
+                            <li className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm font-medium text-blue-800 dark:text-blue-200">
                                 AWS/GCP Cloud Certification
-                                <div className="text-xs text-blue-600 mt-0.5">Address 63% Cloud gap</div>
+                                <div className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">Address 63% Cloud gap</div>
                             </li>
-                            <li className="p-2 bg-blue-50 rounded text-sm font-medium text-blue-800">
+                            <li className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm font-medium text-blue-800 dark:text-blue-200">
                                 Python + Django Bootcamp
-                                <div className="text-xs text-blue-600 mt-0.5">398 job openings</div>
+                                <div className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">398 job openings</div>
                             </li>
-                            <li className="p-2 bg-blue-50 rounded text-sm font-medium text-blue-800">
+                            <li className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm font-medium text-blue-800 dark:text-blue-200">
                                 MERN Stack Development
-                                <div className="text-xs text-blue-600 mt-0.5">180 openings, 33% gap</div>
+                                <div className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">180 openings, 33% gap</div>
                             </li>
                         </ul>
-                        <Button variant="link" className="mt-3 text-blue-600 p-0 h-auto text-xs">
+                        <Button variant="link" className="mt-3 text-blue-600 dark:text-blue-400 p-0 h-auto text-xs">
                             Launch Training Program <ArrowRight size={12} className="ml-1" />
                         </Button>
                     </CardContent>
@@ -76,21 +81,21 @@ export default function InsightsPanel({ filters }: PanelProps) {
                 {/* COE Activation - Real DK COE Data */}
                 <Card className="border-t-4 border-t-orange-500 shadow-md">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base text-orange-600">
+                        <CardTitle className="flex items-center gap-2 text-base text-orange-600 dark:text-orange-400">
                             <Zap size={20} /> COE Opportunities
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
                             <div>
-                                <p className="text-sm text-slate-700 font-semibold mb-1">SJEC NAIN Center</p>
-                                <p className="text-xs text-slate-600">
-                                    73% utilization • <span className="font-semibold text-orange-600">Opportunity:</span> Launch Cloud/DevOps lab with AWS partnership
+                                <p className="text-sm text-text font-semibold mb-1">SJEC NAIN Center</p>
+                                <p className="text-xs text-icon">
+                                    73% utilization • <span className="font-semibold text-orange-600 dark:text-orange-400">Opportunity:</span> Launch Cloud/DevOps lab with AWS partnership
                                 </p>
                             </div>
                             <div>
-                                <p className="text-sm text-slate-700 font-semibold mb-1">STPI Mangaluru</p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-sm text-text font-semibold mb-1">STPI Mangaluru</p>
+                                <p className="text-xs text-icon">
                                     75% utilization • Target 90% with 50 new startups by Q2 2025
                                 </p>
                             </div>
@@ -104,27 +109,58 @@ export default function InsightsPanel({ filters }: PanelProps) {
                 {/* Policy & Funding - Real KDEM Data */}
                 <Card className="border-t-4 border-t-green-500 shadow-md">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base text-green-600">
+                        <CardTitle className="flex items-center gap-2 text-base text-green-600 dark:text-green-400">
                             <TrendingUp size={20} /> Funding Opportunities
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-2">
-                            <div className="p-2 bg-green-50 rounded">
-                                <p className="text-sm font-semibold text-green-800">KDEM Mangaluru Cluster</p>
-                                <p className="text-xs text-green-700 mt-0.5">
+                            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                                <p className="text-sm font-semibold text-green-800 dark:text-green-200">KDEM Mangaluru Cluster</p>
+                                <p className="text-xs text-green-700 dark:text-green-300 mt-0.5">
                                     ₹1,000 cr investment • Beyond Bengaluru initiative
                                 </p>
                             </div>
-                            <div className="p-2 bg-green-50 rounded">
-                                <p className="text-sm font-semibold text-green-800">Karnataka Startup Policy</p>
-                                <p className="text-xs text-green-700 mt-0.5">
+                            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                                <p className="text-sm font-semibold text-green-800 dark:text-green-200">Karnataka Startup Policy</p>
+                                <p className="text-xs text-green-700 dark:text-green-300 mt-0.5">
                                     ₹518 cr budget (2025-30) • Seed funding available
                                 </p>
                             </div>
                         </div>
-                        <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-xs">
+                        <Button className="w-full mt-3 bg-green-600 hover:bg-green-700 text-xs text-white">
                             Apply for Grant
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                {/* Placements Insights - New Card */}
+                <Card className="border-t-4 border-t-purple-500 shadow-md">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base text-purple-600 dark:text-purple-400">
+                            <Briefcase size={20} /> Placements Insights
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                                <p className="text-sm font-semibold text-purple-800 dark:text-purple-200">2024 Placement Rate</p>
+                                <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
+                                    78% overall • 1,240 students placed
+                                </p>
+                            </div>
+                            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded">
+                                <p className="text-sm font-semibold text-purple-800 dark:text-purple-200">Top Recruiters</p>
+                                <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
+                                    Infosys, TCS, Cognizant, Accenture
+                                </p>
+                            </div>
+                        </div>
+                        <Button
+                            className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-xs text-white"
+                            onClick={() => window.open('https://inpulse-staging-recruitment.web.app/signin', '_blank')}
+                        >
+                            View Recruitment Portal <ArrowRight size={12} className="ml-1" />
                         </Button>
                     </CardContent>
                 </Card>
@@ -133,37 +169,37 @@ export default function InsightsPanel({ filters }: PanelProps) {
             {/* Branch-Specific Insights Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Computer Science & IT */}
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-bold text-blue-800">Computer Science & IT</CardTitle>
+                        <CardTitle className="text-sm font-bold text-blue-800 dark:text-blue-200">Computer Science & IT</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
                             <div>
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-semibold text-blue-900">Highest Demand Skills</span>
-                                    <span className="text-xs text-blue-700">850+ openings</span>
+                                    <span className="text-xs font-semibold text-blue-900 dark:text-blue-100">Highest Demand Skills</span>
+                                    <span className="text-xs text-blue-700 dark:text-blue-300">850+ openings</span>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-blue-800">Python</span>
-                                        <span className="font-bold text-blue-600">398 jobs</span>
+                                        <span className="text-blue-800 dark:text-blue-200">Python</span>
+                                        <span className="font-bold text-blue-600 dark:text-blue-400">398 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-blue-800">Java/Spring</span>
-                                        <span className="font-bold text-blue-600">285 jobs</span>
+                                        <span className="text-blue-800 dark:text-blue-200">Java/Spring</span>
+                                        <span className="font-bold text-blue-600 dark:text-blue-400">285 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-blue-800">React/Frontend</span>
-                                        <span className="font-bold text-blue-600">245 jobs</span>
+                                        <span className="text-blue-800 dark:text-blue-200">React/Frontend</span>
+                                        <span className="font-bold text-blue-600 dark:text-blue-400">245 jobs</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="pt-2 border-t border-blue-200">
-                                <p className="text-xs text-blue-800">
+                            <div className="pt-2 border-t border-blue-200 dark:border-blue-700">
+                                <p className="text-xs text-blue-800 dark:text-blue-200">
                                     <strong>Salary Range:</strong> ₹3.5-16 LPA
                                 </p>
-                                <p className="text-xs text-blue-800 mt-1">
+                                <p className="text-xs text-blue-800 dark:text-blue-200 mt-1">
                                     <strong>Top Companies:</strong> Infosys BPM, Cognizant, EG Danmark, Winman
                                 </p>
                             </div>
@@ -172,37 +208,37 @@ export default function InsightsPanel({ filters }: PanelProps) {
                 </Card>
 
                 {/* Electronics & Communication */}
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-bold text-purple-800">Electronics & Communication</CardTitle>
+                        <CardTitle className="text-sm font-bold text-purple-800 dark:text-purple-200">Electronics & Communication</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
                             <div>
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-semibold text-purple-900">Core Skills in Demand</span>
-                                    <span className="text-xs text-purple-700">180+ openings</span>
+                                    <span className="text-xs font-semibold text-purple-900 dark:text-purple-100">Core Skills in Demand</span>
+                                    <span className="text-xs text-purple-700 dark:text-purple-300">180+ openings</span>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-purple-800">Embedded Systems</span>
-                                        <span className="font-bold text-purple-600">85 jobs</span>
+                                        <span className="text-purple-800 dark:text-purple-200">Embedded Systems</span>
+                                        <span className="font-bold text-purple-600 dark:text-purple-400">85 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-purple-800">IoT Development</span>
-                                        <span className="font-bold text-purple-600">55 jobs</span>
+                                        <span className="text-purple-800 dark:text-purple-200">IoT Development</span>
+                                        <span className="font-bold text-purple-600 dark:text-purple-400">55 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-purple-800">PCB Design</span>
-                                        <span className="font-bold text-purple-600">40 jobs</span>
+                                        <span className="text-purple-800 dark:text-purple-200">PCB Design</span>
+                                        <span className="font-bold text-purple-600 dark:text-purple-400">40 jobs</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="pt-2 border-t border-purple-200">
-                                <p className="text-xs text-purple-800">
+                            <div className="pt-2 border-t border-purple-200 dark:border-purple-700">
+                                <p className="text-xs text-purple-800 dark:text-purple-200">
                                     <strong>Salary Range:</strong> ₹3.5-9 LPA
                                 </p>
-                                <p className="text-xs text-purple-800 mt-1">
+                                <p className="text-xs text-purple-800 dark:text-purple-200 mt-1">
                                     <strong>Top Company:</strong> BOSE Professional (Audio Systems)
                                 </p>
                             </div>
@@ -211,37 +247,37 @@ export default function InsightsPanel({ filters }: PanelProps) {
                 </Card>
 
                 {/* Mechanical & Civil Engineering */}
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-700">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-bold text-orange-800">Mechanical & Civil</CardTitle>
+                        <CardTitle className="text-sm font-bold text-orange-800 dark:text-orange-200">Mechanical & Civil</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
                             <div>
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-semibold text-orange-900">Key Skill Areas</span>
-                                    <span className="text-xs text-orange-700">140+ openings</span>
+                                    <span className="text-xs font-semibold text-orange-900 dark:text-orange-100">Key Skill Areas</span>
+                                    <span className="text-xs text-orange-700 dark:text-orange-300">140+ openings</span>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-orange-800">CAD/CAM (SolidWorks)</span>
-                                        <span className="font-bold text-orange-600">65 jobs</span>
+                                        <span className="text-orange-800 dark:text-orange-200">CAD/CAM (SolidWorks)</span>
+                                        <span className="font-bold text-orange-600 dark:text-orange-400">65 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-orange-800">CNC Programming</span>
-                                        <span className="font-bold text-orange-600">45 jobs</span>
+                                        <span className="text-orange-800 dark:text-orange-200">CNC Programming</span>
+                                        <span className="font-bold text-orange-600 dark:text-orange-400">45 jobs</span>
                                     </div>
                                     <div className="flex justify-between text-xs">
-                                        <span className="text-orange-800">AutoCAD Civil 3D</span>
-                                        <span className="font-bold text-orange-600">30 jobs</span>
+                                        <span className="text-orange-800 dark:text-orange-200">AutoCAD Civil 3D</span>
+                                        <span className="font-bold text-orange-600 dark:text-orange-400">30 jobs</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="pt-2 border-t border-orange-200">
-                                <p className="text-xs text-orange-800">
+                            <div className="pt-2 border-t border-orange-200 dark:border-orange-700">
+                                <p className="text-xs text-orange-800 dark:text-orange-200">
                                     <strong>Salary Range:</strong> ₹2.5-6 LPA
                                 </p>
-                                <p className="text-xs text-orange-800 mt-1">
+                                <p className="text-xs text-orange-800 dark:text-orange-200 mt-1">
                                     <strong>Note:</strong> Lower placement rates (58-65%) - needs upskilling focus
                                 </p>
                             </div>
@@ -292,21 +328,21 @@ export default function InsightsPanel({ filters }: PanelProps) {
 
             {/* Quick Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-2xl font-bold text-red-600">650+</div>
-                    <div className="text-xs text-slate-600 mt-1">Unfilled Positions</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-700 p-4 text-center">
+                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">650+</div>
+                    <div className="text-xs text-icon mt-1">Unfilled Positions</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-600">3,400</div>
-                    <div className="text-xs text-slate-600 mt-1">Students Need Upskilling</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-700 p-4 text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">3,400</div>
+                    <div className="text-xs text-icon mt-1">Students Need Upskilling</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-2xl font-bold text-green-600">₹1,000 Cr</div>
-                    <div className="text-xs text-slate-600 mt-1">KDEM Investment</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-700 p-4 text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">₹1,000 Cr</div>
+                    <div className="text-xs text-icon mt-1">KDEM Investment</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-2xl font-bold text-purple-600">10,000+</div>
-                    <div className="text-xs text-slate-600 mt-1">Job Target by 2026</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-700 p-4 text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">10,000+</div>
+                    <div className="text-xs text-icon mt-1">Job Target by 2026</div>
                 </div>
             </div>
         </div>

@@ -113,20 +113,20 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                     Actually, we need a wrapper to center properly without clipping. 
                 */}
 
-                <div className="relative bg-gray-50 dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-6xl my-8 text-left overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="relative bg-background rounded-xl shadow-2xl w-full max-w-6xl my-8 text-left overflow-hidden animate-in zoom-in-95 duration-200">
 
                     {/* Header */}
-                    <div className="bg-white dark:bg-slate-800 p-6 border-b border-gray-200 dark:border-slate-700 flex justify-between items-start sticky top-0 z-10 shadow-sm">
+                    <div className="bg-surface p-6 border-b border-border flex justify-between items-start sticky top-0 z-10 shadow-sm">
                         <div>
                             <div className="flex items-center gap-3 mb-1">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                <h2 className="text-2xl font-bold text-text">
                                     {skill} Intelligence Report
                                 </h2>
                                 <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold border border-red-200">
                                     Critical Gap Identified
                                 </span>
                             </div>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            <p className="text-icon text-sm">
                                 Deep dive analytics on supply-demand friction, sourcing channels, and skill conversion.
                             </p>
                         </div>
@@ -153,13 +153,13 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                                         alert("Could not save report. Local storage might be full or disabled.");
                                     }
                                 }}
-                                className="p-2 flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-sm font-medium"
+                                className="p-2 flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors text-sm font-medium"
                             >
                                 <Save size={18} />
                                 Save Report
                             </button>
-                            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors">
-                                <X className="text-gray-500" size={24} />
+                            <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
+                                <X className="text-icon" size={24} />
                             </button>
                         </div>
                     </div>
@@ -168,23 +168,23 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
 
                         {/* Top Stats Row */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Total Talent Pool</p>
-                                <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">{totalTalentPool}</p>
+                            <div className="bg-surface p-4 rounded-lg shadow-sm border border-border">
+                                <p className="text-xs text-icon uppercase font-semibold">Total Talent Pool</p>
+                                <p className="text-2xl font-bold text-text mt-1">{totalTalentPool}</p>
                                 <p className="text-xs text-green-500 mt-1 font-medium">Across {matchingInstitutions.length} Institutes</p>
                             </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Hiring Demand</p>
-                                <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">{demandCount}</p>
+                            <div className="bg-surface p-4 rounded-lg shadow-sm border border-border">
+                                <p className="text-xs text-icon uppercase font-semibold">Hiring Demand</p>
+                                <p className="text-2xl font-bold text-text mt-1">{demandCount}</p>
                                 <p className="text-xs text-blue-500 mt-1 font-medium">Active Openings</p>
                             </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Avg Salary</p>
-                                <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">₹3.5L - 6L</p>
-                                <p className="text-xs text-gray-400 mt-1">Market Standard</p>
+                            <div className="bg-surface p-4 rounded-lg shadow-sm border border-border">
+                                <p className="text-xs text-icon uppercase font-semibold">Avg Salary</p>
+                                <p className="text-2xl font-bold text-text mt-1">₹3.5L - 6L</p>
+                                <p className="text-xs text-icon mt-1">Market Standard</p>
                             </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
-                                <p className="text-xs text-gray-500 uppercase font-semibold">Gap Intensity</p>
+                            <div className="bg-surface p-4 rounded-lg shadow-sm border border-border">
+                                <p className="text-xs text-icon uppercase font-semibold">Gap Intensity</p>
                                 <p className="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">High</p>
                                 <p className="text-xs text-red-500 mt-1 font-medium">{Math.round((demandCount / (totalTalentPool || 1)) * 100)}% Supply Fit</p>
                             </div>
@@ -194,12 +194,12 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                             {/* 1. Applicant Funnel */}
-                            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 lg:col-span-1">
-                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Applicant Funnel</h3>
+                            <div className="bg-surface p-6 rounded-xl shadow-sm border border-border lg:col-span-1">
+                                <h3 className="text-lg font-bold text-text mb-6">Applicant Funnel</h3>
                                 <div className="space-y-4">
                                     {funnelData.map((item, idx) => (
                                         <div key={idx} className="relative group">
-                                            <div className="flex justify-between text-sm mb-1 font-medium text-gray-700 dark:text-gray-300">
+                                            <div className="flex justify-between text-sm mb-1 font-medium text-text">
                                                 <span>{item.stage}</span>
                                                 <span>{item.count}</span>
                                             </div>
@@ -223,9 +223,9 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                             </div>
 
                             {/* 2. Skill Gap Radar */}
-                            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 lg:col-span-1 flex flex-col">
+                            <div className="bg-surface p-6 rounded-xl shadow-sm border border-border lg:col-span-1 flex flex-col">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-lg font-bold text-gray-800 dark:text-white">Skill Gap Radar</h3>
+                                    <h3 className="text-lg font-bold text-text">Skill Gap Radar</h3>
                                     <div className="flex gap-2 text-xs">
                                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Req</span>
                                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-500"></span> Avg</span>
@@ -256,8 +256,8 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                             </div>
 
                             {/* 3. Sourcing Map (Treemap Simulation) */}
-                            <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 lg:col-span-1">
-                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6">Sourcing Map</h3>
+                            <div className="bg-surface p-6 rounded-xl shadow-sm border border-border lg:col-span-1">
+                                <h3 className="text-lg font-bold text-text mb-6">Sourcing Map</h3>
                                 <div className="flex flex-col h-[300px] gap-1">
                                     <div className="flex flex-1 gap-1">
                                         <div className="w-[55%] bg-blue-600 rounded-tl-lg p-3 text-white flex flex-col justify-between hover:bg-blue-700 transition-colors cursor-pointer group relative overflow-hidden">
@@ -297,9 +297,9 @@ const DetailedReport: React.FC<DetailedReportProps> = ({ skill, onClose }) => {
                         </div>
 
                         {/* Skill Conversion Matrix */}
-                        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700">
+                        <div className="bg-surface p-6 rounded-xl shadow-sm border border-border">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg font-bold text-gray-800 dark:text-white">Skill Conversion Matrix</h3>
+                                <h3 className="text-lg font-bold text-text">Skill Conversion Matrix</h3>
                                 <button className="px-3 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded text-sm font-semibold transition-colors">
                                     Schedule Workshop
                                 </button>

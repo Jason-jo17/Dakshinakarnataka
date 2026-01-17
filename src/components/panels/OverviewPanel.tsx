@@ -92,14 +92,14 @@ export default function OverviewPanel({ filters }: PanelProps) {
                 />
                 <Card>
                     <CardContent className="flex items-center p-4 space-x-4">
-                        <div className="p-3 rounded-full bg-orange-100 text-orange-600">
+                        <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
                             <Activity className="w-6 h-6" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-slate-500">Skill Gap Index</p>
-                            <h3 className="text-2xl font-bold text-slate-900">{overview.skillGapPercentage}%</h3>
-                            <p className="text-xs text-slate-400 mt-1">Diff. between industry demand & student readiness</p>
-                            <div className="flex items-center text-xs font-medium text-red-600 mt-1">
+                            <p className="text-sm font-medium text-icon">Skill Gap Index</p>
+                            <h3 className="text-2xl font-bold text-text">{overview.skillGapPercentage}%</h3>
+                            <p className="text-xs text-icon mt-1">Diff. between industry demand & student readiness</p>
+                            <div className="flex items-center text-xs font-medium text-red-600 dark:text-red-400 mt-1">
                                 <TrendingUp className="w-3 h-3 mr-1 transform rotate-180" />
                                 -5% vs last year
                             </div>
@@ -126,7 +126,7 @@ export default function OverviewPanel({ filters }: PanelProps) {
                 {/* District Skill Readiness Index */}
                 <Card className="lg:col-span-1">
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             District Skill Readiness Index
                         </CardTitle>
                     </CardHeader>
@@ -151,11 +151,11 @@ export default function OverviewPanel({ filters }: PanelProps) {
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute bottom-10 text-center">
-                            <div className="text-4xl font-bold text-slate-800">
+                            <div className="text-4xl font-bold text-text">
                                 {dashboardData.supply.readinessScore}/100
                             </div>
-                            <div className="text-xs text-slate-500">Readiness Score</div>
-                            <div className="text-xs text-green-600 font-semibold mt-1">
+                            <div className="text-xs text-icon">Readiness Score</div>
+                            <div className="text-xs text-green-600 dark:text-green-400 font-semibold mt-1">
                                 {readinessData[0].value}% Job Ready
                             </div>
                         </div>
@@ -165,7 +165,7 @@ export default function OverviewPanel({ filters }: PanelProps) {
                 {/* Sector-wise Demand vs Supply */}
                 <Card className="lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Sector-wise Demand vs Supply (Current Openings vs Placed Students)
                         </CardTitle>
                     </CardHeader>
@@ -192,47 +192,47 @@ export default function OverviewPanel({ filters }: PanelProps) {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
                     <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-blue-700">
+                        <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">
                             {dashboardData.supply.annualGraduates.toLocaleString()}
                         </div>
-                        <div className="text-xs text-blue-600 mt-1">Annual Engineering Graduates</div>
+                        <div className="text-xs text-blue-600 dark:text-blue-300 mt-1">Annual Engineering Graduates</div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
                     <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-green-700">
+                        <div className="text-3xl font-bold text-green-700 dark:text-green-400">
                             {dashboardData.supply.certifiedStudents.toLocaleString()}
                         </div>
-                        <div className="text-xs text-green-600 mt-1">Certified/Trained Students</div>
+                        <div className="text-xs text-green-600 dark:text-green-300 mt-1">Certified/Trained Students</div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
                     <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-purple-700">
+                        <div className="text-3xl font-bold text-purple-700 dark:text-purple-400">
                             ₹72 LPA
                         </div>
-                        <div className="text-xs text-purple-600 mt-1">Highest Package (Sahyadri)</div>
+                        <div className="text-xs text-purple-600 dark:text-purple-300 mt-1">Highest Package (Sahyadri)</div>
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
                     <CardContent className="p-4 text-center">
-                        <div className="text-3xl font-bold text-orange-700">
+                        <div className="text-3xl font-bold text-orange-700 dark:text-orange-400">
                             10
                         </div>
-                        <div className="text-xs text-orange-600 mt-1">Centers of Excellence</div>
+                        <div className="text-xs text-orange-600 dark:text-orange-300 mt-1">Centers of Excellence</div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Key Insights */}
-            <Card className="bg-slate-50 border-slate-200">
+            <Card className="bg-background border-slate-200 dark:border-slate-700">
                 <CardHeader>
-                    <CardTitle className="text-base font-semibold text-slate-700">
+                    <CardTitle className="text-base font-semibold text-text">
                         Key Insights - Dakshina Kannada District
                     </CardTitle>
                 </CardHeader>
@@ -241,8 +241,8 @@ export default function OverviewPanel({ filters }: PanelProps) {
                         <div className="flex gap-3">
                             <div className="w-2 bg-blue-500 rounded"></div>
                             <div>
-                                <div className="font-semibold text-slate-700">Strong IT/ITES Demand</div>
-                                <div className="text-slate-600 text-xs mt-1">
+                                <div className="font-semibold text-text">Strong IT/ITES Demand</div>
+                                <div className="text-icon text-xs mt-1">
                                     850+ openings in software development, with Python (398 jobs) leading demand
                                 </div>
                             </div>
@@ -250,8 +250,8 @@ export default function OverviewPanel({ filters }: PanelProps) {
                         <div className="flex gap-3">
                             <div className="w-2 bg-green-500 rounded"></div>
                             <div>
-                                <div className="font-semibold text-slate-700">Premier Institution Leadership</div>
-                                <div className="text-slate-600 text-xs mt-1">
+                                <div className="font-semibold text-text">Premier Institution Leadership</div>
+                                <div className="text-icon text-xs mt-1">
                                     NITK Surathkal (NIRF #17) drives ecosystem with 93% B.Tech placement rate
                                 </div>
                             </div>
@@ -259,8 +259,8 @@ export default function OverviewPanel({ filters }: PanelProps) {
                         <div className="flex gap-3">
                             <div className="w-2 bg-orange-500 rounded"></div>
                             <div>
-                                <div className="font-semibold text-slate-700">Critical Skill Gaps</div>
-                                <div className="text-slate-600 text-xs mt-1">
+                                <div className="font-semibold text-text">Critical Skill Gaps</div>
+                                <div className="text-icon text-xs mt-1">
                                     Cloud (63% gap) and DevOps (68% gap) skills severely undersupplied
                                 </div>
                             </div>

@@ -30,10 +30,10 @@ interface LeadingCompaniesProps {
 
 const LeadingCompanies: React.FC<LeadingCompaniesProps> = ({ onCompanyClick }) => {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
+        <div className="bg-surface rounded-3xl p-8 shadow-sm border border-border">
             <div className="mb-6">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Leading Companies from Mangaluru</h3>
-                <p className="text-sm text-slate-500">Major employers driving the regional ecosystem</p>
+                <h3 className="text-xl font-bold text-text">Leading Companies from Mangaluru</h3>
+                <p className="text-sm text-icon">Major employers driving the regional ecosystem</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -41,7 +41,7 @@ const LeadingCompanies: React.FC<LeadingCompaniesProps> = ({ onCompanyClick }) =
                     <div
                         key={idx}
                         onClick={() => onCompanyClick?.(company.name)}
-                        className="group flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-100 dark:border-slate-700 hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer"
+                        className="group flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-border hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer"
                     >
                         <span
                             className="font-bold text-sm md:text-base text-center group-hover:opacity-100 opacity-70 transition-opacity"

@@ -3,6 +3,7 @@ import { Users, GraduationCap, Award, CheckCircle, MapPin } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
+import StatCard from "../StatCard";
 
 // Consolidated Data for 17 DK Institutions
 const dashboardData = {
@@ -29,29 +30,7 @@ const dashboardData = {
 };
 
 // Internal StatCard component
-const StatCard = ({ title, value, icon: Icon, color }: any) => {
-    const colorClasses: any = {
-        blue: "bg-blue-100 text-blue-600",
-        indigo: "bg-indigo-100 text-indigo-600",
-        green: "bg-green-100 text-green-600",
-        orange: "bg-orange-100 text-orange-600",
-        red: "bg-red-100 text-red-600",
-    };
-
-    return (
-        <Card>
-            <CardContent className="flex items-center p-4 space-x-4">
-                <div className={`p-3 rounded-full ${colorClasses[color] || "bg-slate-100 text-slate-600"}`}>
-                    <Icon className="w-6 h-6" />
-                </div>
-                <div>
-                    <p className="text-sm font-medium text-slate-500">{title}</p>
-                    <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
+// Internal StatCard component removed in favor of shared component
 
 
 interface PanelProps {
@@ -115,37 +94,37 @@ export default function SupplyPanel({ filters }: PanelProps) {
             {/* HIGHLIGHT VISUALS (Premier, Best Placement, Highest Package) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Premier Institution */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 shadow-sm">
-                    <p className="text-xs font-bold text-blue-700 uppercase mb-1">Premier Institution</p>
-                    <h3 className="text-lg font-bold text-blue-900">NITK Surathkal</h3>
-                    <p className="text-xs text-blue-600 mt-1 pb-2 border-b border-blue-200">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 shadow-sm">
+                    <p className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase mb-1">Premier Institution</p>
+                    <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">NITK Surathkal</h3>
+                    <p className="text-xs text-blue-600 dark:text-blue-300 mt-1 pb-2 border-b border-blue-200 dark:border-blue-700">
                         NIRF Rank #17 | 93% Placement | ₹16.25 LPA Avg
                     </p>
-                    <p className="text-xs text-blue-700 mt-2 font-medium">
+                    <p className="text-xs text-blue-700 dark:text-blue-400 mt-2 font-medium">
                         Top Recruiters: Google, Microsoft, Amazon, Goldman Sachs
                     </p>
                 </div>
 
                 {/* Best Placement Rate */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
-                    <p className="text-xs font-bold text-green-700 uppercase mb-1">Best Placement Rate</p>
-                    <h3 className="text-lg font-bold text-green-900">Srinivas Institute</h3>
-                    <p className="text-xs text-green-600 mt-1 pb-2 border-b border-green-200">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 shadow-sm">
+                    <p className="text-xs font-bold text-green-700 dark:text-green-400 uppercase mb-1">Best Placement Rate</p>
+                    <h3 className="text-lg font-bold text-green-900 dark:text-green-100">Srinivas Institute</h3>
+                    <p className="text-xs text-green-600 dark:text-green-300 mt-1 pb-2 border-b border-green-200 dark:border-green-700">
                         86.9% Placement Rate | 447 Students Placed
                     </p>
-                    <p className="text-xs text-green-700 mt-2 font-medium">
+                    <p className="text-xs text-green-700 dark:text-green-400 mt-2 font-medium">
                         Consistent performance in mass recruiting companies
                     </p>
                 </div>
 
                 {/* Highest Package */}
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 shadow-sm">
-                    <p className="text-xs font-bold text-purple-700 uppercase mb-1">Highest Package</p>
-                    <h3 className="text-lg font-bold text-purple-900">₹72 LPA</h3>
-                    <p className="text-xs text-purple-600 mt-1 pb-2 border-b border-purple-200">
+                <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 shadow-sm">
+                    <p className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase mb-1">Highest Package</p>
+                    <h3 className="text-lg font-bold text-purple-900 dark:text-purple-100">₹72 LPA</h3>
+                    <p className="text-xs text-purple-600 dark:text-purple-300 mt-1 pb-2 border-b border-purple-200 dark:border-purple-700">
                         Sahyadri | Rolls Royce
                     </p>
-                    <p className="text-xs text-purple-700 mt-2 font-medium">
+                    <p className="text-xs text-purple-700 dark:text-purple-400 mt-2 font-medium">
                         District's premium package demonstrates talent quality
                     </p>
                 </div>
@@ -178,7 +157,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
                 />
                 <StatCard
                     title="Institutions"
-                    value={filteredInstitutions.length}
+                    value={filteredInstitutions.length.toString()}
                     icon={MapPin}
                     color="red"
                 />
@@ -188,7 +167,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
                 {/* Talent Output */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Talent Output by Institution (Top 8 by Volume)
                         </CardTitle>
                     </CardHeader>
@@ -220,7 +199,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
                 {/* Skill Readiness Radar */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Skill Readiness: Student Capability vs Industry Requirement
                         </CardTitle>
                     </CardHeader>
@@ -248,7 +227,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
                                 <Tooltip contentStyle={{ fontSize: '11px' }} />
                             </RadarChart>
                         </ResponsiveContainer>
-                        <div className="text-xs text-center text-slate-500 mt-2">
+                        <div className="text-xs text-center text-icon mt-2">
                             Gap Analysis: Students trail industry requirements in Practical Skills and Digital Literacy
                         </div>
                     </CardContent>
@@ -258,14 +237,14 @@ export default function SupplyPanel({ filters }: PanelProps) {
             {/* Institution Performance Leaderboard */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-sm font-semibold text-slate-700">
+                    <CardTitle className="text-sm font-semibold text-text">
                         Institution Performance Leaderboard (DK District)
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0 overflow-auto max-h-[600px]">
                     <Table>
-                        <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
-                            <TableRow className="bg-slate-50">
+                        <TableHeader className="sticky top-0 bg-surface z-10 shadow-sm">
+                            <TableRow className="bg-slate-50 dark:bg-slate-800/50">
                                 <TableHead className="font-semibold w-[50px]">Rank</TableHead>
                                 <TableHead className="font-semibold">Institution Name</TableHead>
                                 <TableHead className="font-semibold">Location</TableHead>
@@ -280,19 +259,19 @@ export default function SupplyPanel({ filters }: PanelProps) {
                             {dashboardData.institutions
                                 .sort((a, b) => b.placement_rate - a.placement_rate)
                                 .map((inst, i) => (
-                                    <TableRow key={inst.id} className={i < 1 ? 'bg-green-50/50' : i < 5 ? 'bg-blue-50/30' : ''}>
-                                        <TableCell className="font-bold text-slate-600">#{i + 1}</TableCell>
-                                        <TableCell className="font-medium text-slate-800">
+                                    <TableRow key={inst.id} className={i < 1 ? 'bg-green-50/50 dark:bg-green-900/10' : i < 5 ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}>
+                                        <TableCell className="font-bold text-icon">#{i + 1}</TableCell>
+                                        <TableCell className="font-medium text-text">
                                             {inst.name}
                                             {inst.nirf_rank && (
                                                 <div className="text-[10px] text-blue-600 font-semibold">NIRF #{inst.nirf_rank}</div>
                                             )}
                                         </TableCell>
-                                        <TableCell className="text-sm text-slate-600">
+                                        <TableCell className="text-sm text-icon">
                                             {inst.taluk}
                                         </TableCell>
                                         <TableCell className="text-right font-medium">{inst.total_students.toLocaleString()}</TableCell>
-                                        <TableCell className="text-right font-bold text-slate-700">{inst.placed_students}</TableCell>
+                                        <TableCell className="text-right font-bold text-text">{inst.placed_students}</TableCell>
                                         <TableCell className="text-right">
                                             <span className={`font-bold ${inst.placement_rate >= 90 ? 'text-green-700' :
                                                 inst.placement_rate >= 75 ? 'text-blue-600' :
@@ -309,10 +288,10 @@ export default function SupplyPanel({ filters }: PanelProps) {
                                             <Badge
                                                 variant="outline"
                                                 className={
-                                                    inst.swtt_level === 4 ? "bg-green-100 text-green-700 border-green-300" :
-                                                        inst.swtt_level === 3 ? "bg-blue-100 text-blue-700 border-blue-300" :
-                                                            inst.swtt_level === 2 ? "bg-orange-100 text-orange-700 border-orange-300" :
-                                                                "bg-red-100 text-red-700 border-red-300"
+                                                    inst.swtt_level === 4 ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800" :
+                                                        inst.swtt_level === 3 ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-800" :
+                                                            inst.swtt_level === 2 ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-800" :
+                                                                "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-800"
                                                 }
                                             >
                                                 L{inst.swtt_level}

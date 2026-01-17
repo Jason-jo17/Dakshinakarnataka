@@ -6,7 +6,7 @@ export interface Institution {
     logo?: string;
 
     // Classification
-    category: 'Engineering' | 'Polytechnic' | 'ITI' | 'Training' | 'University' | 'Research' | 'Hospital' | 'Company' | 'PU College' | 'Degree College';
+    category: 'Engineering' | 'Polytechnic' | 'ITI' | 'Training' | 'University' | 'Research' | 'Hospital' | 'Company' | 'PU College' | 'Degree College' | 'School' | 'High School';
     type: 'Government' | 'Private' | 'Aided' | 'Deemed' | 'PSU';
     subCategory?: string; // e.g., 'VTU Autonomous', 'NAAC A++', etc.
 

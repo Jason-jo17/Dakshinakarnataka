@@ -76,7 +76,7 @@ export default function PlacementPanel({ filters }: PanelProps) {
                 {/* Placement Trend (5 Years) */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             5-Year Placement Trends - Dakshina Kannada
                         </CardTitle>
                     </CardHeader>
@@ -107,10 +107,11 @@ export default function PlacementPanel({ filters }: PanelProps) {
                                 />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: 'white',
-                                        border: '1px solid #e2e8f0',
+                                        backgroundColor: 'var(--color-surface)',
+                                        border: '1px solid var(--color-border)',
                                         borderRadius: '8px',
-                                        fontSize: '12px'
+                                        fontSize: '12px',
+                                        color: 'var(--color-text)'
                                     }}
                                 />
                                 <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -136,7 +137,7 @@ export default function PlacementPanel({ filters }: PanelProps) {
                                 />
                             </LineChart>
                         </ResponsiveContainer>
-                        <div className="text-xs text-center text-slate-500 mt-2">
+                        <div className="text-xs text-center text-icon mt-2">
                             Steady growth: +14% placement rate, +26% avg package (2020-2024)
                         </div>
                     </CardContent>
@@ -145,13 +146,13 @@ export default function PlacementPanel({ filters }: PanelProps) {
                 {/* Top Recruiters */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Top Recruiters - Dakshina Kannada (2024-25)
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 h-[300px] overflow-auto">
                         <Table>
-                            <TableHeader className="sticky top-0 bg-white">
+                            <TableHeader className="sticky top-0 bg-surface">
                                 <TableRow>
                                     <TableHead className="font-semibold">Rank</TableHead>
                                     <TableHead className="font-semibold">Company</TableHead>
@@ -162,21 +163,21 @@ export default function PlacementPanel({ filters }: PanelProps) {
                             </TableHeader>
                             <TableBody>
                                 {recruiters.map((r, i) => (
-                                    <TableRow key={i} className={i < 3 ? 'bg-blue-50' : ''}>
+                                    <TableRow key={i} className={i < 3 ? 'bg-blue-50 dark:bg-blue-900/20' : ''}>
                                         <TableCell>
-                                            <Badge variant={i === 0 ? "default" : "outline"} className="font-bold">
+                                            <Badge variant={i === 0 ? "default" : "outline"} className="font-bold text-text">
                                                 #{i + 1}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="font-medium text-slate-800">
+                                        <TableCell className="font-medium text-text">
                                             {r.name}
-                                            <div className="text-xs text-slate-500">{r.employees}+ employees</div>
+                                            <div className="text-xs text-icon">{r.employees}+ employees</div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="secondary" className="text-xs">{r.sector}</Badge>
+                                            <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-800 text-text">{r.sector}</Badge>
                                         </TableCell>
-                                        <TableCell className="text-right font-bold text-blue-600 text-lg">{r.hires}</TableCell>
-                                        <TableCell className="text-right text-slate-700 font-semibold">{r.avgSal}</TableCell>
+                                        <TableCell className="text-right font-bold text-blue-600 dark:text-blue-400 text-lg">{r.hires}</TableCell>
+                                        <TableCell className="text-right text-icon font-semibold">{r.avgSal}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -188,7 +189,7 @@ export default function PlacementPanel({ filters }: PanelProps) {
             {/* Salary Benchmark Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-sm font-medium text-slate-500">
+                    <CardTitle className="text-sm font-medium text-icon">
                         Salary Benchmarks by Role - Dakshina Kannada (LPA)
                     </CardTitle>
                 </CardHeader>
@@ -199,8 +200,8 @@ export default function PlacementPanel({ filters }: PanelProps) {
                             <XAxis type="number" fontSize={12} tickLine={false} />
                             <YAxis dataKey="role" type="category" width={100} fontSize={11} tickLine={false} />
                             <Tooltip
-                                cursor={{ fill: '#f1f5f9' }}
-                                contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                                cursor={{ fill: 'var(--color-surface)' }}
+                                contentStyle={{ borderRadius: '8px', fontSize: '12px', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)' }}
                                 formatter={(value) => `₹${value} LPA`}
                             />
                             <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -209,7 +210,7 @@ export default function PlacementPanel({ filters }: PanelProps) {
                             <Bar dataKey="max" fill="#1e40af" name="Max Salary" barSize={18} radius={[0, 2, 2, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
-                    <div className="text-xs text-center text-slate-500 mt-2">
+                    <div className="text-xs text-center text-icon mt-2">
                         Salaries vary significantly: Premium tech roles (₹16-20L) vs traditional engineering (₹3-5L)
                     </div>
                 </CardContent>
@@ -218,109 +219,109 @@ export default function PlacementPanel({ filters }: PanelProps) {
             {/* Institution-wise Placement Performance */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base font-semibold text-slate-700">
+                    <CardTitle className="text-base font-semibold text-text">
                         Institution-wise Placement Performance (2024-25)
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* NITK Surathkal */}
-                        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300">
+                        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-300 dark:border-blue-700">
                             <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-blue-800 text-base">NITK Surathkal</div>
+                                        <div className="font-bold text-blue-800 dark:text-blue-100 text-base">NITK Surathkal</div>
                                         <Badge className="mt-1 text-xs bg-blue-600">NIRF #17</Badge>
                                     </div>
-                                    <Trophy className="text-blue-600" size={24} />
+                                    <Trophy className="text-blue-600 dark:text-blue-400" size={24} />
                                 </div>
                                 <div className="space-y-2 text-sm mt-3">
                                     <div className="flex justify-between">
-                                        <span className="text-blue-700">Placement Rate:</span>
-                                        <span className="font-bold text-blue-900">93%</span>
+                                        <span className="text-blue-700 dark:text-blue-300">Placement Rate:</span>
+                                        <span className="font-bold text-blue-900 dark:text-blue-100">93%</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-blue-700">Students Placed:</span>
-                                        <span className="font-bold text-blue-900">756</span>
+                                        <span className="text-blue-700 dark:text-blue-300">Students Placed:</span>
+                                        <span className="font-bold text-blue-900 dark:text-blue-100">756</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-blue-700">Avg Package:</span>
-                                        <span className="font-bold text-blue-900">₹16.25 LPA</span>
+                                        <span className="text-blue-700 dark:text-blue-300">Avg Package:</span>
+                                        <span className="font-bold text-blue-900 dark:text-blue-100">₹16.25 LPA</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-blue-700">Highest:</span>
-                                        <span className="font-bold text-blue-900">₹72 LPA</span>
+                                        <span className="text-blue-700 dark:text-blue-300">Highest:</span>
+                                        <span className="font-bold text-blue-900 dark:text-blue-100">₹72 LPA</span>
                                     </div>
                                 </div>
-                                <div className="mt-3 text-xs text-blue-700 bg-blue-200 p-2 rounded">
+                                <div className="mt-3 text-xs text-blue-700 dark:text-blue-300 bg-blue-200 dark:bg-blue-900/40 p-2 rounded">
                                     Top: Google, Microsoft, Amazon
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* Srinivas Institute */}
-                        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-300">
+                        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-300 dark:border-green-700">
                             <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-green-800 text-base">Srinivas Institute</div>
+                                        <div className="font-bold text-green-800 dark:text-green-100 text-base">Srinivas Institute</div>
                                         <Badge className="mt-1 text-xs bg-green-600">Best Rate</Badge>
                                     </div>
-                                    <TrendingUp className="text-green-600" size={24} />
+                                    <TrendingUp className="text-green-600 dark:text-green-400" size={24} />
                                 </div>
                                 <div className="space-y-2 text-sm mt-3">
                                     <div className="flex justify-between">
-                                        <span className="text-green-700">Placement Rate:</span>
-                                        <span className="font-bold text-green-900">86.9%</span>
+                                        <span className="text-green-700 dark:text-green-300">Placement Rate:</span>
+                                        <span className="font-bold text-green-900 dark:text-green-100">86.9%</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-green-700">Students Placed:</span>
-                                        <span className="font-bold text-green-900">447</span>
+                                        <span className="text-green-700 dark:text-green-300">Students Placed:</span>
+                                        <span className="font-bold text-green-900 dark:text-green-100">447</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-green-700">Avg Package:</span>
-                                        <span className="font-bold text-green-900">₹4.48 LPA</span>
+                                        <span className="text-green-700 dark:text-green-300">Avg Package:</span>
+                                        <span className="font-bold text-green-900 dark:text-green-100">₹4.48 LPA</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-green-700">Highest:</span>
-                                        <span className="font-bold text-green-900">₹8 LPA</span>
+                                        <span className="text-green-700 dark:text-green-300">Highest:</span>
+                                        <span className="font-bold text-green-900 dark:text-green-100">₹8 LPA</span>
                                     </div>
                                 </div>
-                                <div className="mt-3 text-xs text-green-700 bg-green-200 p-2 rounded">
+                                <div className="mt-3 text-xs text-green-700 dark:text-green-300 bg-green-200 dark:bg-green-900/40 p-2 rounded">
                                     Top: Infosys, TCS, Wipro
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* Sahyadri College */}
-                        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+                        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-300 dark:border-purple-700">
                             <CardContent className="p-4">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <div className="font-bold text-purple-800 text-base">Sahyadri College</div>
+                                        <div className="font-bold text-purple-800 dark:text-purple-100 text-base">Sahyadri College</div>
                                         <Badge className="mt-1 text-xs bg-purple-600">Top Package</Badge>
                                     </div>
-                                    <DollarSign className="text-purple-600" size={24} />
+                                    <DollarSign className="text-purple-600 dark:text-purple-400" size={24} />
                                 </div>
                                 <div className="space-y-2 text-sm mt-3">
                                     <div className="flex justify-between">
-                                        <span className="text-purple-700">Placement Rate:</span>
-                                        <span className="font-bold text-purple-900">71%</span>
+                                        <span className="text-purple-700 dark:text-purple-300">Placement Rate:</span>
+                                        <span className="font-bold text-purple-900 dark:text-purple-100">71%</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-purple-700">Students Placed:</span>
-                                        <span className="font-bold text-purple-900">310</span>
+                                        <span className="text-purple-700 dark:text-purple-300">Students Placed:</span>
+                                        <span className="font-bold text-purple-900 dark:text-purple-100">310</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-purple-700">Avg Package:</span>
-                                        <span className="font-bold text-purple-900">₹6.3 LPA</span>
+                                        <span className="text-purple-700 dark:text-purple-300">Avg Package:</span>
+                                        <span className="font-bold text-purple-900 dark:text-purple-100">₹6.3 LPA</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-purple-700">Highest:</span>
-                                        <span className="font-bold text-purple-900">₹72 LPA</span>
+                                        <span className="text-purple-700 dark:text-purple-300">Highest:</span>
+                                        <span className="font-bold text-purple-900 dark:text-purple-100">₹72 LPA</span>
                                     </div>
                                 </div>
-                                <div className="mt-3 text-xs text-purple-700 bg-purple-200 p-2 rounded">
+                                <div className="mt-3 text-xs text-purple-700 dark:text-purple-300 bg-purple-200 dark:bg-purple-900/40 p-2 rounded">
                                     Top: Belc (Japan), TCS, Infosys
                                 </div>
                             </CardContent>
@@ -331,12 +332,12 @@ export default function PlacementPanel({ filters }: PanelProps) {
 
             {/* Key Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border-l-4 border-l-green-500">
+                <Card className="border-l-4 border-l-green-500 dark:bg-surface">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-green-700">Positive Trends</CardTitle>
+                        <CardTitle className="text-sm text-green-700 dark:text-green-400">Positive Trends</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1.5">
+                        <ul className="list-disc pl-5 text-sm text-text space-y-1.5">
                             <li>Placement rate improved from 58% (2020) to 72% (2024) - <strong>+24% growth</strong></li>
                             <li>Average package increased from ₹3.8L to ₹4.8L - <strong>+26% growth</strong></li>
                             <li>NITK maintaining premier 93% placement despite tech slowdown</li>
@@ -346,12 +347,12 @@ export default function PlacementPanel({ filters }: PanelProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="border-l-4 border-l-orange-500">
+                <Card className="border-l-4 border-l-orange-500 dark:bg-surface">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-orange-700">Areas of Concern</CardTitle>
+                        <CardTitle className="text-sm text-orange-700 dark:text-orange-400">Areas of Concern</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1.5">
+                        <ul className="list-disc pl-5 text-sm text-text space-y-1.5">
                             <li>28% students (~1,650) still unplaced across district</li>
                             <li>Heavy dependence on IT services (85%) limits diversification</li>
                             <li>Salary gap between NITK (₹16.25L) and tier-2 colleges (₹4-5L) widening</li>

@@ -1,19 +1,14 @@
 import React from 'react';
-import { Award, MapPin, ExternalLink, Cpu, Beaker, GraduationCap, Settings, CreditCard } from 'lucide-react';
-import { INSTITUTIONS } from '../../data/institutions';
+import { Award, MapPin, ExternalLink, Cpu, Settings, CreditCard } from 'lucide-react';
+import { useDataStore } from '../../store/useDataStore';
 
 interface COEViewProps {
     onNavigate: (view: 'map' | 'dashboard' | 'institutions', id?: string) => void;
 }
 
 const COEView: React.FC<COEViewProps> = ({ onNavigate }) => {
-    // Filter for "COE-like" institutions
-    const coes = INSTITUTIONS.filter(inst =>
-        inst.category === 'University' ||
-        inst.category === 'Research' ||
-        (inst.category === 'Engineering' && inst.name.includes('NITK')) ||
-        (inst.category === 'Engineering' && inst.name.includes('Sahyadri'))
-    );
+    // Get COEs from store
+    const coes = useDataStore(state => state.coes);
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -50,33 +45,31 @@ const COEView: React.FC<COEViewProps> = ({ onNavigate }) => {
                             {/* Placeholder pattern/image */}
                             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
                             <div className="absolute top-4 left-4 bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm">
-                                {inst.category === 'Research' ? <Beaker size={20} className="text-purple-600" /> :
-                                    inst.category === 'University' ? <GraduationCap size={20} className="text-blue-600" /> :
-                                        <Cpu size={20} className="text-orange-600" />}
+                                <Cpu size={20} className="text-orange-600" />
                             </div>
                         </div>
                         <div className="p-6">
                             <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1" title={inst.name}>{inst.name}</h3>
                             <div className="flex items-center gap-1 text-sm text-slate-500 mb-4">
                                 <MapPin size={14} />
-                                {inst.location.area}
+                                {inst.location}
                             </div>
 
                             <div className="space-y-3 mb-6">
                                 <div className="text-sm">
                                     <span className="text-slate-500">Focus Area:</span>
                                     <span className="ml-2 font-medium text-slate-800 dark:text-slate-200">
-                                        {inst.category === 'Research' ? 'Advanced Materials' : 'Cybersecurity & AI'}
+                                        {inst.focus_area}
                                     </span>
                                 </div>
                                 <div className="text-sm">
-                                    <span className="text-slate-500">Industry Partners:</span>
-                                    <span className="ml-2 font-medium text-slate-800 dark:text-slate-200">3 Active</span>
+                                    <span className="text-slate-500">Performance:</span>
+                                    <span className="ml-2 font-medium text-slate-800 dark:text-slate-200">{inst.performance_score}/100</span>
                                 </div>
                             </div>
 
                             <button
-                                onClick={() => onNavigate('map', inst.id)}
+                                onClick={() => onNavigate('map', inst.id.toString())}
                                 className="w-full py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center gap-2"
                             >
                                 Visit Profile <ExternalLink size={14} />

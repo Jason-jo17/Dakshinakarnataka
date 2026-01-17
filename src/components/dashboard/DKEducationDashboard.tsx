@@ -64,12 +64,12 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
     const calculatedStats = (() => {
         type LevelData = { students: number; institutions: number; growth: number; color: string };
         const cats: Record<string, LevelData> = {
-            '10th Std': { students: 0, institutions: 0, growth: 3.2, color: 'bg-rose-300/80' },
-            'PU': { students: 0, institutions: 0, growth: 4.1, color: 'bg-orange-300/80' },
-            'Degree': { students: 0, institutions: 0, growth: 5.3, color: 'bg-amber-300/80' },
-            'Engineering': { students: 0, institutions: 0, growth: 2.8, color: 'bg-emerald-300/80' },
-            'Diploma': { students: 0, institutions: 0, growth: 6.2, color: 'bg-sky-300/80' },
-            'ITI': { students: 0, institutions: 0, growth: 7.5, color: 'bg-indigo-300/80' }
+            '10th Std': { students: 0, institutions: 0, growth: 3.2, color: 'bg-rose-300/80 dark:bg-rose-900/50' },
+            'PU': { students: 0, institutions: 0, growth: 4.1, color: 'bg-orange-300/80 dark:bg-orange-900/50' },
+            'Degree': { students: 0, institutions: 0, growth: 5.3, color: 'bg-amber-300/80 dark:bg-amber-900/50' },
+            'Engineering': { students: 0, institutions: 0, growth: 2.8, color: 'bg-emerald-300/80 dark:bg-emerald-900/50' },
+            'Diploma': { students: 0, institutions: 0, growth: 6.2, color: 'bg-sky-300/80 dark:bg-sky-900/50' },
+            'ITI': { students: 0, institutions: 0, growth: 7.5, color: 'bg-indigo-300/80 dark:bg-indigo-900/50' }
         };
 
         let totalStudents = 0;
@@ -275,16 +275,16 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                 {/* 1. Active Job Openings */}
                 <div
                     onClick={() => setActiveView('industry')}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-surface p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
                     <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                     <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Job Openings</p>
-                        <div className="p-1.5 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-100 transition-colors">
+                        <p className="text-xs font-bold text-icon uppercase tracking-wider">Active Job Openings</p>
+                        <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
                             <Briefcase size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">1,000</h3>
+                    <h3 className="text-2xl font-bold text-text">1,000</h3>
                     <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
                         <TrendingUp size={12} />
                         <span>15%</span>
@@ -294,35 +294,35 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                 {/* 2. Students Placed */}
                 <div
                     onClick={() => setActiveView('placement')}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-surface p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
                     <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                     <div className="flex justify-between items-start mb-2">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Students Placed</p>
-                            <p className="text-[10px] text-gray-400">(2024-25)</p>
+                            <p className="text-xs font-bold text-icon uppercase tracking-wider">Students Placed</p>
+                            <p className="text-[10px] text-icon">(2024-25)</p>
                         </div>
-                        <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600 group-hover:bg-indigo-100 transition-colors">
+                        <div className="p-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 transition-colors">
                             <Users size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">3,400</h3>
+                    <h3 className="text-2xl font-bold text-text">3,400</h3>
                 </div>
 
                 {/* 3. Skill Gap Index */}
                 <div
                     onClick={() => setActiveView('skills')}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-surface p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
                     <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
                     <div className="flex justify-between items-start mb-1">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Skill Gap Index</p>
-                        <div className="p-1.5 bg-orange-50 rounded-lg text-orange-600 group-hover:bg-orange-100 transition-colors">
+                        <p className="text-xs font-bold text-icon uppercase tracking-wider">Skill Gap Index</p>
+                        <div className="p-1.5 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-orange-600 dark:text-orange-400 group-hover:bg-orange-100 transition-colors">
                             <Activity size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">28%</h3>
-                    <p className="text-[10px] text-gray-400 leading-tight mt-1 mb-2">Diff. between industry demand & student readiness</p>
+                    <h3 className="text-2xl font-bold text-text">28%</h3>
+                    <p className="text-[10px] text-icon leading-tight mt-1 mb-2">Diff. between industry demand & student readiness</p>
                     <div className="flex items-center gap-1 text-xs font-medium text-red-500">
                         <TrendingUp size={12} className="transform rotate-180" />
                         <span>-5% vs last year</span>
@@ -332,16 +332,16 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                 {/* 4. Avg Placement Rate */}
                 <div
                     onClick={() => setActiveView('placement')}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-surface p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
                     <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
                     <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg Placement Rate</p>
-                        <div className="p-1.5 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
+                        <p className="text-xs font-bold text-icon uppercase tracking-wider">Avg Placement Rate</p>
+                        <div className="p-1.5 bg-green-50 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400 group-hover:bg-green-100 transition-colors">
                             <Percent size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">62%</h3>
+                    <h3 className="text-2xl font-bold text-text">62%</h3>
                     <div className="flex items-center gap-1 mt-1 text-xs font-medium text-green-600">
                         <TrendingUp size={12} />
                         <span>4%</span>
@@ -351,21 +351,21 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                 {/* 5. Avg Fresher Salary */}
                 <div
                     onClick={() => setActiveView('placement')}
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-surface p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
                 >
                     <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
                     <div className="flex justify-between items-start mb-2">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Avg Fresher Salary</p>
-                        <div className="p-1.5 bg-cyan-50 rounded-lg text-cyan-600 group-hover:bg-cyan-100 transition-colors">
+                        <p className="text-xs font-bold text-icon uppercase tracking-wider">Avg Fresher Salary</p>
+                        <div className="p-1.5 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg text-cyan-600 dark:text-cyan-400 group-hover:bg-cyan-100 transition-colors">
                             <DollarSign size={16} />
                         </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900">₹4.2 LPA</h3>
+                    <h3 className="text-2xl font-bold text-text">₹4.2 LPA</h3>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-surface rounded-lg shadow-lg p-6 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
                     <BookOpen size={24} className="text-cyan-500 dark:text-cyan-400" />
                     Student Distribution by Education Level
                 </h3>
@@ -376,10 +376,10 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                         return (
                             <div key={index} className="space-y-2">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold text-gray-700 dark:text-gray-200">{item.level}</span>
+                                    <span className="font-semibold text-icon">{item.level}</span>
                                     <div className="flex gap-4 text-xs">
-                                        <span className="text-gray-600 dark:text-gray-400">{item.students.toLocaleString()} students</span>
-                                        <span className="text-gray-600 dark:text-gray-400">{item.institutions} institutions</span>
+                                        <span className="text-icon">{item.students.toLocaleString()} students</span>
+                                        <span className="text-icon">{item.institutions} institutions</span>
                                         <span className="text-emerald-600 font-semibold">↑ {item.growth}%</span>
                                     </div>
                                 </div>
@@ -399,26 +399,26 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-surface rounded-lg shadow-lg p-6 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
                     <MapPin size={24} className="text-cyan-500 dark:text-cyan-400" />
                     Regional Distribution
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     {talukData.map((taluk, index) => (
-                        <div key={index} className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 className="font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-slate-600 pb-2 text-center truncate" title={taluk.name}>{taluk.name}</h4>
+                        <div key={index} className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 rounded-lg p-3 border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow">
+                            <h4 className="font-bold text-text mb-3 border-b border-slate-200 dark:border-slate-600 pb-2 text-center truncate" title={taluk.name}>{taluk.name}</h4>
                             <div className="space-y-3">
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold">Students</p>
-                                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">{(taluk.students / 1000).toFixed(1)}K</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-icon font-semibold">Students</p>
+                                    <p className="text-lg font-bold text-text">{(taluk.students / 1000).toFixed(1)}K</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold" title="Institutions">Insts.</p>
-                                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">{taluk.institutions}</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-icon font-semibold" title="Institutions">Insts.</p>
+                                    <p className="text-lg font-bold text-text">{taluk.institutions}</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-semibold" title="Employment Rate">Empl.</p>
+                                    <p className="text-[10px] uppercase tracking-wider text-icon font-semibold" title="Employment Rate">Empl.</p>
                                     <p className="text-lg font-bold text-success">{taluk.employment}%</p>
                                 </div>
                             </div>
@@ -432,20 +432,20 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
     const StreamAnalysis = () => (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Engineering Streams</h3>
+                <div className="bg-surface rounded-lg shadow-lg p-6">
+                    <h3 className="text-xl font-bold text-text mb-4">Engineering Streams</h3>
                     <div className="space-y-3">
                         {streamDistribution.Engineering.map((stream, index) => (
                             <div
                                 key={index}
-                                className="space-y-1 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                                className="space-y-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 p-2 rounded transition-colors"
                                 onClick={() => openInsight(stream, 'education')}
                             >
                                 <div className="flex justify-between text-sm">
-                                    <span className="font-semibold text-gray-700">{stream.name}</span>
-                                    <span className="text-gray-600">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
+                                    <span className="font-semibold text-text">{stream.name}</span>
+                                    <span className="text-icon">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-4">
+                                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
                                     <div
                                         className="bg-blue-300/80 h-4 rounded-full transition-all duration-500"
                                         style={{ width: `${stream.percentage * 2.5}%` }}
@@ -456,20 +456,20 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Degree Streams</h3>
+                <div className="bg-surface rounded-lg shadow-lg p-6">
+                    <h3 className="text-xl font-bold text-text mb-4">Degree Streams</h3>
                     <div className="space-y-3">
                         {streamDistribution.Degree.map((stream, index) => (
                             <div
                                 key={index}
-                                className="space-y-1 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+                                className="space-y-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 p-2 rounded transition-colors"
                                 onClick={() => openInsight(stream, 'education')}
                             >
                                 <div className="flex justify-between text-sm">
-                                    <span className="font-semibold text-gray-700">{stream.name}</span>
-                                    <span className="text-gray-600">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
+                                    <span className="font-semibold text-text">{stream.name}</span>
+                                    <span className="text-icon">{stream.students.toLocaleString()} ({stream.percentage}%)</span>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-4">
+                                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
                                     <div
                                         className="bg-rose-300/80 h-4 rounded-full transition-all duration-500"
                                         style={{ width: `${stream.percentage * 2.5}%` }}
@@ -722,8 +722,8 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
     );
 
     return (
-        <div className="min-h-screen bg-background dark:bg-slate-900 transition-colors duration-300">
-            <div className="bg-cyan-600 text-white p-6 shadow-lg">
+        <div className="min-h-screen bg-background transition-colors duration-300">
+            <div className="bg-primary text-white p-6 shadow-lg">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">Dakshina Karnataka Engineering Ecosystem Dashboard</h1>
@@ -731,42 +731,42 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                     </div>
 
                     <div className="flex gap-4 items-end">
-                        <div>
+                        <div className="text-white">
                             <label className="text-xs opacity-90 block mb-1">Academic Year</label>
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white rounded px-3 py-2 text-sm font-semibold"
+                                className="bg-white/10 border border-white/20 text-white rounded px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-white/50"
                             >
                                 {years.map(year => (
-                                    <option key={year} value={year}>{year}</option>
+                                    <option key={year} value={year} className="bg-surface text-text">{year}</option>
                                 ))}
                             </select>
                         </div>
-                        <div>
+                        <div className="text-white">
                             <label className="text-xs opacity-90 block mb-1">Taluk</label>
                             <select
                                 value={selectedTaluk}
                                 onChange={(e) => setSelectedTaluk(e.target.value)}
-                                className="bg-white text-gray-800 dark:bg-slate-800 dark:text-white rounded px-3 py-2 text-sm font-semibold"
+                                className="bg-white/10 border border-white/20 text-white rounded px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-white/50"
                             >
                                 {taluks.map(taluk => (
-                                    <option key={taluk} value={taluk}>{taluk}</option>
+                                    <option key={taluk} value={taluk} className="bg-surface text-text">{taluk}</option>
                                 ))}
                             </select>
                         </div>
                         <button
                             onClick={() => setShowRecommendations(true)}
-                            className="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors h-[38px]"
+                            className="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded flex items-center gap-2 transition-colors h-[38px] shadow-lg border border-white/10"
                         >
-                            <Sparkles size={16} className="text-yellow-300" />
+                            <Sparkles size={16} className="text-white animate-pulse" />
                             <span className="font-semibold text-sm">DK Intelligence</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 shadow-md border-b border-gray-200 dark:border-slate-700 transition-colors duration-300">
+            <div className="bg-surface shadow-md border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex gap-1 overflow-x-auto">
                         {[
@@ -781,8 +781,8 @@ const DKEducationDashboard: React.FC<DashboardProps> = ({ initialTab = 'overview
                                 key={tab.id}
                                 onClick={() => setActiveView(tab.id)}
                                 className={`px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap ${activeView === tab.id
-                                    ? 'border-b-3 border-cyan-500 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
-                                    : 'text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                                    ? 'border-b-3 border-secondary text-secondary'
+                                    : 'text-icon hover:text-text'
                                     }`}
                             >
                                 {tab.label}

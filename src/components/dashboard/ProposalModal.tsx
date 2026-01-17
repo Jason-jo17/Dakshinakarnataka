@@ -30,7 +30,7 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onClose, title, recipient
 
     return (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
 
                 <div className="bg-primary p-6 text-white flex justify-between items-center shrink-0">
                     <div>
@@ -47,9 +47,9 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onClose, title, recipient
 
                 {!isSent ? (
                     <>
-                        <div className="p-6 flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900">
-                            <div className="bg-white dark:bg-slate-800 p-8 shadow-sm border border-gray-200 dark:border-slate-700 min-h-[400px] text-sm leading-relaxed text-gray-800 dark:text-gray-300 font-serif">
-                                <p className="text-right mb-8 text-gray-500 italic">Date: {new Date().toLocaleDateString()}</p>
+                        <div className="p-6 flex-1 overflow-y-auto bg-background">
+                            <div className="bg-surface p-8 shadow-sm border border-border min-h-[400px] text-sm leading-relaxed text-text font-serif">
+                                <p className="text-right mb-8 text-icon italic">Date: {new Date().toLocaleDateString()}</p>
 
                                 <p className="font-bold mb-4">To,<br />{recipientName}</p>
 
@@ -84,14 +84,14 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onClose, title, recipient
                             </div>
                         </div>
 
-                        <div className="p-4 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-3 shrink-0">
-                            <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700 rounded transition-colors">
+                        <div className="p-4 bg-surface border-t border-border flex justify-end gap-3 shrink-0">
+                            <button onClick={onClose} className="px-4 py-2 text-text hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors">
                                 Discard
                             </button>
                             <button
                                 onClick={handleDownload}
                                 disabled={isGenerating}
-                                className="px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 rounded transition-colors flex items-center gap-2"
+                                className="px-4 py-2 border border-border text-text hover:bg-slate-50 dark:hover:bg-slate-800 rounded transition-colors flex items-center gap-2"
                             >
                                 <Download size={18} />
                                 Download PDF
@@ -111,11 +111,11 @@ const ProposalModal: React.FC<ProposalModalProps> = ({ onClose, title, recipient
                         <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-success rounded-full flex items-center justify-center mb-6">
                             <Check size={40} strokeWidth={3} />
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Proposal Sent Successfully!</h3>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-md">
+                            <h3 className="text-2xl font-bold text-text mb-2">Proposal Sent Successfully!</h3>
+                            <p className="text-icon max-w-md">
                             The proposal for <strong>{title}</strong> has been officially logged and sent to {recipientName}.
                         </p>
-                        <button onClick={onClose} className="mt-8 px-6 py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-lg font-semibold transition-colors">
+                            <button onClick={onClose} className="mt-8 px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-text rounded-lg font-semibold transition-colors">
                             Return to Dashboard
                         </button>
                     </div>

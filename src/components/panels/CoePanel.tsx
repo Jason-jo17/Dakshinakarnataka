@@ -327,13 +327,13 @@ export default function CoePanel({ filters }: PanelProps) {
             {/* Type Distribution */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {typeDistribution.map((type, i) => (
-                    <Card key={i} className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200">
+                    <Card key={i} className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-slate-200 dark:border-slate-800">
                         <CardContent className="p-4 text-center">
                             <div className="text-4xl font-bold mb-1" style={{ color: type.color }}>
                                 {type.count}
                             </div>
-                            <div className="text-sm font-medium text-slate-700">{type.type}</div>
-                            <div className="text-xs text-slate-500 mt-1">
+                            <div className="text-sm font-medium text-text">{type.type}</div>
+                            <div className="text-xs text-muted-foreground mt-1">
                                 {type.type === 'Academic COE' && '5 institutions'}
                                 {type.type === 'Government' && '2 training centers'}
                                 {type.type === 'Industry' && '3 corporate centers'}
@@ -347,16 +347,16 @@ export default function CoePanel({ filters }: PanelProps) {
                 {/* Performance Comparison Radar */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Performance Comparison: Academic vs Government vs Industry
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="h-[350px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart data={performanceRadar}>
-                                <PolarGrid stroke="#e2e8f0" />
-                                <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: '#64748b' }} />
-                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10 }} />
+                                <PolarGrid stroke="var(--color-border)" />
+                                <PolarAngleAxis dataKey="category" tick={{ fontSize: 11, fill: 'var(--color-text)' }} />
+                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--color-icon)' }} />
                                 <Radar
                                     name="Academic COEs"
                                     dataKey="academic"
@@ -378,11 +378,11 @@ export default function CoePanel({ filters }: PanelProps) {
                                     fill="#f59e0b"
                                     fillOpacity={0.3}
                                 />
-                                <Legend wrapperStyle={{ fontSize: '11px' }} />
-                                <Tooltip contentStyle={{ fontSize: '11px' }} />
+                                <Legend wrapperStyle={{ fontSize: '11px', color: 'var(--color-text)' }} />
+                                <Tooltip contentStyle={{ fontSize: '11px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }} />
                             </RadarChart>
                         </ResponsiveContainer>
-                        <div className="text-xs text-center text-slate-500 mt-2">
+                        <div className="text-xs text-center text-icon mt-2">
                             <strong>Key Insight:</strong> Industry centers excel in alignment & placement; Academic COEs lead in innovation
                         </div>
                     </CardContent>
@@ -391,14 +391,14 @@ export default function CoePanel({ filters }: PanelProps) {
                 {/* Budget Utilization */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Budget Utilization (₹ Crores) - Top 8 Centers
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="h-[350px]">
                         <ResponsiveContainer width="100%" height="85%">
                             <BarChart data={budgetData.slice(0, 8)} margin={{ bottom: 60 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
                                 <XAxis
                                     dataKey="name"
                                     fontSize={10}
@@ -406,21 +406,22 @@ export default function CoePanel({ filters }: PanelProps) {
                                     textAnchor="end"
                                     height={60}
                                     tickLine={false}
+                                    tick={{ fill: 'var(--color-text)' }}
                                 />
-                                <YAxis fontSize={12} tickLine={false} />
+                                <YAxis fontSize={12} tickLine={false} tick={{ fill: 'var(--color-text)' }} />
                                 <Tooltip
-                                    contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                                    contentStyle={{ borderRadius: '8px', fontSize: '12px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                     formatter={(value, name) => [
                                         `₹${value} Cr`,
                                         name === 'allocated' ? 'Allocated' : 'Utilized'
                                     ]}
                                 />
-                                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                                <Legend wrapperStyle={{ fontSize: '12px', color: 'var(--color-text)' }} />
                                 <Bar dataKey="allocated" name="Allocated" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={18} />
                                 <Bar dataKey="utilized" name="Utilized" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={18} />
                             </BarChart>
                         </ResponsiveContainer>
-                        <div className="text-xs text-center text-slate-500">
+                        <div className="text-xs text-center text-icon">
                             Total: ₹{budgetData.reduce((sum, b) => sum + b.allocated, 0).toFixed(1)} Cr allocated,
                             ₹{budgetData.reduce((sum, b) => sum + b.utilized, 0).toFixed(1)} Cr utilized (
                             {Math.round(budgetData.reduce((sum, b) => sum + b.utilized, 0) / budgetData.reduce((sum, b) => sum + b.allocated, 0) * 100)}%)
@@ -432,56 +433,56 @@ export default function CoePanel({ filters }: PanelProps) {
             {/* Comprehensive COE Inventory */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-sm font-semibold text-slate-700">
+                    <CardTitle className="text-sm font-semibold text-text">
                         Complete COE & Training Infrastructure Inventory - Dakshina Kannada
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-slate-50">
+                            <TableHeader className="bg-slate-50 dark:bg-slate-800">
                                 <TableRow>
-                                    <TableHead className="font-semibold">Name</TableHead>
-                                    <TableHead className="font-semibold">Type</TableHead>
-                                    <TableHead className="font-semibold">Location</TableHead>
-                                    <TableHead className="font-semibold">Focus Area</TableHead>
-                                    <TableHead className="text-right font-semibold">Score</TableHead>
-                                    <TableHead className="text-right font-semibold">Trained</TableHead>
-                                    <TableHead className="text-center font-semibold">Status</TableHead>
+                                    <TableHead className="font-semibold text-text">Name</TableHead>
+                                    <TableHead className="font-semibold text-text">Type</TableHead>
+                                    <TableHead className="font-semibold text-text">Location</TableHead>
+                                    <TableHead className="font-semibold text-text">Focus Area</TableHead>
+                                    <TableHead className="text-right font-semibold text-text">Score</TableHead>
+                                    <TableHead className="text-right font-semibold text-text">Trained</TableHead>
+                                    <TableHead className="text-center font-semibold text-text">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {coes.map((coe, i) => (
-                                    <TableRow key={i} className={coe.status === 'High Performing' ? 'bg-green-50' : 'bg-yellow-50'}>
-                                        <TableCell className="font-medium text-slate-800 max-w-[200px]">
+                                    <TableRow key={i} className={coe.status === 'High Performing' ? 'bg-green-50 dark:bg-green-900/10' : 'bg-yellow-50 dark:bg-yellow-900/10'}>
+                                        <TableCell className="font-medium text-text max-w-[200px]">
                                             {coe.name}
                                         </TableCell>
                                         <TableCell>
                                             <Badge
                                                 variant="outline"
-                                                className={`text-xs ${coe.type === 'Academic COE' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                                    coe.type.includes('Government') ? 'bg-green-50 text-green-700 border-green-200' :
-                                                        'bg-orange-50 text-orange-700 border-orange-200'
+                                                className={`text-xs ${coe.type === 'Academic COE' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800' :
+                                                    coe.type.includes('Government') ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800' :
+                                                        'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800'
                                                     }`}
                                             >
                                                 {coe.type}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-xs text-slate-600 max-w-[180px]">
+                                        <TableCell className="text-xs text-text max-w-[180px]">
                                             {coe.location}
                                         </TableCell>
-                                        <TableCell className="text-xs text-slate-700 max-w-[200px]">
+                                        <TableCell className="text-xs text-text max-w-[200px]">
                                             {coe.focus_area}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <span className={`font-bold text-lg ${coe.performance_score >= 85 ? 'text-green-600' :
-                                                coe.performance_score >= 75 ? 'text-blue-600' :
-                                                    'text-orange-600'
+                                            <span className={`font-bold text-lg ${coe.performance_score >= 85 ? 'text-green-600 dark:text-green-400' :
+                                                coe.performance_score >= 75 ? 'text-blue-600 dark:text-blue-400' :
+                                                    'text-orange-600 dark:text-orange-400'
                                                 }`}>
                                                 {coe.performance_score}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="text-right font-bold text-purple-600">
+                                        <TableCell className="text-right font-bold text-purple-600 dark:text-purple-400">
                                             {coe.students_trained}
                                         </TableCell>
                                         <TableCell className="text-center">
@@ -489,8 +490,8 @@ export default function CoePanel({ filters }: PanelProps) {
                                                 variant="outline"
                                                 className={
                                                     coe.status === 'High Performing'
-                                                        ? "text-green-700 border-green-300 bg-green-50 font-semibold"
-                                                        : "text-yellow-700 border-yellow-300 bg-yellow-50"
+                                                        ? "text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 font-semibold"
+                                                        : "text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20"
                                                 }
                                             >
                                                 {coe.status}
@@ -509,26 +510,26 @@ export default function CoePanel({ filters }: PanelProps) {
                 {/* Academic COEs */}
                 <Card className="border-t-4 border-t-blue-500">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-blue-700 flex items-center gap-2">
+                        <CardTitle className="text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2">
                             <GraduationCap size={18} />
                             Academic COEs (5)
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                                <p className="font-bold text-blue-900 text-sm">🏆 NITK STEP</p>
-                                <p className="text-xs text-blue-700 mt-1">Score: 92 | 850 trained | Practo, Delhivery alumni</p>
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                                <p className="font-bold text-blue-900 dark:text-blue-100 text-sm">🏆 NITK STEP</p>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Score: 92 | 850 trained | Practo, Delhivery alumni</p>
                             </div>
-                            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                                <p className="font-bold text-blue-900 text-sm">Sahyadri ACIC</p>
-                                <p className="text-xs text-blue-700 mt-1">Score: 78 | 420 trained | 22 startups</p>
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                                <p className="font-bold text-blue-900 dark:text-blue-100 text-sm">Sahyadri ACIC</p>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Score: 78 | 420 trained | 22 startups</p>
                             </div>
-                            <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                                <p className="font-bold text-blue-900 text-sm">SJEC NAIN</p>
-                                <p className="text-xs text-blue-700 mt-1">Score: 72 | 380 trained | KCCI partnerships</p>
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                                <p className="font-bold text-blue-900 dark:text-blue-100 text-sm">SJEC NAIN</p>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Score: 72 | 380 trained | KCCI partnerships</p>
                             </div>
-                            <div className="text-xs text-blue-700 mt-2">
+                            <div className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                                 <strong>Total:</strong> 2,220 students trained annually
                             </div>
                         </div>
@@ -538,25 +539,25 @@ export default function CoePanel({ filters }: PanelProps) {
                 {/* Government Training Centers */}
                 <Card className="border-t-4 border-t-green-500">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-green-700 flex items-center gap-2">
+                        <CardTitle className="text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
                             <Building2 size={18} />
                             Government Centers (2)
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                                <p className="font-bold text-green-900 text-sm">🏆 STPI Mangaluru</p>
-                                <p className="text-xs text-green-700 mt-1">Score: 85 | 650 trained | 250+ companies, ₹3,500 cr exports</p>
+                            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                                <p className="font-bold text-green-900 dark:text-green-100 text-sm">🏆 STPI Mangaluru</p>
+                                <p className="text-xs text-green-700 dark:text-green-300 mt-1">Score: 85 | 650 trained | 250+ companies, ₹3,500 cr exports</p>
                             </div>
-                            <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                                <p className="font-bold text-green-900 text-sm">🏆 GTTC Mangalore</p>
-                                <p className="text-xs text-green-700 mt-1">Score: 75 | 580 trained | Advanced CNC, Tool & Die</p>
+                            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                                <p className="font-bold text-green-900 dark:text-green-100 text-sm">🏆 GTTC Mangalore</p>
+                                <p className="text-xs text-green-700 dark:text-green-300 mt-1">Score: 75 | 580 trained | Advanced CNC, Tool & Die</p>
                             </div>
-                            <div className="text-xs text-green-700 mt-2">
+                            <div className="text-xs text-green-700 dark:text-green-300 mt-2">
                                 <strong>Total:</strong> 1,230 students trained annually
                             </div>
-                            <div className="text-xs text-green-700">
+                            <div className="text-xs text-green-700 dark:text-green-300">
                                 <strong>Focus:</strong> Manufacturing excellence, IT infrastructure
                             </div>
                         </div>
@@ -566,26 +567,26 @@ export default function CoePanel({ filters }: PanelProps) {
                 {/* Industry Training Centers */}
                 <Card className="border-t-4 border-t-orange-500">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm text-orange-700 flex items-center gap-2">
+                        <CardTitle className="text-sm text-orange-700 dark:text-orange-400 flex items-center gap-2">
                             <Building2 size={18} />
                             Industry Centers (3)
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                                <p className="font-bold text-orange-900 text-sm">🏆 Infosys Mudipu</p>
-                                <p className="text-xs text-orange-700 mt-1">Score: 88 | 1,200 trained | Campus Connect, 2,500+ workforce</p>
+                            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
+                                <p className="font-bold text-orange-900 dark:text-orange-100 text-sm">🏆 Infosys Mudipu</p>
+                                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Score: 88 | 1,200 trained | Campus Connect, 2,500+ workforce</p>
                             </div>
-                            <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                                <p className="font-bold text-orange-900 text-sm">🏆 MRPL Surathkal</p>
-                                <p className="text-xs text-orange-700 mt-1">Score: 82 | 420 trained | Refinery ops, Process safety</p>
+                            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
+                                <p className="font-bold text-orange-900 dark:text-orange-100 text-sm">🏆 MRPL Surathkal</p>
+                                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Score: 82 | 420 trained | Refinery ops, Process safety</p>
                             </div>
-                            <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                                <p className="font-bold text-orange-900 text-sm">🏆 Syngene Bajpe</p>
-                                <p className="text-xs text-orange-700 mt-1">Score: 80 | 180 trained | Biotech, Pharma R&D</p>
+                            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
+                                <p className="font-bold text-orange-900 dark:text-orange-100 text-sm">🏆 Syngene Bajpe</p>
+                                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Score: 80 | 180 trained | Biotech, Pharma R&D</p>
                             </div>
-                            <div className="text-xs text-orange-700 mt-2">
+                            <div className="text-xs text-orange-700 dark:text-orange-300 mt-2">
                                 <strong>Total:</strong> 1,800 students trained annually
                             </div>
                         </div>
@@ -636,21 +637,21 @@ export default function CoePanel({ filters }: PanelProps) {
 
             {/* Summary Statistics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-3xl font-bold text-blue-600">5,250</div>
-                    <div className="text-xs text-slate-600 mt-1">Total Students Trained/Year</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-800 p-4 text-center">
+                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">5,250</div>
+                    <div className="text-xs text-icon mt-1">Total Students Trained/Year</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-3xl font-bold text-green-600">₹47.1 Cr</div>
-                    <div className="text-xs text-slate-600 mt-1">Total Budget Allocated</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-800 p-4 text-center">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400">₹47.1 Cr</div>
+                    <div className="text-xs text-icon mt-1">Total Budget Allocated</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-3xl font-bold text-purple-600">79%</div>
-                    <div className="text-xs text-slate-600 mt-1">Avg Budget Utilization</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-800 p-4 text-center">
+                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">79%</div>
+                    <div className="text-xs text-icon mt-1">Avg Budget Utilization</div>
                 </div>
-                <div className="bg-white rounded-lg border border-slate-200 p-4 text-center">
-                    <div className="text-3xl font-bold text-orange-600">82%</div>
-                    <div className="text-xs text-slate-600 mt-1">Avg Placement Rate</div>
+                <div className="bg-surface rounded-lg border border-slate-200 dark:border-slate-800 p-4 text-center">
+                    <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">82%</div>
+                    <div className="text-xs text-icon mt-1">Avg Placement Rate</div>
                 </div>
             </div>
         </div>

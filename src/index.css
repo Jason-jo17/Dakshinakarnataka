@@ -2,12 +2,17 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #0D47A1;
-  --color-success: #4CAF50;
-  --color-warning: #FF9800;
-  --color-danger: #F44336;
-  --color-background: #F3F5F9;
-  --color-surface: #FFFFFF;
+  --color-primary: var(--color-primary);
+    --color-primary-light: var(--color-primary-light);
+    --color-secondary: var(--color-secondary);
+    --color-secondary-light: var(--color-secondary-light);
+    --color-success: var(--color-success);
+    --color-warning: var(--color-warning);
+    --color-danger: var(--color-danger);
+    --color-background: var(--color-background);
+    --color-surface: var(--color-surface);
+    --color-text: var(--color-text);
+    --color-icon: var(--color-icon);
 
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -15,8 +20,36 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --color-primary: #0047BB;
+      --color-primary-light: #E6EDF8;
+      --color-secondary: #FF7F50;
+      --color-secondary-light: #FFF2EE;
+      --color-success: #28A745;
+      --color-warning: #FF9800;
+      --color-danger: #C62828;
+      --color-background: #F4F7FD;
+      --color-surface: #FFFFFF;
+      --color-text: #050418;
+      --color-icon: #757575;
+    }
+    
+    .dark {
+      --color-primary: #3B82F6;
+      /* Lighter Blue for Dark Mode */
+      --color-primary-light: #1E3A8A;
+      --color-secondary: #FF7F50;
+      --color-secondary-light: #431407;
+      --color-success: #4CAF50;
+      --color-warning: #FFA726;
+      --color-danger: #EF5350;
+      --color-background: #0f172a;
+      /* Slate 900 */
+      --color-surface: #1e293b;
+      /* Slate 800 */
+      --color-text: #F8FAFC;
+      /* Slate 50 */
+      --color-icon: #94A3B8;
+      /* Slate 400 */
   }
 
   html {
@@ -24,67 +57,88 @@
     /* Explicitly set base size to prevent system font scaling defaults from messing up the layout */
   }
 
-  @layer utilities {
-    .bg-primary {
-      background-color: #0D47A1 !important;
-    }
+                body {
+                  background-color: var(--color-background);
+                  color: var(--color-text);
+                  @apply font-sans antialiased;
+                }
+                @layer utilities {
+                  .bg-primary {
+        background-color: var(--color-primary) !important;
+        }
+        
+        .text-primary {
+        color: var(--color-primary) !important;
+        }
+        
+        .border-primary {
+        border-color: var(--color-primary) !important;
+        }
+        
+        .bg-secondary {
+          background-color: var(--color-secondary) !important;
+        }
+        
+        .text-secondary {
+          color: var(--color-secondary) !important;
+        }
+        
+        .border-secondary {
+          border-color: var(--color-secondary) !important;
+        }
 
-    .text-primary {
-      color: #0D47A1 !important;
-    }
+                                .bg-success {
+          background-color: var(--color-success) !important;
+          }
+          
+          .text-success {
+          color: var(--color-success) !important;
+          }
+          
+          .border-success {
+          border-color: var(--color-success) !important;
+          }
 
-    .border-primary {
-      border-color: #0D47A1 !important;
-    }
+                                .bg-warning {
+          background-color: var(--color-warning) !important;
+          }
+          
+          .text-warning {
+          color: var(--color-warning) !important;
+          }
+          
+          .border-warning {
+          border-color: var(--color-warning) !important;
+          }
 
-    .bg-success {
-      background-color: #4CAF50 !important;
-    }
+                                .bg-danger {
+          background-color: var(--color-danger) !important;
+          }
+          
+          .text-danger {
+          color: var(--color-danger) !important;
+          }
+          
+          .border-danger {
+          border-color: var(--color-danger) !important;
+          }
 
-    .text-success {
-      color: #4CAF50 !important;
-    }
+                                .bg-background {
+          background-color: var(--color-background) !important;
+          }
+          
+          .bg-surface {
+          background-color: var(--color-surface) !important;
+          }
+                .text-text {
+                  color: var(--color-text) !important;
+        
 
-    .border-success {
-      border-color: #4CAF50 !important;
-    }
-
-    .bg-warning {
-      background-color: #FF9800 !important;
-    }
-
-    .text-warning {
-      color: #FF9800 !important;
-    }
-
-    .border-warning {
-      border-color: #FF9800 !important;
-    }
-
-    .bg-danger {
-      background-color: #F44336 !important;
-    }
-
-    .text-danger {
-      color: #F44336 !important;
-    }
-
-    .border-danger {
-      border-color: #F44336 !important;
-    }
-
-    .bg-background {
-      background-color: #F3F5F9 !important;
-    }
-
-    .bg-surface {
-      background-color: #FFFFFF !important;
-    }
-  }
-
-  body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
-  }
+                .text-icon {
+                  color: var(--color-icon) !important;
+                }
+                }
+                }
 }
 
 /* Hide markers when heatmap is active */

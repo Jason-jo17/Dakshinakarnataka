@@ -1,33 +1,34 @@
 import React from 'react';
 import { Briefcase, Building2, TrendingUp, Download, Layers, Zap, Users } from 'lucide-react';
-import { JOBS } from '../../data/jobs';
+import { useDataStore } from '../../store/useDataStore';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 
 const IndustryDemandView: React.FC = () => {
     const [actionModal, setActionModal] = React.useState<'gap' | 'training' | null>(null);
+    const industryDemands = useDataStore(state => state.industryDemands);
 
-    // Analytics
-    const totalJobs = JOBS.length;
-    const uniqueCompanies = new Set(JOBS.map(j => j.company)).size;
-    const totalVacancies = 1325; // Hardcoded from screenshot
+    // Analytics derived from stored demands (simulating the JOBS array with new dynamic data mixed in or replacing it)
+    // Ideally we merge JOBS.length + industryDemands.reduce...
+    // For now, let's just use the `industryDemands` from the store as the primary source for the "Demand" metrics.
+    // The previous implementation used `JOBS` (individual listings) and hardcoded `sectors`. 
+    // We will augment the stats with our dynamic data.
 
-    // Sector Analysis
-    const sectors: Record<string, number> = {
-        'Construction': 400,
-        'IT/ITES': 350,
-        'Automotive': 210,
-        'Healthcare': 110,
-        'Retail': 100,
-        'BFSI': 90,
-        'Manufacturing': 70,
-        'Logistics': 60
-    };
+    const totalJobs = industryDemands.reduce((acc, curr) => acc + curr.demand_count, 0); // Using new dynamic count
+    const uniqueCompanies = new Set(industryDemands.map(j => j.company_name)).size;
+    const totalVacancies = totalJobs; // Syncing these for now
 
-    const sectorData = Object.entries(sectors)
+
+    // Sector Analysis derived from dynamic data
+    const sectorCounts: Record<string, number> = {};
+    industryDemands.forEach(d => {
+        sectorCounts[d.sector] = (sectorCounts[d.sector] || 0) + d.demand_count;
+    });
+
+    const sectorData = Object.entries(sectorCounts)
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
 
-    const topSector = sectorData[0].name;
+    const topSector = sectorData.length > 0 ? sectorData[0].name : 'N/A';
 
     // Top Job Roles (Heatmap data)
     const topRoles = [

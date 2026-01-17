@@ -1,6 +1,9 @@
 import { AlertTriangle, Activity, Zap, ShieldAlert, Users } from "lucide-react";
 
-// --- MOCK COMPONENTS & DATA TO ENSURE RUNNABILITY ---
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Progress } from "../ui/progress";
+import StatCard from "../StatCard";
 
 // Mock Data to replace external import
 const dashboardData = {
@@ -13,53 +16,6 @@ const dashboardData = {
         { name: "Mobile App Dev", demand: "800", supply: "600", gap: 200, gapPercentage: 25 },
     ]
 };
-
-// Internal StatCard Component
-const StatCard = ({ title, value, icon: Icon, color, subtitle }: any) => {
-    const colorClasses: any = {
-        red: "text-red-600 bg-red-100",
-        orange: "text-orange-600 bg-orange-100",
-        blue: "text-blue-600 bg-blue-100",
-        green: "text-green-600 bg-green-100",
-    };
-
-    return (
-        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex items-start justify-between">
-            <div>
-                <p className="text-sm font-medium text-slate-500">{title}</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-2">{value}</h3>
-                {subtitle && <p className={`text-xs mt-1 ${color === 'red' ? 'text-red-600' : 'text-slate-500'}`}>{subtitle}</p>}
-            </div>
-            <div className={`p-3 rounded-full ${colorClasses[color] || "bg-slate-100 text-slate-600"}`}>
-                <Icon size={20} />
-            </div>
-        </div>
-    );
-};
-
-// Internal UI Components
-const Card = ({ children, className = "" }: any) => (
-    <div className={`bg-white rounded-lg border border-slate-200 shadow-sm ${className}`}>{children}</div>
-);
-const CardHeader = ({ children, className = "" }: any) => <div className={`p-6 pb-3 ${className}`}>{children}</div>;
-const CardTitle = ({ children, className = "" }: any) => <h3 className={`font-semibold leading-none tracking-tight ${className}`}>{children}</h3>;
-const CardContent = ({ children, className = "" }: any) => <div className={`p-6 pt-0 ${className}`}>{children}</div>;
-const Badge = ({ children, variant, className = "" }: any) => {
-    const variants: any = {
-        destructive: "bg-red-500 text-white hover:bg-red-600",
-        default: "bg-slate-900 text-slate-50 hover:bg-slate-900/80",
-    };
-    return (
-        <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${variants[variant] || variants.default} ${className}`}>
-            {children}
-        </div>
-    );
-};
-const Progress = ({ value, className = "", indicatorClassName = "" }: any) => (
-    <div className={`relative h-4 w-full overflow-hidden rounded-full bg-slate-100 ${className}`}>
-        <div className={`h-full w-full flex-1 transition-all ${indicatorClassName}`} style={{ transform: `translateX(-${100 - (value || 0)}%)` }}></div>
-    </div>
-);
 
 // --- MAIN COMPONENT ---
 
@@ -106,7 +62,7 @@ export default function GapPanel({ filters }: PanelProps) {
                     value="High"
                     icon={Activity}
                     color="red"
-                    subtitle="32% adjusted deficit"
+                    subtitle="32% deficit"
                 />
                 <StatCard
                     title="Total Workforce Gap"
@@ -135,32 +91,32 @@ export default function GapPanel({ filters }: PanelProps) {
                 {/* Critical Skill Gaps Table */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Critical Skill Gaps - Dakshina Kannada
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="w-full overflow-auto">
-                            <table className="w-full text-sm caption-bottom text-slate-500">
+                            <table className="w-full text-sm caption-bottom text-icon">
                                 <thead className="[&_tr]:border-b">
-                                    <tr className="border-b transition-colors bg-slate-50">
-                                        <th className="h-12 px-4 text-left align-middle font-semibold text-slate-700">Skill</th>
-                                        <th className="h-12 px-4 align-middle font-semibold text-slate-700 text-right">Demand</th>
-                                        <th className="h-12 px-4 align-middle font-semibold text-slate-700 text-right">Supply</th>
-                                        <th className="h-12 px-4 align-middle font-semibold text-slate-700 text-right">Gap %</th>
+                                    <tr className="border-b border-slate-200 dark:border-slate-700 transition-colors bg-slate-50 dark:bg-slate-800/50">
+                                        <th className="h-12 px-4 text-left align-middle font-semibold text-text">Skill</th>
+                                        <th className="h-12 px-4 align-middle font-semibold text-text text-right">Demand</th>
+                                        <th className="h-12 px-4 align-middle font-semibold text-text text-right">Supply</th>
+                                        <th className="h-12 px-4 align-middle font-semibold text-text text-right">Gap %</th>
                                     </tr>
                                 </thead>
                                 <tbody className="[&_tr:last-child]:border-0">
                                     {skills.map((s, i) => (
-                                        <tr key={i} className={`border-b transition-colors hover:bg-slate-100/50 ${s.gapPercentage >= 50 ? 'bg-red-50/50' : ''}`}>
-                                            <td className="p-4 align-middle font-medium text-slate-800">
+                                        <tr key={i} className={`border-b border-slate-200 dark:border-slate-700 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/50 ${s.gapPercentage >= 50 ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
+                                            <td className="p-4 align-middle font-medium text-text">
                                                 {s.name}
                                                 {s.gapPercentage >= 50 && (
                                                     <Badge variant="destructive" className="ml-2 text-[10px] h-5">Critical</Badge>
                                                 )}
                                             </td>
-                                            <td className="p-4 align-middle text-right text-blue-600 font-semibold">{s.demand}</td>
-                                            <td className="p-4 align-middle text-right text-green-600 font-semibold">{s.supply}</td>
+                                            <td className="p-4 align-middle text-right text-blue-600 dark:text-blue-400 font-semibold">{s.demand}</td>
+                                            <td className="p-4 align-middle text-right text-green-600 dark:text-green-400 font-semibold">{s.supply}</td>
                                             <td className="p-4 align-middle text-right">
                                                 <div className="flex flex-col items-end gap-1">
                                                     <span className={`font-bold ${s.gapPercentage >= 50 ? 'text-red-600' :
@@ -185,7 +141,7 @@ export default function GapPanel({ filters }: PanelProps) {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="mt-4 text-xs text-slate-600 bg-slate-50 p-3 rounded">
+                        <div className="mt-4 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-3 rounded">
                             <strong>Note:</strong> Gap % = (Demand - Supply) / Demand × 100 |
                             Critical gaps ({'>'}50%) require immediate intervention
                         </div>
@@ -195,7 +151,7 @@ export default function GapPanel({ filters }: PanelProps) {
                 {/* Skill Gap Heatmap - Enhanced with Hardware/Robotics Row */}
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-slate-500">
+                        <CardTitle className="text-sm font-medium text-icon">
                             Skill Gap Heatmap (Sector vs Skill Category)
                         </CardTitle>
                     </CardHeader>
@@ -203,14 +159,14 @@ export default function GapPanel({ filters }: PanelProps) {
                         <div className="grid grid-cols-6 gap-1 text-xs">
                             {/* Header Row */}
                             <div className="font-bold"></div>
-                            <div className="text-center text-slate-600 font-semibold">IT/ITES</div>
-                            <div className="text-center text-slate-600 font-semibold">BPO</div>
-                            <div className="text-center text-slate-600 font-semibold">Mfg</div>
-                            <div className="text-center text-slate-600 font-semibold">Auto</div>
-                            <div className="text-center text-slate-600 font-semibold">Avg</div>
+                            <div className="text-center text-icon font-semibold">IT/ITES</div>
+                            <div className="text-center text-icon font-semibold">BPO</div>
+                            <div className="text-center text-icon font-semibold">Mfg</div>
+                            <div className="text-center text-icon font-semibold">Auto</div>
+                            <div className="text-center text-icon font-semibold">Avg</div>
 
                             {/* Coding Skills */}
-                            <div className="font-medium text-slate-700 self-center py-2">Coding</div>
+                            <div className="font-medium text-slate-700 dark:text-slate-300 self-center py-2">Coding</div>
                             <div className="h-12 bg-yellow-300 rounded m-0.5 flex items-center justify-center font-bold text-yellow-900">27%</div>
                             <div className="h-12 bg-green-200 rounded m-0.5 flex items-center justify-center text-green-800">8%</div>
                             <div className="h-12 bg-slate-100 rounded m-0.5 flex items-center justify-center text-slate-400">N/A</div>
@@ -364,17 +320,17 @@ export default function GapPanel({ filters }: PanelProps) {
             </div>
 
             {/* Recommendations */}
-            <Card className="border-l-4 border-l-blue-500">
+            <Card className="border-l-4 border-l-blue-500 dark:border-l-blue-500">
                 <CardHeader>
-                    <CardTitle className="text-base font-semibold text-slate-700">
+                    <CardTitle className="text-base font-semibold text-text">
                         Strategic Recommendations for Dakshina Kannada
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <h5 className="font-bold text-blue-700 mb-2">Short-term (0-6 months)</h5>
-                            <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1.5">
+                            <h5 className="font-bold text-blue-700 dark:text-blue-400 mb-2">Short-term (0-6 months)</h5>
+                            <ul className="list-disc pl-5 text-sm text-text space-y-1.5">
                                 <li>Launch intensive Python bootcamps targeting 500+ students</li>
                                 <li>Partner with STPI & local industry for PLC/SCADA workshops</li>
                                 <li>Implement soft skills training across all institutions</li>
@@ -382,8 +338,8 @@ export default function GapPanel({ filters }: PanelProps) {
                             </ul>
                         </div>
                         <div>
-                            <h5 className="font-bold text-green-700 mb-2">Medium-term (6-18 months)</h5>
-                            <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1.5">
+                            <h5 className="font-bold text-green-700 dark:text-green-400 mb-2">Medium-term (6-18 months)</h5>
+                            <ul className="list-disc pl-5 text-sm text-text space-y-1.5">
                                 <li>Establish Robotics & EV CoE at NITK/St Joseph's</li>
                                 <li>Update curricula to include MERN Stack & Mechatronics</li>
                                 <li>Mandatory 6-month industry internships for L2/L3 colleges</li>
