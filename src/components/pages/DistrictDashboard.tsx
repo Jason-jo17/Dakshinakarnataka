@@ -121,7 +121,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                         {/* Search Bar in Header - Negative Space */}
                         <div className="flex-1 max-w-xl mx-auto flex items-center gap-2">
                             <div className="relative flex-1 hidden md:block">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-icon" size={16} />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search by college, skill, or company..."
