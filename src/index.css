@@ -4,7 +4,7 @@
 @theme {
   --color-primary: var(--color-primary);
   --color-primary-light: var(--color-primary-light);
-    --color-secondary: var(--color-secondary);
+  --color-secondary: var(--color-secondary);
     --color-secondary-light: var(--color-secondary-light);
     --color-success: var(--color-success);
     --color-warning: var(--color-warning);
@@ -22,7 +22,7 @@
   :root {
     --color-primary: #0047BB;
     --color-primary-light: #E6EDF8;
-      --color-secondary: #FF7F50;
+    --color-secondary: #FF7F50;
       --color-secondary-light: #FFF2EE;
       --color-success: #28A745;
       --color-warning: #FF9800;
@@ -36,7 +36,7 @@
     .dark {
       --color-primary: #3B82F6;
     --color-primary-light: #1E3A8A;
-      --color-secondary: #FF7F50;
+    --color-secondary: #FF7F50;
       --color-secondary-light: #431407;
       --color-success: #4CAF50;
       --color-warning: #FFA726;
@@ -57,31 +57,30 @@
       @apply font-sans antialiased;
     }
 }
+
 @layer utilities {
   .bg-primary {
-    background-color: var(--color-primary) !important;
-  }
-
-  .text-primary {
-    color: var(--color-primary) !important;
-  }
-
-  .border-primary {
-    border-color: var(--color-primary) !important;
-  }
-
-  .bg-secondary {
-    background-color: var(--color-secondary) !important;
-  }
-
-  .text-secondary {
-    color: var(--color-secondary) !important;
-  }
-
-  .border-secondary {
-    border-color: var(--color-secondary) !important;
-  }
-
+      background-color: var(--color-primary) !important;
+    }
+  
+    .text-primary {
+      color: var(--color-primary) !important;
+    }
+  
+    .border-primary {
+      border-color: var(--color-primary) !important;
+    }
+    .bg-secondary {
+      background-color: var(--color-secondary) !important;
+    }
+  
+    .text-secondary {
+      color: var(--color-secondary) !important;
+    }
+  
+    .border-secondary {
+      border-color: var(--color-secondary) !important;
+    }
     .bg-success {
       background-color: var(--color-success) !important;
     }
@@ -93,7 +92,6 @@
     .border-success {
       border-color: var(--color-success) !important;
     }
-
     .bg-warning {
       background-color: var(--color-warning) !important;
     }
@@ -105,7 +103,6 @@
     .border-warning {
       border-color: var(--color-warning) !important;
     }
-
     .bg-danger {
       background-color: var(--color-danger) !important;
     }
@@ -117,7 +114,6 @@
     .border-danger {
       border-color: var(--color-danger) !important;
     }
-
     .bg-background {
       background-color: var(--color-background) !important;
     }
@@ -125,11 +121,11 @@
     .bg-surface {
       background-color: var(--color-surface) !important;
     }
-
+  
     .text-text {
       color: var(--color-text) !important;
+    }
   
-
     .text-icon {
       color: var(--color-icon) !important;
     }
