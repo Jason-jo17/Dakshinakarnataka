@@ -110,7 +110,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                     <div className="flex items-center justify-between gap-6">
                         <div className="flex-shrink-0">
                             <h1 className="text-2xl font-bold text-text leading-tight flex items-baseline gap-2">
-                                District Skill Command Center
+                                Karnataka Skill Development Corporation
                                 <span className="text-[10px] font-normal text-icon opacity-80 relative -top-1">Powered by Inunity</span>
                             </h1>
                             <p className="text-xs text-icon">
@@ -244,7 +244,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between text-xs text-icon">
                         <div>
-                            <strong>Dakshina Kannada District</strong> • Karnataka Digital Economy Mission (KDEM)
+                            <strong>Karnataka Skill Development Corporation</strong> • Karnataka Digital Economy Mission (KDEM)
                         </div>
                         <div>
                             Last Updated: December 2024 • Data Source: Official Placement Reports & Industry Surveys

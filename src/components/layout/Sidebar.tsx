@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                             alt="Government of Karnataka"
                             className="h-8 w-auto object-contain"
                         />
-                        Dakshina Kannada Directory
+                        Karnataka Skill Development Corporation
                     </h1>
                     <button
                         onClick={onToggleTheme}
@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                     </button>
                 </div>
-                <p className="text-icon text-xs mt-2 pl-9">District Education Portal</p>
+                <p className="text-icon text-xs mt-2 pl-9">Skill Development Portal</p>
             </div>
 
             <div className="flex-1 overflow-y-auto py-4 space-y-1">
