@@ -1,0 +1,16 @@
+﻿src/components/dashboard/skill-gap/components/GapHeatmap.tsx(4,74): error TS2307: Cannot find module '../../../ui/tooltip' or its corresponding type declarations.
+src/components/dashboard/skill-gap/SkillGapTab.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
+src/components/dashboard/skill-index/components/DistanceToIdealBars.tsx(4,1): error TS6133: 'Progress' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,61): error TS6133: 'rank' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,67): error TS6133: 'totalDistricts' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,93): error TS6133: 'trend' is declared but its value is never read.
+src/components/dashboard/skill-index/SkillIndexTab.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,11): error TS6133: 'root' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,17): error TS6133: 'depth' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,45): error TS6133: 'index' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,52): error TS6133: 'payload' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,61): error TS6133: 'colors' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(19,75): error TS6133: 'value' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/components/SectorTreemap.tsx(91,13): error TS2322: Type '{ children: Element; data: any; dataKey: string; ratio: number; stroke: string; fill: string; content: Element; }' is not assignable to type 'IntrinsicAttributes & Props'.
+  Property 'ratio' does not exist on type 'IntrinsicAttributes & Props'.
+src/components/dashboard/skills-intelligence/SkillsIntelligenceTab.tsx(2,8): error TS6133: 'React' is declared but its value is never read.

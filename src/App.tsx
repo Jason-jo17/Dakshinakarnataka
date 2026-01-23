@@ -34,7 +34,7 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
-  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics'>('dashboard');
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast'>('dashboard');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -133,6 +133,14 @@ function App() {
         return <CareerCentersView />;
       case 'reports':
         return <ReportsView />;
+      case 'forecast':
+        return <DistrictDashboard
+          initialTab="forecasting"
+          onNavigate={(view, tab) => {
+            setCurrentView(view as any);
+            if (view === 'analytics' && tab) setDashboardTab(tab);
+          }}
+        />;
       default:
         return null;
     }

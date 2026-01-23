@@ -1,0 +1,8 @@
+﻿src/components/dashboard/skill-gap/components/GapHeatmap.tsx(58,41): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & { children: ReactNode; className?: string | undefined; }'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & { children: ReactNode; className?: string | undefined; }'.
+src/components/dashboard/skill-gap/SkillGapTab.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,61): error TS6133: 'rank' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,67): error TS6133: 'totalDistricts' is declared but its value is never read.
+src/components/dashboard/skill-index/components/KSIScorecard.tsx(22,93): error TS6133: 'trend' is declared but its value is never read.
+src/components/dashboard/skill-index/SkillIndexTab.tsx(2,1): error TS6133: 'React' is declared but its value is never read.
+src/components/dashboard/skills-intelligence/SkillsIntelligenceTab.tsx(2,8): error TS6133: 'React' is declared but its value is never read.

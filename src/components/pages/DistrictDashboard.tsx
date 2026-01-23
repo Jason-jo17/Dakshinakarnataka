@@ -16,8 +16,12 @@ import SearchSuggestions from '../SearchSuggestions';
 import { useDataStore } from '../../store/useDataStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { getSearchSuggestions, type SearchSuggestion } from '../../utils/searchUtils';
+import AIForecastPanel from '../dashboard/AIForecastPanel';
+import SkillGapTab from '../dashboard/skill-gap/SkillGapTab';
+import SkillsIntelligenceTab from '../dashboard/skills-intelligence/SkillsIntelligenceTab';
+import SkillIndexTab from '../dashboard/skill-index/SkillIndexTab';
 
-const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void }> = ({ onNavigate }) => {
+const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void, initialTab?: string }> = ({ onNavigate, initialTab = "overview" }) => {
     const [filters, setFilters] = useState({
         sector: 'all',
         industry: 'all',
@@ -32,7 +36,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
 
-    const [activeTab, setActiveTab] = useState("overview");
+    const [activeTab, setActiveTab] = useState(initialTab);
 
     // Get data from store
     const institutions = useDataStore(state => state.institutions);
@@ -209,7 +213,7 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                         </button>
 
                         <div className="flex-1 overflow-x-auto">
-                            <TabsList className="grid w-full min-w-[800px] grid-cols-8 gap-1 bg-surface p-1 rounded-lg shadow-sm h-auto border border-slate-200 dark:border-slate-700">
+                            <TabsList className="grid w-full min-w-[1200px] grid-cols-12 gap-1 bg-surface p-1 rounded-lg shadow-sm h-auto border border-slate-200 dark:border-slate-700">
                                 <TabsTrigger value="overview" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Overview</TabsTrigger>
                                 <TabsTrigger value="demand" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Skill Demand</TabsTrigger>
                                 <TabsTrigger value="supply" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Skill Supply</TabsTrigger>
@@ -218,6 +222,11 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                                 <TabsTrigger value="placements" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Placements</TabsTrigger>
                                 <TabsTrigger value="coe" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Infra (COE)</TabsTrigger>
                                 <TabsTrigger value="insights" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Insights</TabsTrigger>
+                                <TabsTrigger value="forecasting" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Forecasting</TabsTrigger>
+                                {/* NEW KSISU TABS */}
+                                <TabsTrigger value="skill-gap" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Skill Gap Study</TabsTrigger>
+                                <TabsTrigger value="skills-intelligence" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Skills Intel</TabsTrigger>
+                                <TabsTrigger value="skill-index" className="rounded-md py-2 text-xs font-medium data-[state=active]:bg-secondary data-[state=active]:text-white">Skill Index (KSI)</TabsTrigger>
                             </TabsList>
                         </div>
                         {/* Desktop Secondary Filter Trigger near Tabs for convenience (User request) */}
@@ -239,6 +248,12 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                     <TabsContent value="placements" className="space-y-6"><PlacementPanel filters={filters} /></TabsContent>
                     <TabsContent value="coe" className="space-y-6"><CoePanel filters={filters} /></TabsContent>
                     <TabsContent value="insights" className="space-y-6"><InsightsPanel filters={filters} onTabChange={handleTabSwitch} /></TabsContent>
+                    <TabsContent value="forecasting" className="space-y-6"><AIForecastPanel /></TabsContent>
+
+                    {/* KSISU Tab Contents */}
+                    <TabsContent value="skill-gap" className="space-y-6"><SkillGapTab /></TabsContent>
+                    <TabsContent value="skills-intelligence" className="space-y-6"><SkillsIntelligenceTab /></TabsContent>
+                    <TabsContent value="skill-index" className="space-y-6"><SkillIndexTab /></TabsContent>
                 </Tabs>
             </main>
 

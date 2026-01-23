@@ -7,8 +7,8 @@ interface SidebarProps {
     institutions: Institution[];
     selectedId: string | null;
     onSelect: (id: string) => void;
-    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics';
-    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics') => void;
+    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast';
+    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast') => void;
     showHeatmap: boolean;
     onToggleHeatmap: () => void;
     isDarkMode: boolean;
@@ -96,6 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <MenuItem view="assessments" icon={GraduationCap} label="Assessments" />
                 <MenuItem view="industry" icon={Briefcase} label="Industry Demand" />
                 <MenuItem view="coe" icon={Award} label="Centers of Excellence" />
+                <MenuItem view="forecast" icon={PieChart} label="Forecast" />
                 <MenuItem view="centers" icon={MapPin} label="Career Centers (GCC)" />
                 <MenuItem view="reports" icon={FileText} label="Reports" />
 
