@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UserRole = 'admin' | 'institution' | 'company' | 'coe' | 'guest';
+export type UserRole = 'super_admin' | 'district_admin' | 'admin' | 'institution' | 'company' | 'coe' | 'guest';
 
 export interface User {
     id: string;
@@ -13,8 +13,10 @@ export interface User {
 interface AuthState {
     user: User | null;
     isAuthenticated: boolean;
+    currentDistrict: string | null;
     login: (user: User) => void;
     logout: () => void;
+    setDistrict: (district: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -22,8 +24,10 @@ export const useAuthStore = create<AuthState>()(
         (set) => ({
             user: null,
             isAuthenticated: false,
+            currentDistrict: 'Dakshina Kannada', // Default
             login: (user) => set({ user, isAuthenticated: true }),
-            logout: () => set({ user: null, isAuthenticated: false }),
+            logout: () => set({ user: null, isAuthenticated: false, currentDistrict: null }),
+            setDistrict: (district) => set({ currentDistrict: district }),
         }),
         {
             name: 'dk-directory-auth',

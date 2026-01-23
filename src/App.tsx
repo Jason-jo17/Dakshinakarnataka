@@ -18,15 +18,17 @@ import { FloatingFilterPanel } from './components/map/FloatingFilterPanel';
 import { JOBS } from './data/jobs';
 import { DCSearch } from './components/dashboard/DCSearch';
 import { useDataStore } from './store/useDataStore';
-import LoginPage from './components/auth/LoginPage';
+import CentralLoginPage from './components/auth/CentralLoginPage';
+import SuperAdminDashboard from './components/pages/SuperAdminDashboard';
 import InstitutionEntryForm from './components/entry/InstitutionEntryForm';
 import CompanyEntryForm from './components/entry/CompanyEntryForm';
 import CoeEntryForm from './components/entry/CoeEntryForm';
+import { useAuthStore } from './store/useAuthStore';
 
 function App() {
   const institutions = useDataStore(state => state.institutions);
+  const { isAuthenticated, user, currentDistrict } = useAuthStore();
 
-  const [showLogin, setShowLogin] = useState(false);
   const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -75,6 +77,16 @@ function App() {
       setIsKeySet(true);
     }
   }, []);
+
+  // Auth Guard
+  if (!isAuthenticated) {
+    return <CentralLoginPage />;
+  }
+
+  // Super Admin District Selection
+  if (user?.role === 'super_admin' && !currentDistrict) {
+    return <SuperAdminDashboard />;
+  }
 
   const renderCurrentView = () => {
     switch (currentView) {
@@ -126,21 +138,6 @@ function App() {
     }
   };
 
-  // Handle Login Navigation
-  if (showLogin) {
-    return (
-      <LoginPage
-        onBack={() => setShowLogin(false)}
-        onLogin={(role) => {
-          setShowLogin(false);
-          // Navigate to appropriate entry form based on role
-          if (role === 'institution') setShowEntryForm('institution');
-          else if (role === 'company') setShowEntryForm('company');
-          else if (role === 'coe') setShowEntryForm('coe');
-        }}
-      />
-    );
-  }
 
   // Handle Entry Forms
   if (showEntryForm === 'institution') {
@@ -220,7 +217,7 @@ function App() {
 
           // Partner Login
           onLogin={() => {
-            setShowLogin(true);
+            // setShowLogin(true); // Replaced by global auth guard
             setIsMobileMenuOpen(false);
           }}
         />

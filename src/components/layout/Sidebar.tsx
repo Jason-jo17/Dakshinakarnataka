@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Institution } from '../../types/institution';
-import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap, LogIn } from 'lucide-react';
+import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap, LogIn, LogOut } from 'lucide-react';
+import { useAuthStore } from '../../store/useAuthStore';
 
 interface SidebarProps {
     institutions: Institution[];
@@ -38,6 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     onToggleCategory,
     onLogin
 }) => {
+    const { user, isAuthenticated, logout, currentDistrict, setDistrict } = useAuthStore();
+
 
     const MenuItem = ({ view, icon: Icon, label }: { view: any, icon: any, label: string }) => (
         <button
@@ -184,15 +187,46 @@ const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Footer / Login */}
             <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-                <button
-                    onClick={onLogin}
-                    className="w-full flex items-center justify-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-surface text-icon text-sm font-medium transition-colors"
-                >
-                    <LogIn size={16} />
-                    Partner Portal Login
-                </button>
+                {isAuthenticated && user ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3 px-1">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-xs border border-blue-200 dark:border-blue-700">
+                                {user.name.charAt(0)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-text truncate">{user.name}</h4>
+                                <p className="text-[10px] text-icon uppercase tracking-wider">{user.role.replace('_', ' ')}</p>
+                            </div>
+                        </div>
+
+                        {user.role === 'super_admin' && (
+                            <button
+                                onClick={() => setDistrict(null)}
+                                className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-200 dark:border-blue-800"
+                            >
+                                <MapPin size={14} /> Switch District
+                            </button>
+                        )}
+
+                        <button
+                            onClick={logout}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                        >
+                            <LogOut size={14} /> Sign Out
+                        </button>
+                    </div>
+                ) : (
+                        <button
+                            onClick={onLogin}
+                            className="w-full flex items-center justify-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-surface text-icon text-sm font-medium transition-colors"
+                        >
+                            <LogIn size={16} />
+                            Partner Portal Login
+                        </button>
+                )}
+
                 <div className="mt-4 flex flex-col gap-1 items-center justify-center text-xs text-center">
-                    <span className="text-icon">© 2024 DK District</span>
+                    <span className="text-icon">© 2024 {currentDistrict || 'DK District'}</span>
                     <span className="text-icon opacity-80">Powered by Inunity</span>
                 </div>
             </div>

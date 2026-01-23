@@ -14,6 +14,7 @@ import AcceleratorPanel from '../panels/AcceleratorPanel';
 import InsightsPanel from '../panels/InsightsPanel';
 import SearchSuggestions from '../SearchSuggestions';
 import { useDataStore } from '../../store/useDataStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { getSearchSuggestions, type SearchSuggestion } from '../../utils/searchUtils';
 
 const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => void }> = ({ onNavigate }) => {
@@ -102,6 +103,8 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
         }
     }, [showSuggestions, suggestions, selectedSuggestionIndex, handleSuggestionSelect]);
 
+    const { currentDistrict } = useAuthStore();
+
     return (
         <div className="min-h-screen bg-background relative">
             {/* Header */}
@@ -110,11 +113,11 @@ const DistrictDashboard: React.FC<{ onNavigate: (view: any, tab?: string) => voi
                     <div className="flex items-center justify-between gap-6">
                         <div className="flex-shrink-0">
                             <h1 className="text-2xl font-bold text-text leading-tight flex items-baseline gap-2">
-                                Karnataka Skill Development Corporation
+                                {currentDistrict ? `${currentDistrict} Skill Dashboard` : 'Skill Development Dashboard'}
                                 <span className="text-[10px] font-normal text-icon opacity-80 relative -top-1">Powered by Inunity</span>
                             </h1>
                             <p className="text-xs text-icon">
-                                Real-time insights on demand, supply & gaps
+                                Real-time insights on demand, supply & gaps • Karnataka Skill Development Corporation
                             </p>
                         </div>
 
