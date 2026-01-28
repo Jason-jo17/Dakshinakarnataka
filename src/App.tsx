@@ -20,21 +20,39 @@ import { DCSearch } from './components/dashboard/DCSearch';
 import { useDataStore } from './store/useDataStore';
 import CentralLoginPage from './components/auth/CentralLoginPage';
 import SuperAdminDashboard from './components/pages/SuperAdminDashboard';
+
 import InstitutionEntryForm from './components/entry/InstitutionEntryForm';
 import CompanyEntryForm from './components/entry/CompanyEntryForm';
 import CoeEntryForm from './components/entry/CoeEntryForm';
+
+import DistrictLobby from './components/pages/DistrictLobby';
+import DataEntryPortal from './components/pages/DataEntryPortal';
+
+import DistrictSkillPlan from './components/pages/DistrictSkillPlan';
+import DistrictPlanList from './components/pages/DistrictPlanList';
+import SchemesSection from './components/pages/SchemesSection';
+import TrainerSection from './components/pages/TrainerSection';
+import ItiTradeSection from './components/pages/ItiTradeSection';
+
+
+
 import { useAuthStore } from './store/useAuthStore';
+import { DataSeeder } from './components/DataSeeder';
 
 function App() {
+
   const institutions = useDataStore(state => state.institutions);
   const { isAuthenticated, user, currentDistrict } = useAuthStore();
 
-  const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | null>(null);
+
+  const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | 'job' | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
+
   const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast'>('dashboard');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -78,14 +96,138 @@ function App() {
     }
   }, []);
 
+
+
   // Auth Guard
+  useEffect(() => {
+    if (isAuthenticated) {
+      setAdminMode('lobby');
+    }
+  }, [isAuthenticated]);
+
+
   if (!isAuthenticated) {
-    return <CentralLoginPage />;
+    return (
+      <>
+        <CentralLoginPage />
+      </>
+    );
   }
+
 
   // Super Admin District Selection
   if (user?.role === 'super_admin' && !currentDistrict) {
     return <SuperAdminDashboard />;
+  }
+
+  // District Admin Lobby Flow
+  if (adminMode === 'lobby') {
+    return (
+      <>
+        <DistrictLobby
+          onSelectOption={(option) => {
+            setAdminMode(option as any);
+          }}
+          userName={user?.name}
+        />
+        <DataSeeder />
+      </>
+    );
+  }
+
+  // Plan List View
+  if (adminMode === 'plan-list') {
+    return (
+      <>
+        <DistrictPlanList
+          onBack={() => setAdminMode('lobby')}
+          onSelectPlan={(id: string | null) => {
+            setSelectedId(id); // Using the existing selectedId state for convenience, or create a new one
+            setAdminMode('plan-edit');
+          }}
+        />
+        <DataSeeder />
+      </>
+    );
+  }
+
+  // Plan Edit View
+  if (adminMode === 'plan-edit') {
+    return (
+      <DistrictSkillPlan
+        planId={selectedId}
+        onBack={() => setAdminMode('plan-list')}
+      />
+    );
+  }
+
+  if (adminMode === 'portal') {
+    return (
+      <>
+        <DataEntryPortal
+          onBack={() => setAdminMode('lobby')}
+          onAction={(action) => {
+            console.log('DataEntryPortal action:', action);
+            if (action === 'plan') {
+              console.log('Switching to plan-list');
+              setAdminMode('plan-list');
+            }
+            else if (action === 'schemes') {
+              console.log('Switching to schemes');
+              setAdminMode('schemes');
+            }
+            else if (action === 'trainer') {
+              setAdminMode('trainer');
+            }
+            else if (action === 'iti-trade') {
+              setAdminMode('iti-trade');
+            }
+            else {
+              setShowEntryForm(action);
+            }
+          }}
+        />
+        {/* Render Entry Forms as Modals if triggered */}
+        {showEntryForm === 'institution' && (
+          <InstitutionEntryForm
+            onSuccess={() => setShowEntryForm(null)}
+            onCancel={() => setShowEntryForm(null)}
+          />
+        )}
+        {showEntryForm === 'company' && (
+          <CompanyEntryForm
+            onSuccess={() => setShowEntryForm(null)}
+            onCancel={() => setShowEntryForm(null)}
+          />
+        )}
+        {showEntryForm === 'coe' && (
+          <CoeEntryForm
+            onSuccess={() => setShowEntryForm(null)}
+            onCancel={() => setShowEntryForm(null)}
+          />
+        )}
+        {/* Job Form Placeholder - reusing Company or need new one? User said "we will do this part soon" */}
+        <DataSeeder />
+      </>
+    );
+  }
+
+  if (adminMode === 'schemes') {
+    return (
+      <SchemesSection onBack={() => setAdminMode('portal')} />
+    );
+  }
+
+  if (adminMode === 'trainer') {
+    return (
+      <TrainerSection onBack={() => setAdminMode('portal')} />
+    );
+  }
+
+  if (adminMode === 'iti-trade') {
+    return (
+      <ItiTradeSection onBack={() => setAdminMode('portal')} />
+    );
   }
 
   const renderCurrentView = () => {
@@ -178,9 +320,14 @@ function App() {
     );
   }
 
+
+
+
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Mobile Menu Button */}
+
+
       <button
         className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -333,6 +480,7 @@ function App() {
         </div>
 
       </div>
+      <DataSeeder />
     </div>
   );
 }

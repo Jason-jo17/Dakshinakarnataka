@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "^1.31.0",
     "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.93.2",
     "@tanstack/react-table": "^8.21.3",
     "@types/leaflet.heat": "^0.2.5",
     "clsx": "^2.1.1",
