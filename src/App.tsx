@@ -34,6 +34,8 @@ import SchemesSection from './components/pages/SchemesSection';
 import TrainerSection from './components/pages/TrainerSection';
 import ItiTradeSection from './components/pages/ItiTradeSection';
 import TrainingCenterSection from './components/pages/TrainingCenterSection';
+import TraineeDetailsSection from './components/pages/TraineeDetailsSection';
+import { TraineeDataAnalysis } from './components/entry/analysis/TraineeDataAnalysis';
 
 
 
@@ -53,7 +55,7 @@ function App() {
   const [isKeySet, setIsKeySet] = useState(false);
 
   const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast'>('dashboard');
-  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center'>('lobby');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -186,6 +188,12 @@ function App() {
             else if (action === 'training-center') {
               setAdminMode('training-center');
             }
+            else if (action === 'trainee-details') {
+              setAdminMode('trainee-details');
+            }
+            else if (action === 'trainee-analysis') {
+              setAdminMode('trainee-analysis');
+            }
             else {
               setShowEntryForm(action);
             }
@@ -237,6 +245,32 @@ function App() {
   if (adminMode === 'training-center') {
     return (
       <TrainingCenterSection onBack={() => setAdminMode('portal')} />
+    );
+  }
+
+
+  // Trainee Details Section
+  if (adminMode === 'trainee-details') {
+    return (
+      <TraineeDetailsSection onBack={() => setAdminMode('portal')} />
+    );
+  }
+
+  // Trainee Data Analysis Section
+  if (adminMode === 'trainee-analysis') {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          <button
+            onClick={() => setAdminMode('portal')}
+            className="flex items-center gap-2 text-slate-600 mb-6 hover:text-slate-900 transition-colors"
+          >
+            <X className="w-5 h-5" />
+            Close Analysis
+          </button>
+          <TraineeDataAnalysis />
+        </div>
+      </div>
     );
   }
 

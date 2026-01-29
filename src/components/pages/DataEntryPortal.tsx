@@ -11,7 +11,7 @@ import {
 
 interface DataEntryPortalProps {
   onBack: () => void;
-  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center') => void;
+  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis') => void;
 }
 
 export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalProps) {
@@ -87,6 +87,22 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       icon: Building2,
       color: 'bg-indigo-100 text-indigo-600',
       actionId: 'training-center'
+    },
+    {
+      id: 'trainee-details',
+      title: 'Trainee Details (1F.1)',
+      description: 'Manage Candidate, Training, and Post-Training details entry.',
+      icon: GraduationCap,
+      color: 'bg-rose-100 text-rose-600',
+      actionId: 'trainee-details'
+    },
+    {
+      id: 'trainee-analysis',
+      title: 'Trainee Data Analysis',
+      description: 'Analyze social categories, sectors, schemes, and more.',
+      icon: FileText, // Using FileText or similar, imported above
+      color: 'bg-indigo-100 text-indigo-600',
+      actionId: 'trainee-analysis'
     }
   ] as const;
 
