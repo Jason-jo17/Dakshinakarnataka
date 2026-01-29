@@ -5,6 +5,7 @@ import { SocialCategoryAnalysis } from './SocialCategoryAnalysis';
 import { SectorwiseAnalysis } from './SectorwiseAnalysis';
 import { SchemewiseAnalysis } from './SchemewiseAnalysis';
 import { TrainingPartnerAnalysis } from './TrainingPartnerAnalysis';
+import { CostCategoryAnalysis } from './CostCategoryAnalysis';
 
 type AnalysisView =
   | 'home'
@@ -89,6 +90,21 @@ export const TraineeDataAnalysis: React.FC = () => {
           Back to Analysis Menu
         </button>
         <TrainingPartnerAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'cost-category') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <CostCategoryAnalysis />
       </div>
     );
   }
