@@ -517,24 +517,30 @@ export default function SchemesSection({ onBack }: SchemesSectionProps) {
 
                 {/* Table */}
                 <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
-                    <table className="w-full text-sm text-left">
+                    <table className="w-full text-sm text-left whitespace-nowrap">
                         <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
                             <tr>
                                 <th className="p-3 w-16 text-center">S.No</th>
-                                <th className="p-3">Scheme Name</th>
-                                <th className="p-3">Affiliated Centers</th>
+                                <th className="p-3 min-w-[200px]">Scheme Name</th>
+                                <th className="p-3 min-w-[200px]">Scheme URL</th>
+                                <th className="p-3 min-w-[200px]">Affiliated Centers</th>
                                 <th className="p-3">Sector</th>
                                 <th className="p-3">Trade</th>
                                 <th className="p-3">Intake</th>
                                 <th className="p-3">Funding</th>
+                                <th className="p-3 min-w-[150px]">Center Contact</th>
+                                <th className="p-3 min-w-[120px]">Center Phone</th>
+                                <th className="p-3 min-w-[150px]">District Contact</th>
+                                <th className="p-3 min-w-[120px]">District Phone</th>
+                                <th className="p-3 min-w-[200px]">Remarks</th>
                                 <th className="p-3 text-center">Status</th>
-                                <th className="p-3 w-24 text-center">Actions</th>
+                                <th className="p-3 w-24 text-center sticky right-0 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                             {schemes.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} className="p-8 text-center text-slate-500">
+                                    <td colSpan={15} className="p-8 text-center text-slate-500">
                                         No schemes added yet. Click "Add Scheme" to begin.
                                     </td>
                                 </tr>
@@ -543,16 +549,16 @@ export default function SchemesSection({ onBack }: SchemesSectionProps) {
                                     <tr key={scheme.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                         <td className="p-3 text-center text-slate-500">{scheme.sno}</td>
                                         <td className="p-3 font-medium text-slate-800 dark:text-slate-200">
-                                            <div className="flex flex-col">
-                                                <span>{scheme.scheme_name}</span>
-                                                {scheme.scheme_url && (
-                                                    <a href={scheme.scheme_url} target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline flex items-center gap-1">
-                                                        View Link <ExternalLink className="w-3 h-3" />
-                                                    </a>
-                                                )}
-                                            </div>
+                                            {scheme.scheme_name}
                                         </td>
-                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.affiliated_centers}</td>
+                                        <td className="p-3">
+                                            {scheme.scheme_url ? (
+                                                <a href={scheme.scheme_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
+                                                    Link <ExternalLink className="w-3 h-3" />
+                                                </a>
+                                            ) : <span className="text-slate-400">-</span>}
+                                        </td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.affiliated_centers || '-'}</td>
                                         <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.sector}</td>
                                         <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.trade}</td>
                                         <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.annual_intake}</td>
@@ -561,6 +567,11 @@ export default function SchemesSection({ onBack }: SchemesSectionProps) {
                                                 {scheme.funding_source}
                                             </span>
                                         </td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.center_contact_person || '-'}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.center_contact_phone || '-'}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.district_contact_person || '-'}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{scheme.district_contact_phone || '-'}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400 max-w-xs truncate" title={scheme.remarks}>{scheme.remarks || '-'}</td>
                                         <td className="p-3 text-center">
                                             <button onClick={(e) => handleToggleStatus(scheme, e)}>
                                                 {scheme.is_active ?
@@ -569,7 +580,7 @@ export default function SchemesSection({ onBack }: SchemesSectionProps) {
                                                 }
                                             </button>
                                         </td>
-                                        <td className="p-3">
+                                        <td className="p-3 sticky right-0 bg-white dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
                                                     onClick={() => handleEdit(scheme)}

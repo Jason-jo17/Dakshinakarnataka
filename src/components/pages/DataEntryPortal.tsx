@@ -11,7 +11,7 @@ import {
 
 interface DataEntryPortalProps {
   onBack: () => void;
-  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade') => void;
+  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center') => void;
 }
 
 export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalProps) {
@@ -79,6 +79,14 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       icon: GraduationCap, // Reusing icon or specific one if available
       color: 'bg-cyan-100 text-cyan-600',
       actionId: 'iti-trade'
+    },
+    {
+      id: 'training-center',
+      title: 'Training Center Info (1E.1)',
+      description: 'Manage details regarding Training Centers, Capacity, and Facilities.',
+      icon: Building2,
+      color: 'bg-indigo-100 text-indigo-600',
+      actionId: 'training-center'
     }
   ] as const;
 

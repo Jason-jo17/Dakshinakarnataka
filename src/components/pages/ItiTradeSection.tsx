@@ -396,11 +396,11 @@ export default function ItiTradeSection({ onBack }: ItiTradeSectionProps) {
                             )}
 
                             {/* Table */}
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
                                 <table className="w-full text-sm text-left whitespace-nowrap">
-                                    <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500">
+                                    <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 font-semibold">
                                         <tr>
-                                            <th className="p-3">S.No</th>
+                                            <th className="p-3 w-16 text-center">S.No</th>
                                             <th className="p-3">Sector</th>
                                             <th className="p-3">Trade</th>
                                             <th className="p-3">Level</th>
@@ -408,23 +408,41 @@ export default function ItiTradeSection({ onBack }: ItiTradeSectionProps) {
                                             <th className="p-3">ITI Count</th>
                                             <th className="p-3">Seats (Cur)</th>
                                             <th className="p-3">Trainees (Cur)</th>
-                                            <th className="p-3">Actions</th>
+                                            <th className="p-3">Seats (Prev)</th>
+                                            <th className="p-3">Trainees (Prev)</th>
+                                            <th className="p-3">Util (Prev 2nd Yr)</th>
+                                            <th className="p-3">Passed</th>
+                                            <th className="p-3">Placed</th>
+                                            <th className="p-3">Avg Salary</th>
+                                            <th className="p-3">Self Emp</th>
+                                            <th className="p-3">Not Eligible</th>
+                                            <th className="p-3 text-center sticky right-0 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                         {districtStats.map((stat) => (
                                             <tr key={stat.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                                <td className="p-3">{stat.sno}</td>
-                                                <td className="p-3 font-medium">{stat.sector_name}</td>
-                                                <td className="p-3">{stat.trade_name}</td>
-                                                <td className="p-3">{stat.nsqf_level}</td>
-                                                <td className="p-3">{stat.duration}</td>
-                                                <td className="p-3">{stat.iti_count}</td>
-                                                <td className="p-3">{stat.seat_count_current}</td>
-                                                <td className="p-3">{stat.trainee_count_current}</td>
-                                                <td className="p-3 flex gap-2">
-                                                    <button onClick={() => handleEdit(stat)} className="text-blue-600 hover:bg-blue-50 p-1 rounded"><Edit2 className="w-4 h-4" /></button>
-                                                    <button onClick={() => handleDelete(stat.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Trash2 className="w-4 h-4" /></button>
+                                                <td className="p-3 text-center text-slate-500">{stat.sno}</td>
+                                                <td className="p-3 font-medium text-slate-700 dark:text-slate-200">{stat.sector_name}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.trade_name}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.nsqf_level}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.duration}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.iti_count}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.seat_count_current}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.trainee_count_current}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.seat_count_previous}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.trainee_count_previous}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.seat_utilization_previous}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.number_passed}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.number_placed}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.avg_salary}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.self_employed}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{stat.not_eligible}</td>
+                                                <td className="p-3 sticky right-0 bg-white dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button onClick={() => handleEdit(stat)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleDelete(stat.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

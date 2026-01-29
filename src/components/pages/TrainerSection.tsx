@@ -441,44 +441,55 @@ export default function TrainerSection({ onBack }: TrainerSectionProps) {
                 )}
 
                 <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
-                    <table className="w-full text-sm text-left">
+                    <table className="w-full text-sm text-left whitespace-nowrap">
                         <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
                             <tr>
                                 <th className="p-3 w-16 text-center">S.No</th>
+                                <th className="p-3">Centre Name</th>
                                 <th className="p-3">Name</th>
-                                <th className="p-3">Centre</th>
-                                <th className="p-3">Contact</th>
+                                <th className="p-3">DOB</th>
+                                <th className="p-3">Qualification</th>
+                                <th className="p-3">Phone</th>
+                                <th className="p-3">Email</th>
+                                <th className="p-3">Industry Exp</th>
+                                <th className="p-3">DOJ</th>
+                                <th className="p-3">Training Exp</th>
                                 <th className="p-3">Sector</th>
                                 <th className="p-3">Trade</th>
                                 <th className="p-3">Certified By</th>
-                                <th className="p-3 w-24 text-center">Actions</th>
+                                <th className="p-3">Valid Till</th>
+                                <th className="p-3">Portal Uploaded</th>
+                                <th className="p-3 min-w-[200px]">Remarks</th>
+                                <th className="p-3 w-24 text-center sticky right-0 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                             {trainers.length === 0 ? (
                                 <tr>
-                                    <td colSpan={8} className="p-8 text-center text-slate-500">No trainers added yet. Click "Add New Trainer" to begin.</td>
+                                    <td colSpan={17} className="p-8 text-center text-slate-500">No trainers added yet. Click "Add New Trainer" to begin.</td>
                                 </tr>
                             ) : (
                                 trainers.map((trainer) => (
                                     <tr key={trainer.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                         <td className="p-3 text-center text-slate-500">{trainer.sno}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.centre_name}</td>
                                         <td className="p-3 font-medium text-slate-800 dark:text-slate-200">
                                             {trainer.title} {trainer.first_name} {trainer.last_name}
-                                            <div className="text-xs text-slate-500">{trainer.qualification}</div>
                                         </td>
-                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.centre_name}</td>
-                                        <td className="p-3 text-slate-600 dark:text-slate-400">
-                                            <div className="text-xs">{trainer.phone}</div>
-                                            <div className="text-xs">{trainer.email}</div>
-                                        </td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.dob}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.qualification}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.phone}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.email}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.industry_exp}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.doj}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.training_exp}</td>
                                         <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.sector}</td>
                                         <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.trade}</td>
-                                        <td className="p-3 text-slate-600 dark:text-slate-400">
-                                            {trainer.certified_by}
-                                            {trainer.valid_till && <div className="text-xs text-slate-500">Valid: {trainer.valid_till}</div>}
-                                        </td>
-                                        <td className="p-3">
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.certified_by}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.valid_till}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400">{trainer.portal_uploaded}</td>
+                                        <td className="p-3 text-slate-600 dark:text-slate-400 max-w-xs truncate" title={trainer.remarks}>{trainer.remarks}</td>
+                                        <td className="p-3 sticky right-0 bg-white dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button onClick={() => handleEdit(trainer)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
                                                 <button onClick={(e) => handleDelete(trainer.id, e)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>

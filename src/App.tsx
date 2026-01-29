@@ -33,6 +33,7 @@ import DistrictPlanList from './components/pages/DistrictPlanList';
 import SchemesSection from './components/pages/SchemesSection';
 import TrainerSection from './components/pages/TrainerSection';
 import ItiTradeSection from './components/pages/ItiTradeSection';
+import TrainingCenterSection from './components/pages/TrainingCenterSection';
 
 
 
@@ -52,7 +53,7 @@ function App() {
   const [isKeySet, setIsKeySet] = useState(false);
 
   const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast'>('dashboard');
-  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade'>('lobby');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -182,6 +183,9 @@ function App() {
             else if (action === 'iti-trade') {
               setAdminMode('iti-trade');
             }
+            else if (action === 'training-center') {
+              setAdminMode('training-center');
+            }
             else {
               setShowEntryForm(action);
             }
@@ -227,6 +231,12 @@ function App() {
   if (adminMode === 'iti-trade') {
     return (
       <ItiTradeSection onBack={() => setAdminMode('portal')} />
+    );
+  }
+
+  if (adminMode === 'training-center') {
+    return (
+      <TrainingCenterSection onBack={() => setAdminMode('portal')} />
     );
   }
 
