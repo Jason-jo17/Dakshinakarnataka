@@ -1,11 +1,16 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Users, Briefcase, FileText, Building2, Wallet, MapPin, Banknote, Building, PieChart } from 'lucide-react';
+import { ArrowLeft, Users, Briefcase, FileText, Building2, Wallet, MapPin, Banknote, Building, PieChart, Database } from 'lucide-react';
 import { SocialCategoryAnalysis } from './SocialCategoryAnalysis';
 import { SectorwiseAnalysis } from './SectorwiseAnalysis';
 import { SchemewiseAnalysis } from './SchemewiseAnalysis';
 import { TrainingPartnerAnalysis } from './TrainingPartnerAnalysis';
 import { CostCategoryAnalysis } from './CostCategoryAnalysis';
+import { PreReqDependencies } from './PreReqDependencies';
+import { PlacementLocationAnalysis } from './PlacementLocationAnalysis';
+import { WageAnalysis } from './WageAnalysis';
+import { KeyEmployers } from './KeyEmployers';
+import { SocialCategorySectorAnalysis } from './SocialCategorySectorAnalysis';
 
 type AnalysisView =
   | 'home'
@@ -14,6 +19,7 @@ type AnalysisView =
   | 'schemewise'
   | 'training-partner'
   | 'cost-category'
+  | 'pre-req'
   | 'placement-location'
   | 'wage'
   | 'key-employers'
@@ -28,6 +34,7 @@ export const TraineeDataAnalysis: React.FC = () => {
     { id: 'schemewise', label: 'Schemewise Analysis', icon: FileText, color: 'bg-purple-500' },
     { id: 'training-partner', label: 'Training Partner Analysis', icon: Building2, color: 'bg-orange-500' },
     { id: 'cost-category', label: 'Cost Category Analysis', icon: Wallet, color: 'bg-teal-500' },
+    { id: 'pre-req', label: 'Pre Req Table and Dependencies', icon: Database, color: 'bg-slate-500' },
     { id: 'placement-location', label: 'Placement Location Analysis', icon: MapPin, color: 'bg-red-500' },
     { id: 'wage', label: 'Wage Analysis', icon: Banknote, color: 'bg-yellow-500' },
     { id: 'key-employers', label: 'List of Key Employers', icon: Building, color: 'bg-indigo-500' },
@@ -105,6 +112,70 @@ export const TraineeDataAnalysis: React.FC = () => {
           Back to Analysis Menu
         </button>
         <CostCategoryAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'pre-req') {
+    return <PreReqDependencies onBack={() => setCurrentView('home')} />;
+  }
+
+  if (currentView === 'placement-location') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <PlacementLocationAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'wage') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <WageAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'key-employers') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <KeyEmployers />
+      </div>
+    );
+  }
+
+  if (currentView === 'social-category-sector') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <SocialCategorySectorAnalysis />
       </div>
     );
   }

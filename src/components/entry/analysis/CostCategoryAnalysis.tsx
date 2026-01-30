@@ -28,6 +28,7 @@ export const CostCategoryAnalysis: React.FC = () => {
 
   /* State for dropdown options */
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
 
   // Form State
   const [newEntry, setNewEntry] = useState<Omit<CostCategoryData, 'id'>>({
@@ -81,6 +82,16 @@ export const CostCategoryAnalysis: React.FC = () => {
       if(sectors) {
           const uniqueSectors = Array.from(new Set(sectors.map((s:any) => s.sector_name))) as string[];
           setAvailableSectors(uniqueSectors.sort());
+      }
+
+      // 3. Fetch CCN Categories for Dropdown (from ccn_dependency)
+      const { data: ccnData } = await supabase
+        .from('ccn_dependency')
+        .select('category');
+
+      if (ccnData) {
+        const uniqueCategories = Array.from(new Set(ccnData.map((c: any) => c.category))) as string[];
+        setAvailableCategories(uniqueCategories.sort());
       }
 
     } catch (err) {
@@ -380,12 +391,18 @@ export const CostCategoryAnalysis: React.FC = () => {
                  <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Cost Category (CCN)</label>
                     <input 
-                        type="text" 
+              type="text"
+              list="ccn-options"
                         value={newEntry.cost_category}
                         onChange={(e) => handleFormChange('cost_category', e.target.value)}
-                        placeholder="Enter Cost Category..."
+              placeholder="Select or Enter Cost Category..."
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
                     />
+            <datalist id="ccn-options">
+              {availableCategories.map(cat => (
+                <option key={cat} value={cat} />
+              ))}
+            </datalist>
                 </div>
            </div>
 
@@ -464,7 +481,7 @@ export const CostCategoryAnalysis: React.FC = () => {
                             <td className="p-1 border-r border-gray-200"><input type="text" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-yellow-50 rounded" value={row.sector_name} onChange={(e) => handleInputChange(index, 'sector_name', e.target.value)} /></td>
                             <td className="p-1 border-r border-gray-200"><input type="text" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-yellow-50 rounded" value={row.course_name} onChange={(e) => handleInputChange(index, 'course_name', e.target.value)} /></td>
                             <td className="p-1 border-r border-gray-200"><input type="text" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-yellow-50 rounded" value={row.total_duration} onChange={(e) => handleInputChange(index, 'total_duration', e.target.value)} /></td>
-                            <td className="p-1 border-r border-gray-200"><input type="text" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-yellow-50 rounded" value={row.cost_category} onChange={(e) => handleInputChange(index, 'cost_category', e.target.value)} /></td>
+                        <td className="p-1 border-r border-gray-200"><input type="text" list="ccn-options" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-yellow-50 rounded" value={row.cost_category} onChange={(e) => handleInputChange(index, 'cost_category', e.target.value)} /></td>
                             
                              {/* Metric Inputs */}
                             <td className="p-1 border-r border-gray-200"><input type="number" min="0" className="w-full h-full px-2 py-1 outline-none bg-transparent focus:bg-blue-50 rounded" value={row.trained || ''} onChange={(e) => handleInputChange(index, 'trained', e.target.value)} /></td>
