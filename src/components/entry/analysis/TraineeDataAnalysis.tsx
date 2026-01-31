@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Users, Briefcase, FileText, Building2, Wallet, MapPin, Banknote, Building, PieChart, Database } from 'lucide-react';
+import { ArrowLeft, Users, Briefcase, FileText, Building2, Wallet, MapPin, Banknote, Building, PieChart, Database, Calculator, LayoutDashboard } from 'lucide-react';
 import { SocialCategoryAnalysis } from './SocialCategoryAnalysis';
 import { SectorwiseAnalysis } from './SectorwiseAnalysis';
 import { SchemewiseAnalysis } from './SchemewiseAnalysis';
@@ -11,6 +11,8 @@ import { PlacementLocationAnalysis } from './PlacementLocationAnalysis';
 import { WageAnalysis } from './WageAnalysis';
 import { KeyEmployers } from './KeyEmployers';
 import { SocialCategorySectorAnalysis } from './SocialCategorySectorAnalysis';
+import { CostOfTrainingAnalysis } from './CostOfTrainingAnalysis';
+import { ScenarioAnalysisHub } from '../scenario/ScenarioAnalysisHub';
 
 type AnalysisView =
   | 'home'
@@ -23,7 +25,9 @@ type AnalysisView =
   | 'placement-location'
   | 'wage'
   | 'key-employers'
-  | 'social-category-sector';
+  | 'social-category-sector'
+  | 'cost-of-training'
+  | 'scenario-analysis';
 
 export const TraineeDataAnalysis: React.FC = () => {
   const [currentView, setCurrentView] = useState<AnalysisView>('home');
@@ -34,11 +38,13 @@ export const TraineeDataAnalysis: React.FC = () => {
     { id: 'schemewise', label: 'Schemewise Analysis', icon: FileText, color: 'bg-purple-500' },
     { id: 'training-partner', label: 'Training Partner Analysis', icon: Building2, color: 'bg-orange-500' },
     { id: 'cost-category', label: 'Cost Category Analysis', icon: Wallet, color: 'bg-teal-500' },
+    { id: 'cost-of-training', label: 'Cost of Training Analysis', icon: Calculator, color: 'bg-cyan-500' },
     { id: 'pre-req', label: 'Pre Req Table and Dependencies', icon: Database, color: 'bg-slate-500' },
     { id: 'placement-location', label: 'Placement Location Analysis', icon: MapPin, color: 'bg-red-500' },
     { id: 'wage', label: 'Wage Analysis', icon: Banknote, color: 'bg-yellow-500' },
     { id: 'key-employers', label: 'List of Key Employers', icon: Building, color: 'bg-indigo-500' },
     { id: 'social-category-sector', label: 'Social Category Analysis by Sector', icon: PieChart, color: 'bg-pink-500' },
+    { id: 'scenario-analysis', label: 'Scenario Analysis', icon: LayoutDashboard, color: 'bg-emerald-500' },
   ] as const;
 
   if (currentView === 'social-category') {
@@ -112,6 +118,36 @@ export const TraineeDataAnalysis: React.FC = () => {
           Back to Analysis Menu
         </button>
         <CostCategoryAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'cost-of-training') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <CostOfTrainingAnalysis />
+      </div>
+    );
+  }
+
+  if (currentView === 'scenario-analysis') {
+    return (
+      <div className="space-y-6">
+        <button
+          onClick={() => setCurrentView('home')}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Analysis Menu
+        </button>
+        <ScenarioAnalysisHub />
       </div>
     );
   }
