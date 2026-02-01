@@ -16,8 +16,9 @@ import { PlacementAsIsScenario } from './PlacementAsIsScenario.tsx';
 import { SectorwiseAsIsScenario } from './SectorwiseAsIsScenario.tsx';
 import { TrainingPartnerAsIsScenario } from './TrainingPartnerAsIsScenario.tsx';
 import { CollegeEnrollmentAnalysis } from './CollegeEnrollmentAnalysis.tsx';
+import { AgriYieldAnalysis } from './AgriYieldAnalysis.tsx';
 
-type View = 'dsc_structure' | 'dsc_operations' | 'district_overview' | 'major_towns' | 'population_census' | 'population_alternate' | 'youth_share' | 'education_dise' | 'education_alternate' | 'iti_data' | 'share_analysis' | 'sector_scenario' | 'program_scenario' | 'social_summary' | 'placement_asis' | 'sector_asis' | 'tp_asis' | 'college_enrollments';
+type View = 'dsc_structure' | 'dsc_operations' | 'district_overview' | 'major_towns' | 'population_census' | 'population_alternate' | 'youth_share' | 'education_dise' | 'education_alternate' | 'iti_data' | 'share_analysis' | 'sector_scenario' | 'program_scenario' | 'social_summary' | 'placement_asis' | 'sector_asis' | 'tp_asis' | 'college_enrollments' | 'agri_yield';
 
 export const ScenarioAnalysisHub: React.FC = () => {
     const [currentView, setCurrentView] = useState<View>('dsc_structure');
@@ -68,6 +69,8 @@ export const ScenarioAnalysisHub: React.FC = () => {
                 return <TrainingPartnerAsIsScenario />;
             case 'college_enrollments':
                 return <CollegeEnrollmentAnalysis />;
+            case 'agri_yield':
+                return <AgriYieldAnalysis />;
             default:
                 return <DSCStructureFunctioning />;
         }
@@ -90,6 +93,7 @@ export const ScenarioAnalysisHub: React.FC = () => {
         { id: 'program_scenario', label: 'Program wise As Is Scenario', icon: Calculator },
         { id: 'tp_asis', label: 'Training Partner As Is Scenario', icon: Building2 },
         { id: 'college_enrollments', label: 'Major Colleges & Enrollments', icon: Building2 },
+        { id: 'agri_yield', label: 'Agri Yield Analysis', icon: Calculator },
         { id: 'major_towns', label: 'Major Towns / Cities', icon: Building2 },
     ];
 
