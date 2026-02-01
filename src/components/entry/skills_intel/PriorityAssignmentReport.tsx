@@ -46,13 +46,13 @@ export default function PriorityAssignmentReport() {
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Impact vs Ease of Implementation</h3>
                     <div className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <ScatterChart margin={{ top: 20, right: 20, bottom: 40, left: 10 }}>
+                            <ScatterChart margin={{ top: 20, right: 20, bottom: 60, left: 10 }}>
                                 <CartesianGrid />
                                 <XAxis type="number" dataKey="ease" name="Ease (1-10)" domain={[4, 10]} label={{ value: 'Ease of Implementation', position: 'bottom', offset: 0 }} />
                                 <YAxis type="number" dataKey="impact" name="Impact (1-10)" domain={[6, 10]} label={{ value: 'Impact on Outcomes', angle: -90, position: 'insideLeft' }} />
                                 <ZAxis type="number" dataKey="cost" range={[100, 500]} name="Cost Scale" />
                                 <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                                <Legend />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
                                 {Object.keys(QUADRANT_COLORS).map((priority) => (
                                     <Scatter
                                         key={priority}
