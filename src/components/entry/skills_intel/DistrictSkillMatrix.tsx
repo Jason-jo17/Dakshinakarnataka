@@ -179,7 +179,7 @@ export default function DistrictSkillMatrix() {
                             <BarChart
                                 layout="vertical"
                                 data={[
-                                    { name: "Bottom District", score: data.benchmark_scores.bottom_district, fill: "#ef4444" },
+                                    { name: "Bottom District", score: data.benchmark_scores.bottom_district, fill: "#f87171" },
                                     { name: "State Average", score: data.benchmark_scores.state_average, fill: "#6b7280" },
                                     { name: "Dakshina Kannada", score: data.overall_score, fill: "#3b82f6" },
                                     { name: "Top District", score: data.benchmark_scores.top_district, fill: "#10b981" },
@@ -193,7 +193,7 @@ export default function DistrictSkillMatrix() {
                                 <Bar dataKey="score" radius={[0, 4, 4, 0]} background={{ fill: '#f3f4f6' }}>
                                     {
                                         [
-                                            { fill: "#ef4444" },
+                                            { fill: "#f87171" },
                                             { fill: "#94a3b8" },
                                             { fill: "#3b82f6" },
                                             { fill: "#10b981" },

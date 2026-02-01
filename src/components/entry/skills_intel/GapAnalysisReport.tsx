@@ -71,12 +71,12 @@ export default function GapAnalysisReport() {
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
                         <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider">Critical Skill Gaps</h3>
-                        <div className="bg-red-50 text-red-600 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                        <div className="bg-red-50 text-red-400 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" /> +12%
                         </div>
                     </div>
                     <div className="text-3xl font-bold text-gray-900">42</div>
-                    <p className="text-xs text-red-500 mt-1 font-medium">Urgent intervention needed</p>
+                    <p className="text-xs text-red-400 mt-1 font-medium">Urgent intervention needed</p>
                 </div>
 
                 {/* Card 2: Underutilized Hubs */}
@@ -107,7 +107,7 @@ export default function GapAnalysisReport() {
                 <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
                         <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider">Action Required</h3>
-                        <span className="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-bold">URGENT</span>
+                        <span className="bg-red-400 text-white px-2 py-0.5 rounded text-[10px] font-bold">URGENT</span>
                     </div>
                     <div className="text-3xl font-bold text-gray-900">07</div>
                     <p className="text-xs text-gray-400 mt-1">Pending approvals</p>
@@ -123,7 +123,7 @@ export default function GapAnalysisReport() {
                         <h3 className="font-bold text-gray-900">Infrastructure Balance</h3>
                         <div className="flex items-center gap-3 text-[10px] font-bold uppercase">
                             <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Excess</span>
-                            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Needed</span>
+                            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-400"></div> Needed</span>
                         </div>
                     </div>
                     <div className="space-y-4">
@@ -152,8 +152,8 @@ export default function GapAnalysisReport() {
                     <h3 className="font-bold text-gray-900 mb-6">Trainer Shortage By Trade</h3>
                     <div className="flex-1 space-y-5">
                         {[
-                            { label: 'Solar Technician', val: '24', pct: '85%', color: 'bg-red-500' },
-                            { label: 'AI Developers', val: '18', pct: '70%', color: 'bg-red-500' },
+                            { label: 'Solar Technician', val: '24', pct: '85%', color: 'bg-red-400' },
+                            { label: 'AI Developers', val: '18', pct: '70%', color: 'bg-red-400' },
                             { label: 'CNC Operator', val: '12', pct: '55%', color: 'bg-orange-500' },
                             { label: 'Paramedics', val: '10', pct: '45%', color: 'bg-orange-500' },
                         ].map((item, idx) => (
@@ -191,11 +191,11 @@ export default function GapAnalysisReport() {
                             <div key={rIdx} className="grid grid-cols-5 items-center gap-2 mb-2 h-10">
                                 <div className="text-xs font-bold text-gray-700">{crop}</div>
                                 <div className={`h-full rounded bg-blue-900 opacity-20 hover:opacity-100 transition-opacity`}></div>
-                                <div className={`h-full rounded ${rIdx === 1 ? 'bg-red-500' : 'bg-blue-500'} opacity-80 hover:opacity-100 transition-opacity`}></div>
-                                <div className={`h-full rounded ${rIdx === 3 ? 'bg-red-500' : 'bg-blue-100'} hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold`}>
+                                <div className={`h-full rounded ${rIdx === 1 ? 'bg-red-400' : 'bg-blue-500'} opacity-80 hover:opacity-100 transition-opacity`}></div>
+                                <div className={`h-full rounded ${rIdx === 3 ? 'bg-red-400' : 'bg-blue-100'} hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold`}>
                                     {rIdx === 3 && 'Crucial'}
                                 </div>
-                                <div className={`h-full rounded ${rIdx === 0 ? 'bg-red-600' : 'bg-blue-200'} flex items-center justify-center text-white text-xs font-bold shadow-sm hover:scale-105 transition-transform`}>
+                                <div className={`h-full rounded ${rIdx === 0 ? 'bg-red-400' : 'bg-blue-200'} flex items-center justify-center text-white text-xs font-bold shadow-sm hover:scale-105 transition-transform`}>
                                     {rIdx === 0 && '92%'}
                                 </div>
                             </div>
@@ -208,16 +208,16 @@ export default function GapAnalysisReport() {
                     <h3 className="font-bold text-gray-900 mb-6">Critical Compliance Flags</h3>
                     <div className="space-y-4">
                         {/* Red Item */}
-                        <div className="flex items-center gap-4 p-3 bg-red-50 rounded-lg border border-red-100 shadow-sm">
+                        <div className="flex items-center gap-4 p-3 bg-red-50 rounded-lg border border-red-300 shadow-sm">
                             <div className="relative">
-                                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <div className="absolute top-0 left-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
+                                <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                                <div className="absolute top-0 left-0 w-3 h-3 bg-red-400 rounded-full animate-ping opacity-75"></div>
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-red-900">Block-A Assessment Delay</h4>
+                                <h4 className="text-sm font-bold text-red-800">Block-A Assessment Delay</h4>
                                 <p className="text-xs text-red-700">Overdue 14 days, 450 students affected</p>
                             </div>
-                            <button className="px-3 py-1 bg-white text-red-600 text-xs font-bold rounded shadow-sm border border-red-100 hover:bg-red-50">Escalate</button>
+                            <button className="px-3 py-1 bg-white text-red-400 text-xs font-bold rounded shadow-sm border border-red-300 hover:bg-red-50">Escalate</button>
                         </div>
                         {/* Orange Item */}
                         <div className="flex items-center gap-4 p-3 bg-white rounded-lg border border-gray-100 hover:bg-gray-50">
@@ -257,7 +257,7 @@ export default function GapAnalysisReport() {
                         {/* Bubbles - positioned absolutely as per design request */}
 
                         {/* Logistics: High Vol, Mid Salary, Big Gap (Red) */}
-                        <div className="absolute bottom-[50%] left-[70%] w-20 h-20 bg-red-500 rounded-full opacity-80 flex items-center justify-center text-white text-xs font-bold shadow-lg ring-4 ring-red-100 hover:scale-110 transition-transform cursor-pointer" title="Logistics: High Gap">
+                        <div className="absolute bottom-[50%] left-[70%] w-20 h-20 bg-red-400 rounded-full opacity-80 flex items-center justify-center text-white text-xs font-bold shadow-lg ring-4 ring-red-100 hover:scale-110 transition-transform cursor-pointer" title="Logistics: High Gap">
                             Logistics
                         </div>
 
@@ -297,7 +297,7 @@ export default function GapAnalysisReport() {
                                 <Tooltip />
                                 <Legend />
                                 <Bar dataKey="supply" name="Supply" stackId="a" fill="#10b981" />
-                                <Bar dataKey="gap" name="Gap" stackId="a" fill="#ef4444" />
+                                <Bar dataKey="gap" name="Gap" stackId="a" fill="#f87171" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -329,16 +329,16 @@ export default function GapAnalysisReport() {
                     <div className="space-y-4">
                         {data.top_skill_gaps.map((skill, idx) => (
                             <div key={idx} className="flex items-center gap-4 p-3 border border-gray-50 rounded-lg hover:bg-gray-50">
-                                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs ring-4 ring-red-50">
+                                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-400 font-bold text-xs ring-4 ring-red-50">
                                     {idx + 1}
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex justify-between mb-1">
                                         <h4 className="font-semibold text-gray-900">{skill.skill}</h4>
-                                        <span className="text-sm font-bold text-red-600">{skill.gap.toLocaleString()} Gap</span>
+                                        <span className="text-sm font-bold text-red-400">{skill.gap.toLocaleString()} Gap</span>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div className="bg-red-500 h-2 rounded-full" style={{ width: `${skill.gap_pct}%` }}></div>
+                                        <div className="bg-red-400 h-2 rounded-full" style={{ width: `${skill.gap_pct}%` }}></div>
                                     </div>
                                     <div className="flex justify-between mt-2 text-xs text-gray-500">
                                         <span>Supply: {skill.supply}</span>

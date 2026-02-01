@@ -15,7 +15,7 @@ const data = {
         { crop: "Cashew", current: 4.8, potential: 12.0, gap: 7.2, gap_pct: 150 }
     ],
     skill_needs: [
-        { name: 'Disease Mgmt', value: 15800, fill: '#ef4444' }, // Red (Critical)
+        { name: 'Disease Mgmt', value: 15800, fill: '#f87171' }, // Red (Critical)
         { name: 'Root Wilt Mgmt', value: 9200, fill: '#f97316' }, // Orange
         { name: 'SRI Technique', value: 8500, fill: '#eab308' }, // Yellow
         { name: 'Soil Testing', value: 7800, fill: '#84cc16' }, // Lime

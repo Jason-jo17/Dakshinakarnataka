@@ -86,7 +86,7 @@ const waterfallData = [
     { name: 'GPDP', uv: 6800, start: 12500, fill: '#f59e0b' },
     { name: 'Macro', uv: 5200, start: 19300, fill: '#10b981' },
     { name: 'Govt', uv: 2400, start: 24500, fill: '#6366f1' },
-    { name: 'Yield', uv: 1500, start: 26900, fill: '#ef4444' },
+    { name: 'Yield', uv: 1500, start: 26900, fill: '#f87171' },
     { name: 'Total', uv: 28400, start: 0, fill: '#1e293b', isTotal: true }
 ];
 

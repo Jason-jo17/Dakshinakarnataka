@@ -50,7 +50,7 @@ const waterfallData = [
     { name: 'Healthcare', value: 1730, fill: '#22c55e' }, // 6230 - 4500
     { name: 'Engineering', value: 2180, fill: '#22c55e' }, // 11980 - 9800
     { name: 'Others Net', value: 2490, fill: '#22c55e' },
-    { name: 'Agri Decline', value: -110, fill: '#ef4444', isNegative: true },
+    { name: 'Agri Decline', value: -110, fill: '#f87171', isNegative: true },
     { name: 'Total (2029)', value: 39380, fill: '#3b82f6', isTotal: true }
 ];
 

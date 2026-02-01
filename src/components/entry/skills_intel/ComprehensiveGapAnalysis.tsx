@@ -47,7 +47,7 @@ const data = {
 };
 
 const SEVERITY_COLORS = {
-    "Critical": "#ef4444",
+    "Critical": "#f87171",
     "High": "#f97316",
     "Medium": "#eab308",
     "Low": "#22c55e"
