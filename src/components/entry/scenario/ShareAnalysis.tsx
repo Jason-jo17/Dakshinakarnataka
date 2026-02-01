@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Download } from 'lucide-react';
+import { Save, Download, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ShareData {
     parameter: 'ST' | 'Women' | 'SC';
@@ -243,6 +244,9 @@ export const ShareAnalysis: React.FC = () => {
         link.click();
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -251,6 +255,13 @@ export const ShareAnalysis: React.FC = () => {
                     <p className="text-sm text-gray-500">Compare actual participation shares with scenario targets.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <label className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm hover:bg-green-100 cursor-pointer border border-green-200">
                         <Download className="w-4 h-4 rotate-180" /> Import CSV
                         <input type="file" accept=".csv" className="hidden" onChange={handleImport} />
@@ -267,6 +278,40 @@ export const ShareAnalysis: React.FC = () => {
             {message && (
                 <div className={`p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                     {message.text}
+                </div>
+            )}
+
+            {showVisuals && (
+                <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-top-4 duration-500 mb-8">
+                    {/* Combined Chart for Trainee and Placement Shares */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 className="text-sm font-bold text-gray-700 mb-4">Actual vs Scenario Share Comparison</h3>
+                        <div className="h-[400px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={rows}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis dataKey="parameter" />
+                                    <YAxis unit="%" />
+                                    <Tooltip formatter={(val: number) => val.toFixed(2) + '%'} />
+                                    <Legend />
+                                    {/* Trainee Shares */}
+                                    <Bar dataKey="trainee_share_actual" fill="#9ca3af" name="Actual Trainee %" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="trainee_share_scenario" fill="#3b82f6" name="Scenario Trainee %" radius={[4, 4, 0, 0]} />
+                                    {/* Placement Shares - Separate visually or grouping? 
+                                        Recharts groups bars by default. So this will assume 4 groups.
+                                        Let's keep it simple: Compare Trainee Shares vs Placement Shares? 
+                                        Or Compare Actual vs Scenario for both?
+                                        Usually grouping by Parameter (SC, ST, Women) is best.
+                                    */}
+                                    <Bar dataKey="placement_share_actual" fill="#d1d5db" name="Actual Placement %" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="placement_share_scenario" fill="#10b981" name="Scenario Placement %" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
                 </div>
             )}
 

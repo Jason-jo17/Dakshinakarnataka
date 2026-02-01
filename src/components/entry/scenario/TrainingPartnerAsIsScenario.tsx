@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface TrainingPartnerRow {
     training_partner: string;
@@ -108,6 +109,9 @@ export const TrainingPartnerAsIsScenario: React.FC = () => {
         link.click();
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -116,6 +120,13 @@ export const TrainingPartnerAsIsScenario: React.FC = () => {
                     <p className="text-sm text-gray-500">By Training Partner - Reference Data from Trainee Analysis</p>
                 </div>
                  <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
                         <Download className="w-4 h-4" /> Export CSV
                     </button>
@@ -124,6 +135,32 @@ export const TrainingPartnerAsIsScenario: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && rows.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mb-6">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">Top 15 Training Partners (Trained vs Placed)</h3>
+                    <div className="h-[450px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={rows.slice(0, 15).map(r => ({
+                                    name: r.training_partner.length > 20 ? r.training_partner.substring(0, 20) + '...' : r.training_partner,
+                                    Trained: r.male_trained + r.female_trained,
+                                    Placed: r.male_placed + r.female_placed
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={100} />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Bar dataKey="Trained" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="Placed" fill="#10b981" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
                 <table className="w-full text-sm text-center min-w-[1200px]">

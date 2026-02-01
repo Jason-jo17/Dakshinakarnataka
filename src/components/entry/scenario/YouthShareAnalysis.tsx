@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Download } from 'lucide-react';
+import { RefreshCw, Download, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ShareRow {
     category: string;
@@ -117,6 +118,12 @@ export const YouthShareAnalysis: React.FC = () => {
         link.click();
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... (rest of imports including BarChart)
+
+    // Inside component
+    // ... calculateShares logic
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -125,6 +132,13 @@ export const YouthShareAnalysis: React.FC = () => {
                     <p className="text-sm text-gray-500">Calculated shares based on Census 2011 or Alternate data.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
                         <Download className="w-4 h-4" /> Export CSV
                     </button>
@@ -134,8 +148,37 @@ export const YouthShareAnalysis: React.FC = () => {
                 </div>
             </div>
 
+            {showVisuals && shares.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">Share of Youth Population by Category</h3>
+                    <div className="h-[350px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={shares.map(s => ({
+                                    name: s.category.replace(' share of Youth Population', ''),
+                                    Total: parseFloat(s.total),
+                                    Rural: parseFloat(s.rural),
+                                    Urban: parseFloat(s.urban)
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" />
+                                <YAxis unit="%" />
+                                <Tooltip formatter={(val: number) => val.toFixed(2) + '%'} />
+                                <Legend />
+                                <Bar dataKey="Total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="Rural" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="Urban" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
+
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm text-center">
+                    {/* ... Existing Table ... */}
                     <thead className="bg-gray-100 text-gray-700 font-bold uppercase text-xs">
                         <tr>
                             <th className="px-6 py-4 text-left border-r">Category</th>

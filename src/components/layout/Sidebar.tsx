@@ -7,8 +7,8 @@ interface SidebarProps {
     institutions: Institution[];
     selectedId: string | null;
     onSelect: (id: string) => void;
-    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast';
-    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast') => void;
+    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel';
+    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel') => void;
     showHeatmap: boolean;
     onToggleHeatmap: () => void;
     isDarkMode: boolean;
@@ -46,7 +46,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         <button
             onClick={() => onViewChange(view)}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-r-full mr-2 ${currentView === view
-                ? 'bg-secondary/10 text-secondary border-l-4 border-secondary'
+                ? view === 'skills-intel'
+                    ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' // Orange for Intelligence Hub
+                    : 'bg-secondary/10 text-secondary border-l-4 border-secondary'
                 : 'text-icon hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-text border-l-4 border-transparent'
                 }`}
         >
@@ -83,6 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 
 
+                <MenuItem view="skills-intel" icon={PieChart} label="Intelligence Hub" />
                 <MenuItem view="dashboard" icon={LayoutDashboard} label="Dashboard" />
                 <MenuItem view="eee-overview" icon={Zap} label="EEE Overview" />
 
@@ -182,6 +185,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                     </div>
                 )}
+
+                {/* Generate Report Button */}
+                <div className="px-4 pb-2">
+                    <button
+                        className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all"
+                    >
+                        <FileText className="w-4 h-4" />
+                        Generate Report
+                    </button>
+                </div>
             </div>
 
 

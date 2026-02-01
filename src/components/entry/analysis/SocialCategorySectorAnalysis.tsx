@@ -4,6 +4,8 @@ import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
 
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
+
 interface SocialCategorySectorData {
   id?: string;
   sector_name: string;
@@ -27,6 +29,7 @@ export const SocialCategorySectorAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showVisuals, setShowVisuals] = useState(false);
   
   const [data, setData] = useState<SocialCategorySectorData[]>([]);
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
@@ -290,6 +293,13 @@ export const SocialCategorySectorAnalysis: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisuals(!showVisuals)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+          </button>
+
              <div className="relative">
                 <input 
                     type="number" 
@@ -324,6 +334,24 @@ export const SocialCategorySectorAnalysis: React.FC = () => {
             </button>
         </div>
       </div>
+
+      {showVisuals && (
+        <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          <AnalysisVisuals
+            title="Trained vs Placed Scatter Distribution"
+            data={data}
+            visualsType="scatter"
+            xAxisKey="sector_name"
+            scatterKeys={[
+              { name: 'SC Trained', yKey: 'sc_trained', color: '#818cf8' },
+              { name: 'ST Trained', yKey: 'st_trained', color: '#c084fc' },
+              { name: 'Minority Trained', yKey: 'minority_trained', color: '#4ade80' },
+              { name: 'General Trained', yKey: 'gen_trained', color: '#fbbf24' }
+            ]}
+            height={400}
+          />
+        </div>
+      )}
 
        {/* Add New Entry Form */}
        <div className="mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">

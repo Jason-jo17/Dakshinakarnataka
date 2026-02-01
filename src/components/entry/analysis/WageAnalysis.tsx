@@ -4,6 +4,8 @@ import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
 
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
+
 interface WageAnalysisData {
   id?: string;
   sector_name: string;
@@ -27,6 +29,7 @@ export const WageAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showVisuals, setShowVisuals] = useState(false);
   
   const [data, setData] = useState<WageAnalysisData[]>([]);
   const [availableSectors, setAvailableSectors] = useState<string[]>([]);
@@ -300,6 +303,13 @@ export const WageAnalysis: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisuals(!showVisuals)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+          </button>
+
              <div className="relative">
                 <input 
                     type="number" 
@@ -334,6 +344,55 @@ export const WageAnalysis: React.FC = () => {
             </button>
         </div>
       </div>
+
+      {showVisuals && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          {(() => {
+            // Prepare Chart Data Grouped by Sector
+            const sectorMap = data.reduce((acc, row) => {
+              if (!acc[row.sector_name]) {
+                acc[row.sector_name] = {
+                  name: row.sector_name,
+                  rural_m: 0, rural_f: 0, urban_m: 0, urban_f: 0, count: 0
+                };
+              }
+              acc[row.sector_name].rural_m += row.avg_wage_rural_male;
+              acc[row.sector_name].rural_f += row.avg_wage_rural_female;
+              acc[row.sector_name].urban_m += row.avg_wage_urban_male;
+              acc[row.sector_name].urban_f += row.avg_wage_urban_female;
+              acc[row.sector_name].count += 1;
+              return acc;
+            }, {} as Record<string, any>);
+
+            // Average the wages per sector
+            const chartData = Object.values(sectorMap).map(s => ({
+              ...s,
+              rural_m: Math.round(s.rural_m / s.count),
+              rural_f: Math.round(s.rural_f / s.count),
+              urban_m: Math.round(s.urban_m / s.count),
+              urban_f: Math.round(s.urban_f / s.count),
+            })).slice(0, 10);
+
+            return (
+              <div className="col-span-2">
+                <AnalysisVisuals
+                  title="Average Wages by Sector (Rural vs Urban)"
+                  data={chartData}
+                  visualsType="bar"
+                  xAxisKey="name"
+                  barKeys={[
+                    { key: 'rural_m', name: 'Rural Male', color: '#60a5fa' },
+                    { key: 'rural_f', name: 'Rural Female', color: '#93c5fd' },
+                    { key: 'urban_m', name: 'Urban Male', color: '#f59e0b' },
+                    { key: 'urban_f', name: 'Urban Female', color: '#fbbf24' }
+                  ]}
+                  height={400}
+                />
+              </div>
+            );
+          })()}
+        </div>
+      )}
 
        {/* Top Section: Min Wage Config (Visual Reference) */}
        <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-200">

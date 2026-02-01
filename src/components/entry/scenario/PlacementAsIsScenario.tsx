@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Download } from 'lucide-react';
+import { Download, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface PlacementRow {
     sector_name: string;
@@ -115,6 +116,9 @@ export const PlacementAsIsScenario: React.FC<PlacementAsIsScenarioProps> = ({ ti
         });
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -123,6 +127,13 @@ export const PlacementAsIsScenario: React.FC<PlacementAsIsScenarioProps> = ({ ti
                     <p className="text-sm text-gray-500">By Sector - Reference Data from Trainee Analysis</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <label className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm hover:bg-green-100 cursor-pointer border border-green-200">
                         <Download className="w-4 h-4 rotate-180" /> Import CSV
                         <input type="file" accept=".csv" className="hidden" onChange={handleImport} />
@@ -135,6 +146,32 @@ export const PlacementAsIsScenario: React.FC<PlacementAsIsScenarioProps> = ({ ti
                     </button>
                 </div>
             </div>
+
+            {showVisuals && rows.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mb-6">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">Trained vs Placed by Sector (Total)</h3>
+                    <div className="h-[450px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={rows.map(r => ({
+                                    name: r.sector_name,
+                                    Trained: r.female_trained + r.male_trained,
+                                    Placed: r.female_placed + r.male_placed
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={100} />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Bar dataKey="Trained" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="Placed" fill="#10b981" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm text-center">

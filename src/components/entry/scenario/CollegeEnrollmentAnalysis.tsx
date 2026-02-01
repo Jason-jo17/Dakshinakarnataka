@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Upload, Download, Loader2, AlertCircle, CheckCircle2, Plus, Trash2 } from 'lucide-react';
+import { Save, Upload, Download, Loader2, AlertCircle, CheckCircle2, Plus, Trash2, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type EducationLevel = 'Graduate' | 'PostGraduate' | 'Diploma';
 
@@ -196,6 +197,9 @@ export const CollegeEnrollmentAnalysis: React.FC = () => {
         </button>
     );
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -204,6 +208,13 @@ export const CollegeEnrollmentAnalysis: React.FC = () => {
                     <p className="text-sm text-gray-500">Enter enrollment details by college and course.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <label className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm hover:bg-green-100 cursor-pointer border border-green-200">
                         <Upload className="w-4 h-4" /> Import CSV
                         <input type="file" accept=".csv" className="hidden" onChange={handleImport} />
@@ -217,6 +228,32 @@ export const CollegeEnrollmentAnalysis: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && rows.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mb-6">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">Top 10 Colleges by Enrollment (Gender Split)</h3>
+                    <div className="h-[450px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={rows.slice(0, 10).map(r => ({
+                                    name: r.college_name.length > 20 ? r.college_name.substring(0, 20) + '...' : r.college_name,
+                                    Male: r.male_count,
+                                    Female: r.female_count
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={100} />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Bar dataKey="Male" fill="#3b82f6" stackId="a" radius={[0, 0, 4, 4]} />
+                                <Bar dataKey="Female" fill="#ec4899" stackId="a" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
 
             {message && (
                 <div className={`p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>

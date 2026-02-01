@@ -4,6 +4,7 @@ import { Download, Loader2, Settings, Save, AlertCircle, CheckCircle2 } from 'lu
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
 import { QPNOSDurationManager } from './QPNOSDurationManager';
 
 interface CostTrainingRow {
@@ -12,7 +13,6 @@ interface CostTrainingRow {
   course_name: string;
   total_duration: string; // From stored data
   cost_category: string;
-
   trained: number;
   placed: number;
   avg_salary: number;
@@ -23,6 +23,7 @@ export const CostOfTrainingAnalysis: React.FC = () => {
   const [year, setYear] = useState<string>(new Date().getFullYear().toString());
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<'analysis' | 'config'>('analysis');
+  const [showVisuals, setShowVisuals] = useState(false);
 
   const [data, setData] = useState<CostTrainingRow[]>([]);
   const [ccnRates, setCcnRates] = useState<Record<string, number>>({});
@@ -298,6 +299,13 @@ export const CostOfTrainingAnalysis: React.FC = () => {
 
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisuals(!showVisuals)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+          </button>
+
           <div className="relative">
             <input
               type="number"
@@ -326,6 +334,50 @@ export const CostOfTrainingAnalysis: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {showVisuals && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          {(() => {
+            // Prepare Chart Data Grouped by Sector
+            const sectorMap = data.reduce((acc, row) => {
+              const calcs = getCalculations(row);
+              if (!acc[row.sector_name]) {
+                acc[row.sector_name] = { name: row.sector_name, total_cost: 0, total_trained: 0, total_placed: 0 };
+              }
+              acc[row.sector_name].total_cost += calcs.totalCost;
+              acc[row.sector_name].total_trained += row.trained;
+              acc[row.sector_name].total_placed += row.placed;
+              return acc;
+            }, {} as Record<string, any>);
+
+            const chartData = Object.values(sectorMap).sort((a, b) => b.total_cost - a.total_cost).slice(0, 10);
+
+            return (
+              <>
+                <AnalysisVisuals
+                  title="Total Training Cost by Sector (Top 10)"
+                  data={chartData}
+                  visualsType="bar"
+                  xAxisKey="name"
+                  barKeys={[
+                    { key: 'total_cost', name: 'Total Cost (₹)', color: '#0ea5e9', }
+                  ]}
+                />
+                <AnalysisVisuals
+                  title="Trained vs Placed by Sector (Top 10 by Cost)"
+                  data={chartData}
+                  visualsType="bar"
+                  xAxisKey="name"
+                  barKeys={[
+                    { key: 'total_trained', name: 'Trained', color: '#8b5cf6' },
+                    { key: 'total_placed', name: 'Placed', color: '#10b981' }
+                  ]}
+                />
+              </>
+            );
+          })()}
+        </div>
+      )}
 
       {/* New Entry Form & Live Preview */}
       <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">

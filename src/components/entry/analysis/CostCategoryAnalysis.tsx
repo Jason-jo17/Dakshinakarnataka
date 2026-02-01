@@ -5,6 +5,8 @@ import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
 
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
+
 interface CostCategoryData {
   id?: string;
   sector_name: string;
@@ -23,6 +25,7 @@ export const CostCategoryAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showVisuals, setShowVisuals] = useState(false);
   
   const [data, setData] = useState<CostCategoryData[]>([]);
 
@@ -312,6 +315,13 @@ export const CostCategoryAnalysis: React.FC = () => {
         </div>
         
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisuals(!showVisuals)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+          </button>
+
              <div className="relative">
                 <input 
                     type="number" 
@@ -346,6 +356,55 @@ export const CostCategoryAnalysis: React.FC = () => {
             </button>
         </div>
       </div>
+
+      {showVisuals && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          {(() => {
+            // Aggregate data for Sector Wise Trained vs Placed
+            const sectorStats = data.reduce((acc, row) => {
+              if (!acc[row.sector_name]) {
+                acc[row.sector_name] = { name: row.sector_name, trained: 0, placed: 0 };
+              }
+              acc[row.sector_name].trained += row.trained;
+              acc[row.sector_name].placed += row.placed;
+              return acc;
+            }, {} as Record<string, any>);
+            const sectorData = Object.values(sectorStats).sort((a, b) => b.trained - a.trained).slice(0, 10);
+
+            // Start of Cost Category Pie Data
+            const catStats = data.reduce((acc, row) => {
+              if (!acc[row.cost_category]) {
+                acc[row.cost_category] = { name: row.cost_category, value: 0 };
+              }
+              acc[row.cost_category].value += row.trained;
+              return acc;
+            }, {} as Record<string, any>);
+            const catData = Object.values(catStats);
+
+            return (
+              <>
+                <AnalysisVisuals
+                  title="Trained vs Placed by Sector (Top 10)"
+                  data={sectorData}
+                  visualsType="bar"
+                  xAxisKey="name"
+                  barKeys={[
+                    { key: 'trained', name: 'Trained', color: '#60a5fa' },
+                    { key: 'placed', name: 'Placed', color: '#4ade80' }
+                  ]}
+                />
+                <AnalysisVisuals
+                  title="Share of Trainees by Cost Category"
+                  data={catData}
+                  visualsType="pie"
+                  pieKey="value"
+                  pieNameKey="name"
+                />
+              </>
+            );
+          })()}
+        </div>
+      )}
 
        {/* Add New Entry Form */}
        <div className="mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">

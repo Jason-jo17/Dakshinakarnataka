@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Download } from 'lucide-react';
+import { Save, Download, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface SectorScenarioRow {
     sector_name: string;
@@ -206,6 +207,9 @@ export const SectorwiseScenario: React.FC = () => {
         link.click();
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -214,6 +218,13 @@ export const SectorwiseScenario: React.FC = () => {
                     <p className="text-sm text-gray-500">Edit trainee numbers by sector for scenario planning.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <label className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm hover:bg-green-100 cursor-pointer border border-green-200">
                         <Download className="w-4 h-4 rotate-180" /> Import CSV
                         <input type="file" accept=".csv" className="hidden" onChange={handleImport} />
@@ -226,6 +237,32 @@ export const SectorwiseScenario: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && rows.length > 0 && (
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 mb-6">
+                    <h3 className="text-sm font-bold text-gray-700 mb-4">Actual vs Scenario Target (Total Candidates)</h3>
+                    <div className="h-[450px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={rows.map(r => ({
+                                    ...r,
+                                    actual_total: r.actual_female + r.actual_male,
+                                    scenario_total: (Number(r.scenario_female) || 0) + (Number(r.scenario_male) || 0)
+                                }))}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="sector_name" angle={-45} textAnchor="end" interval={0} height={100} />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Bar dataKey="actual_total" fill="#9ca3af" name="Actual Total" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="scenario_total" fill="#3b82f6" name="Scenario Total" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
 
             {message && (
                 <div className={`p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>

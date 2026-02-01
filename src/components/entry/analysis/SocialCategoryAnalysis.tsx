@@ -5,6 +5,8 @@ import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
 
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
+
 interface SocialCategoryData {
     id?: string;
     category: 'SC' | 'ST' | 'Minority' | 'General';
@@ -22,7 +24,7 @@ export const SocialCategoryAnalysis: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    // Force re-index
+    const [showVisuals, setShowVisuals] = useState(false);
 
     const [data, setData] = useState<SocialCategoryData[]>(
         CATEGORIES.map(category => ({
@@ -233,6 +235,13 @@ export const SocialCategoryAnalysis: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
+
                     <div className="relative">
                         <input
                             type="number"
@@ -267,6 +276,24 @@ export const SocialCategoryAnalysis: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && (
+                <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <AnalysisVisuals
+                        title="Social Category: Trained vs Placed (Gender Split)"
+                        data={data}
+                        visualsType="bar"
+                        xAxisKey="category"
+                        barKeys={[
+                            { key: 'male_trained', name: 'Male Trained', color: '#60a5fa', stackId: 'trained' },
+                            { key: 'female_trained', name: 'Female Trained', color: '#f472b6', stackId: 'trained' },
+                            { key: 'male_placed', name: 'Male Placed', color: '#4ade80', stackId: 'placed' },
+                            { key: 'female_placed', name: 'Female Placed', color: '#facc15', stackId: 'placed' }
+                        ]}
+                        height={400}
+                    />
+                </div>
+            )}
 
             {message && (
                 <div className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>

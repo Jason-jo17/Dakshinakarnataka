@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Download } from 'lucide-react';
+import { RefreshCw, Download, PieChart as PieChartIcon } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface SocialCategoryRow {
     category: string;
@@ -125,6 +126,9 @@ export const SocialCategorySummary: React.FC = () => {
         link.click();
     };
 
+    const [showVisuals, setShowVisuals] = useState(false);
+    // ... imports
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             <div className="flex justify-between items-center">
@@ -133,6 +137,13 @@ export const SocialCategorySummary: React.FC = () => {
                     <p className="text-sm text-gray-500">Overview based on data entered in Trainee Analysis.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        <PieChartIcon className="w-4 h-4" />
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
                     <button onClick={handleExport} className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
                         <Download className="w-4 h-4" /> Export CSV
                     </button>
@@ -141,6 +152,34 @@ export const SocialCategorySummary: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && rows.length > 0 && (
+                <div className="grid grid-cols-1 gap-6 animate-in fade-in slide-in-from-top-4 duration-500 mb-8">
+                    {/* Chart: Gender Distribution per Category */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <h3 className="text-sm font-bold text-gray-700 mb-4">Trained & Placed (Gender Split)</h3>
+                        <div className="h-[450px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={rows}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis dataKey="category" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Bar dataKey="male_trained" fill="#3b82f6" name="Male Trained" stackId="trained" radius={[0, 0, 4, 4]} />
+                                    <Bar dataKey="female_trained" fill="#60a5fa" name="Female Trained" stackId="trained" radius={[4, 4, 0, 0]} />
+
+                                    <Bar dataKey="male_placed" fill="#10b981" name="Male Placed" stackId="placed" radius={[0, 0, 4, 4]} />
+                                    <Bar dataKey="female_placed" fill="#34d399" name="Female Placed" stackId="placed" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm text-center">

@@ -4,6 +4,7 @@ import { Save, Upload, Download, Loader2, AlertCircle, CheckCircle2, Plus, Trash
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
 
 interface TrainingPartnerData {
     id?: string;
@@ -60,7 +61,12 @@ export const TrainingPartnerAnalysis: React.FC = () => {
     }, [currentDistrict, year]);
 
     const fetchData = async () => {
-        if (!currentDistrict) return;
+        if (!currentDistrict) {
+            console.log('Fetch aborted: No currentDistrict');
+            return;
+        }
+
+        console.log('Fetching TrainingPartner Data:', { district: currentDistrict, year });
 
         setLoading(true);
         try {
@@ -72,7 +78,12 @@ export const TrainingPartnerAnalysis: React.FC = () => {
                 .eq('time_period', year)
                 .order('created_at', { ascending: true });
 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase Error:', error);
+                throw error;
+            }
+
+            console.log('Supabase Response:', existingData);
 
             if (existingData) {
                 setData(existingData.map((d: any) => ({
@@ -375,6 +386,22 @@ export const TrainingPartnerAnalysis: React.FC = () => {
         event.target.value = '';
     };
 
+    // ... (keep existing imports and state)
+    const [showVisuals, setShowVisuals] = useState(false);
+
+    // ... (keep newEntry, useEffect, existing functions)
+
+    // Prepare data for visuals
+    const chartData = data.map(d => ({
+        partner: d.training_partner.length > 15 ? d.training_partner.substring(0, 15) + '...' : d.training_partner,
+        full_partner: d.training_partner,
+        trained: d.male_trained + d.female_trained,
+        placed: d.male_placed + d.female_placed,
+        self_employed: d.male_self_employed + d.female_self_employed
+    })).sort((a, b) => b.trained - a.trained).slice(0, 10); // Top 10
+
+    // ... (rest of component logic)
+
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -384,6 +411,13 @@ export const TrainingPartnerAnalysis: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setShowVisuals(!showVisuals)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                    >
+                        {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+                    </button>
+
                     <div className="relative">
                         <input
                             type="number"
@@ -418,6 +452,28 @@ export const TrainingPartnerAnalysis: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {showVisuals && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <AnalysisVisuals
+                        title="Top 10 Partners: Trained vs Placed"
+                        data={chartData}
+                        visualsType="bar"
+                        xAxisKey="partner"
+                        barKeys={[
+                            { key: 'trained', color: '#3b82f6', name: 'Total Trained' },
+                            { key: 'placed', color: '#10b981', name: 'Total Placed' }
+                        ]}
+                    />
+                    <AnalysisVisuals
+                        title="Placement Distribution"
+                        data={chartData}
+                        visualsType="pie"
+                        pieKey="placed"
+                        pieNameKey="partner"
+                    />
+                </div>
+            )}
 
             {/* Add New Entry Form */}
             <div className="mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">

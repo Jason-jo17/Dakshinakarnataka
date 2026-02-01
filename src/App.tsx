@@ -36,11 +36,12 @@ import ItiTradeSection from './components/pages/ItiTradeSection';
 import TrainingCenterSection from './components/pages/TrainingCenterSection';
 import TraineeDetailsSection from './components/pages/TraineeDetailsSection';
 import { TraineeDataAnalysis } from './components/entry/analysis/TraineeDataAnalysis';
+import SkillsIntelligenceHub from './components/entry/skills_intel/SkillsIntelligenceHub';
 
 
 
 import { useAuthStore } from './store/useAuthStore';
-import { DataSeeder } from './components/DataSeeder';
+
 
 function App() {
 
@@ -54,7 +55,7 @@ function App() {
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
 
-  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast'>('dashboard');
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel'>('dashboard');
   const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
@@ -133,7 +134,6 @@ function App() {
           }}
           userName={user?.name}
         />
-        <DataSeeder />
       </>
     );
   }
@@ -149,7 +149,7 @@ function App() {
             setAdminMode('plan-edit');
           }}
         />
-        <DataSeeder />
+
       </>
     );
   }
@@ -219,7 +219,7 @@ function App() {
           />
         )}
         {/* Job Form Placeholder - reusing Company or need new one? User said "we will do this part soon" */}
-        <DataSeeder />
+
       </>
     );
   }
@@ -317,6 +317,8 @@ function App() {
         }} />;
       case 'centers':
         return <CareerCentersView />;
+      case 'skills-intel':
+        return <SkillsIntelligenceHub />;
       case 'reports':
         return <ReportsView />;
       case 'forecast':
@@ -524,7 +526,7 @@ function App() {
         </div>
 
       </div>
-      <DataSeeder />
+
     </div>
   );
 }

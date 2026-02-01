@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Save, Upload, Download, Loader2, AlertCircle, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { AnalysisVisuals } from '../../common/AnalysisVisuals';
 
 interface SchemeData {
   id?: string;
@@ -28,6 +28,7 @@ export const SchemewiseAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showVisuals, setShowVisuals] = useState(false);
   
   const [data, setData] = useState<SchemeData[]>([]);
 
@@ -135,11 +136,13 @@ export const SchemewiseAnalysis: React.FC = () => {
 
   const handleInputChange = (index: number, field: keyof SchemeData, value: string) => {
     const newData = [...data];
-    const numValue = value === '' ? 0 : Number(value);
-    
-    if (isNaN(numValue)) return;
-    
-    (newData[index] as any)[field] = numValue;
+    if (field === 'scheme_name') {
+      (newData[index] as any)[field] = value;
+    } else {
+      const numValue = value === '' ? 0 : Number(value);
+      if (isNaN(numValue)) return;
+      (newData[index] as any)[field] = numValue;
+    }
     setData(newData);
   };
   
@@ -238,11 +241,9 @@ export const SchemewiseAnalysis: React.FC = () => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `Schemewise_Analysis_${currentDistrict}_${year}.csv`);
-    document.body.appendChild(link);
+    link.href = url;
+    link.download = `Schemewise_Analysis_${currentDistrict}_${year}.csv`;
     link.click();
-    document.body.removeChild(link);
   };
 
   const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -297,15 +298,30 @@ export const SchemewiseAnalysis: React.FC = () => {
     event.target.value = '';
   };
 
+  // Prepare Chart Data
+  const chartData = data.map(d => ({
+    name: d.scheme_name.length > 15 ? d.scheme_name.substring(0, 15) + '...' : d.scheme_name,
+    full_name: d.scheme_name,
+    trained: d.male_trained + d.female_trained,
+    placed: d.male_placed + d.female_placed,
+  })).sort((a, b) => b.trained - a.trained).slice(0, 10);
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Table C: Schemewise Analysis</h2>
+          <h2 className="text-xl font-bold text-gray-900">Table D: Scheme Wise Analysis</h2>
           <p className="text-sm text-gray-500">Data for {currentDistrict} - Year {year}</p>
         </div>
         
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisuals(!showVisuals)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${showVisuals ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          >
+            {showVisuals ? 'Hide Visuals' : 'Show Visuals'}
+          </button>
+
              <div className="relative">
                 <input 
                     type="number" 
@@ -340,6 +356,28 @@ export const SchemewiseAnalysis: React.FC = () => {
             </button>
         </div>
       </div>
+
+      {showVisuals && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          <AnalysisVisuals
+            title="Top Schemes: Trained vs Placed"
+            data={chartData}
+            visualsType="bar"
+            xAxisKey="name"
+            barKeys={[
+              { key: 'trained', color: '#8884d8', name: 'Total Trained' },
+              { key: 'placed', color: '#82ca9d', name: 'Total Placed' }
+            ]}
+          />
+          <AnalysisVisuals
+            title="Trained Distribution by Scheme"
+            data={chartData}
+            visualsType="pie"
+            pieKey="trained"
+            pieNameKey="name"
+          />
+        </div>
+      )}
 
        {/* Add New Scheme Form */}
        <div className="mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
