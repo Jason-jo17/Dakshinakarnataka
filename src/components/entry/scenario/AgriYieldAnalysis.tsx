@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Download, Upload, Plus, Edit2, Trash2, Check, X } from 'lucide-react';
+import { Download, Upload, Plus, Edit2, Trash2, Check, X, BarChart2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 interface AgriYieldData {
     id?: string;
@@ -239,6 +239,61 @@ export const AgriYieldAnalysis: React.FC = () => {
                 </div>
             )}
 
+            {/* Visuals Section */}
+            {rows.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                            <BarChart2 size={16} /> Yield Comparison (Tonnes/Ha)
+                        </h3>
+                        <div className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={rows.slice(0, 8)} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis
+                                        dataKey="crop_name"
+                                        angle={-45}
+                                        textAnchor="end"
+                                        interval={0}
+                                        tick={{ fontSize: 11 }}
+                                    />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend verticalAlign="top" />
+                                    <Bar name="District Yield" dataKey="district_yield" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                    <Bar name="State Max" dataKey="state_max_yield" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <h3 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                            <BarChart2 size={16} /> Yield Gap Analysis (Tonnes/Ha)
+                        </h3>
+                        <div className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={rows.slice(0, 8)} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis
+                                        dataKey="crop_name"
+                                        angle={-45}
+                                        textAnchor="end"
+                                        interval={0}
+                                        tick={{ fontSize: 11 }}
+                                    />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend verticalAlign="top" />
+                                    <Bar name="Gap wrt State" dataKey="yield_gap_state" fill="#f97316" radius={[4, 4, 0, 0]} />
+                                    <Bar name="Gap wrt India" dataKey="yield_gap_india" fill="#f87171" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
@@ -246,11 +301,11 @@ export const AgriYieldAnalysis: React.FC = () => {
                             <th className="p-3 font-semibold text-gray-700">Crop</th>
                             <th className="p-3 font-semibold text-gray-700 text-right">Area (Ha)</th>
                             <th className="p-3 font-semibold text-gray-700 text-right">Production (T)</th>
-                            <th className="p-3 font-semibold text-gray-700 text-right">Dist. Yield</th>
-                            <th className="p-3 font-semibold text-gray-700 text-right">State Max</th>
-                            <th className="p-3 font-semibold text-gray-700 text-right">India Max</th>
-                            <th className="p-3 font-semibold text-gray-700 text-right">Gap (State)</th>
-                            <th className="p-3 font-semibold text-gray-700 text-right">Gap (India)</th>
+                            <th className="p-3 font-semibold text-gray-700 text-right">District Yield</th>
+                            <th className="p-3 font-semibold text-gray-700 text-right">State Max Yield</th>
+                            <th className="p-3 font-semibold text-gray-700 text-right">India Max Yield</th>
+                            <th className="p-3 font-semibold text-gray-700 text-right text-orange-600">Gap (State)</th>
+                            <th className="p-3 font-semibold text-gray-700 text-right text-red-600">Gap (India)</th>
                             <th className="p-3 font-semibold text-gray-700">Actions</th>
                         </tr>
                     </thead>
