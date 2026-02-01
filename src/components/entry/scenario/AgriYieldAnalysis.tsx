@@ -1,8 +1,9 @@
+import React, { useState, useEffect } from 'react';
 import { Download, Upload, Plus, Edit2, Trash2, Check, X, BarChart2 } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import Papa from 'papaparse';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface AgriYieldData {
     id?: string;
@@ -185,7 +186,7 @@ export const AgriYieldAnalysis: React.FC = () => {
     };
 
     const handleExportCSV = () => {
-        const csvData = rows.map(r => ({
+        const csvData = rows.map((r: AgriYieldData) => ({
             'Crop': r.crop_name,
             'Crop Area District (Hectare)': r.area_hectares,
             'District Crop Production (Tonnes)': r.production_tonnes,
