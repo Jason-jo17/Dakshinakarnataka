@@ -125,7 +125,7 @@ export default function AnnualWorkPlanReport() {
                     <div className="flex gap-4 text-xs">
                         <div className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div> In Progress</div>
                         <div className="flex items-center gap-1"><div className="w-3 h-3 bg-green-500 rounded"></div> On Track</div>
-                        <div className="flex items-center gap-1"><div className="w-3 h-3 bg-red-500 rounded"></div> Delayed</div>
+                        <div className="flex items-center gap-1"><div className="w-3 h-3 bg-red-400 rounded"></div> Delayed</div>
                         <div className="flex items-center gap-1"><div className="w-3 h-3 bg-gray-300 rounded"></div> Planning</div>
                     </div>
                 </div>

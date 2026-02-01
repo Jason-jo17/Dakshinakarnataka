@@ -112,7 +112,7 @@ export default function DistrictSkillMatrix() {
     const getScoreColor = (score: number) => {
         if (score >= 70) return '#10b981'; // Green
         if (score >= 50) return '#f59e0b'; // Yellow
-        return '#ef4444'; // Red
+        return '#f87171'; // Red
     };
 
     // Prepare data for Radar Chart
