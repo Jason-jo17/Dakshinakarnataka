@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight, FileText, Building2 } from 'lucide-react';
+import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight, FileText } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { useAuthStore } from '../../store/useAuthStore';
 import { DISTRICTS } from '../../data/districts';
