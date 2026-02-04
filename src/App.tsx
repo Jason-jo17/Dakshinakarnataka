@@ -37,6 +37,7 @@ import TrainingCenterSection from './components/pages/TrainingCenterSection';
 import TraineeDetailsSection from './components/pages/TraineeDetailsSection';
 import { TraineeDataAnalysis } from './components/entry/analysis/TraineeDataAnalysis';
 import SkillsIntelligenceHub from './components/entry/skills_intel/SkillsIntelligenceHub';
+import DistrictSkillMatrix from './components/pages/DistrictSkillMatrix';
 
 
 
@@ -56,7 +57,7 @@ function App() {
   const [isKeySet, setIsKeySet] = useState(false);
 
   const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel'>('dashboard');
-  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis'>('lobby');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -105,9 +106,15 @@ function App() {
   // Auth Guard
   useEffect(() => {
     if (isAuthenticated) {
-      setAdminMode('lobby');
+      if (user?.role === 'institution') {
+        setAdminMode('training-center'); // Direct access for institutions
+      } else if (user?.role === 'trainee') {
+        setAdminMode('trainee-details'); // Direct access for trainees
+      } else {
+        setAdminMode('lobby');
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
 
   if (!isAuthenticated) {
@@ -194,6 +201,9 @@ function App() {
             else if (action === 'trainee-analysis') {
               setAdminMode('trainee-analysis');
             }
+            else if (action === 'district-skill-matrix') {
+              setAdminMode('district-skill-matrix');
+            }
             else {
               setShowEntryForm(action);
             }
@@ -244,7 +254,10 @@ function App() {
 
   if (adminMode === 'training-center') {
     return (
-      <TrainingCenterSection onBack={() => setAdminMode('portal')} />
+      <TrainingCenterSection
+        onBack={user?.role === 'institution' ? undefined : () => setAdminMode('portal')}
+        isRestricted={user?.role === 'institution'}
+      />
     );
   }
 
@@ -252,7 +265,10 @@ function App() {
   // Trainee Details Section
   if (adminMode === 'trainee-details') {
     return (
-      <TraineeDetailsSection onBack={() => setAdminMode('portal')} />
+      <TraineeDetailsSection
+        onBack={user?.role === 'trainee' ? undefined : () => setAdminMode('portal')}
+        isRestricted={user?.role === 'trainee'}
+      />
     );
   }
 
@@ -269,6 +285,23 @@ function App() {
             Close Analysis
           </button>
           <TraineeDataAnalysis />
+        </div>
+      </div>
+    );
+  }
+  // District Skill Matrix Section
+  if (adminMode === 'district-skill-matrix') {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
+        <div className="mx-auto max-w-[1800px]">
+          <button
+            onClick={() => setAdminMode('portal')}
+            className="flex items-center gap-2 text-slate-600 mb-6 hover:text-slate-900 transition-colors"
+          >
+            <X className="w-5 h-5" />
+            Back to Portal
+          </button>
+          <DistrictSkillMatrix />
         </div>
       </div>
     );

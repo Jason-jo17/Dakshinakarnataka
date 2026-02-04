@@ -60,7 +60,7 @@ const initialFormState = {
     placed_last_year: ''
 };
 
-const TrainingCenterSection: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const TrainingCenterSection: React.FC<{ onBack?: () => void; isRestricted?: boolean }> = ({ onBack, isRestricted }) => {
     const [centers, setCenters] = useState<TrainingCenter[]>([]);
     const [formData, setFormData] = useState(initialFormState);
     const [isEditing, setIsEditing] = useState(false);
@@ -178,25 +178,29 @@ const TrainingCenterSection: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={onBack} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors">
-                            <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                        </button>
+                        {onBack && (
+                            <button onClick={onBack} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors">
+                                <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+                            </button>
+                        )}
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Training Center Information (1E.1)</h1>
                             <p className="text-slate-500 dark:text-slate-400">Manage training center details and infrastructure</p>
                         </div>
                     </div>
-                    <div className="flex gap-3">
-                        <label className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors text-slate-700 dark:text-slate-200">
-                            <Upload size={16} />
-                            <span>Import CSV</span>
-                            <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
-                        </label>
-                        <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <Download size={16} />
-                            <span>Export CSV</span>
-                        </button>
-                    </div>
+                    {!isRestricted && (
+                        <div className="flex gap-3">
+                            <label className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors text-slate-700 dark:text-slate-200">
+                                <Upload size={16} />
+                                <span>Import CSV</span>
+                                <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
+                            </label>
+                            <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <Download size={16} />
+                                <span>Export CSV</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Form Section */}
@@ -376,122 +380,124 @@ const TrainingCenterSection: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 </div>
 
                 {/* Table Section */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Registered Training Centers</h3>
+                {!isRestricted && (
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Registered Training Centers</h3>
 
-                    <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
-                        <table className="w-full text-sm text-left whitespace-nowrap">
-                            <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 font-semibold">
-                                <tr>
-                                    <th className="p-3 w-16 text-center border-r border-slate-200 dark:border-slate-700">1E.1</th>
-                                    <th colSpan={7} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">About Center</th>
-                                    <th colSpan={3} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Capacity</th>
-                                    <th colSpan={5} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Residential</th>
-                                    <th colSpan={4} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Contact Details</th>
-                                    <th colSpan={5} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Training Offered</th>
-                                    <th colSpan={2} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Performance LY</th>
-                                    <th className="p-3 sticky right-0 bg-slate-50 dark:bg-slate-900 z-10"></th>
-                                </tr>
-                                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
-                                    <th className="p-3 min-w-[60px] border-r border-slate-200 dark:border-slate-700">S.no</th>
-                                    <th className="p-3 min-w-[200px]">Training Center</th>
-                                    <th className="p-3 min-w-[200px]">Center Address1</th>
-                                    <th className="p-3 min-w-[200px]">Center Address2</th>
-                                    <th className="p-3 min-w-[120px]">Block</th>
-                                    <th className="p-3 min-w-[120px]">District</th>
-                                    <th className="p-3 min-w-[100px]">Pincode</th>
-                                    <th className="p-3 min-w-[80px] border-r border-slate-200 dark:border-slate-700">Started</th>
-
-                                    <th className="p-3 min-w-[100px]">Class Room</th>
-                                    <th className="p-3 min-w-[100px]">Seating</th>
-                                    <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Capacity of Lab</th>
-
-                                    <th className="p-3 min-w-[100px]">Is center Residential</th>
-                                    <th className="p-3 min-w-[100px]">Hostel (Men)</th>
-                                    <th className="p-3 min-w-[100px]">Hostel (Women)</th>
-                                    <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Distance</th>
-                                    <th className="hidden"></th>
-
-                                    <th className="p-3 min-w-[150px]">Contact Person</th>
-                                    <th className="p-3 min-w-[120px]">Role</th>
-                                    <th className="p-3 min-w-[120px]">Phone</th>
-                                    <th className="p-3 min-w-[200px] border-r border-slate-200 dark:border-slate-700">Email</th>
-
-                                    <th className="p-3 min-w-[150px]">Schemes</th>
-                                    <th className="p-3 min-w-[100px]">Funding</th>
-                                    <th className="p-3 min-w-[200px]">Scheme URL</th>
-                                    <th className="p-3 min-w-[150px]">Trades</th>
-                                    <th className="p-3 min-w-[150px] border-r border-slate-200 dark:border-slate-700">Sectors</th>
-
-                                    <th className="p-3 min-w-[100px]">Trained</th>
-                                    <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Placed</th>
-
-                                    <th className="p-3 sticky right-0 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)] z-10 text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                {centers.length === 0 ? (
+                        <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                            <table className="w-full text-sm text-left whitespace-nowrap">
+                                <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-slate-500 font-semibold">
                                     <tr>
-                                        <td colSpan={28} className="p-8 text-center text-slate-500">No centers added yet.</td>
+                                        <th className="p-3 w-16 text-center border-r border-slate-200 dark:border-slate-700">1E.1</th>
+                                        <th colSpan={7} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">About Center</th>
+                                        <th colSpan={3} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Capacity</th>
+                                        <th colSpan={5} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Residential</th>
+                                        <th colSpan={4} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Contact Details</th>
+                                        <th colSpan={5} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Training Offered</th>
+                                        <th colSpan={2} className="p-3 text-center border-r border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">Performance LY</th>
+                                        <th className="p-3 sticky right-0 bg-slate-50 dark:bg-slate-900 z-10"></th>
                                     </tr>
-                                ) : (
-                                    centers.map((item) => (
-                                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                            <td className="p-3 text-center text-slate-500 border-r border-slate-200 dark:border-slate-700">{item.sno}</td>
+                                    <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                                        <th className="p-3 min-w-[60px] border-r border-slate-200 dark:border-slate-700">S.no</th>
+                                        <th className="p-3 min-w-[200px]">Training Center</th>
+                                        <th className="p-3 min-w-[200px]">Center Address1</th>
+                                        <th className="p-3 min-w-[200px]">Center Address2</th>
+                                        <th className="p-3 min-w-[120px]">Block</th>
+                                        <th className="p-3 min-w-[120px]">District</th>
+                                        <th className="p-3 min-w-[100px]">Pincode</th>
+                                        <th className="p-3 min-w-[80px] border-r border-slate-200 dark:border-slate-700">Started</th>
 
-                                            <td className="p-3 font-medium text-slate-800 dark:text-slate-200">{item.training_center_name}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.center_address1}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.center_address2}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.block}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.district}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.pincode}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.year_started}</td>
+                                        <th className="p-3 min-w-[100px]">Class Room</th>
+                                        <th className="p-3 min-w-[100px]">Seating</th>
+                                        <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Capacity of Lab</th>
 
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.class_room_count}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.seating_capacity}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.capacity_of_lab}</td>
+                                        <th className="p-3 min-w-[100px]">Is center Residential</th>
+                                        <th className="p-3 min-w-[100px]">Hostel (Men)</th>
+                                        <th className="p-3 min-w-[100px]">Hostel (Women)</th>
+                                        <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Distance</th>
+                                        <th className="hidden"></th>
 
-                                            <td className="p-3 text-center">
-                                                <span className={`px-2 py-1 rounded text-xs font-bold ${item.is_residential === 'Y' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                                                    {item.is_residential}
-                                                </span>
-                                            </td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.hostel_capacity_men}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.hostel_capacity_women}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.distance_hostel_center}</td>
-                                            <td className="hidden"></td>
+                                        <th className="p-3 min-w-[150px]">Contact Person</th>
+                                        <th className="p-3 min-w-[120px]">Role</th>
+                                        <th className="p-3 min-w-[120px]">Phone</th>
+                                        <th className="p-3 min-w-[200px] border-r border-slate-200 dark:border-slate-700">Email</th>
 
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_person_name}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_role}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_phone}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.contact_email}</td>
+                                        <th className="p-3 min-w-[150px]">Schemes</th>
+                                        <th className="p-3 min-w-[100px]">Funding</th>
+                                        <th className="p-3 min-w-[200px]">Scheme URL</th>
+                                        <th className="p-3 min-w-[150px]">Trades</th>
+                                        <th className="p-3 min-w-[150px] border-r border-slate-200 dark:border-slate-700">Sectors</th>
 
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.schemes_empanelled}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.funding_source}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">
-                                                <a href={item.scheme_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[200px]">
-                                                    {item.scheme_url}
-                                                </a>
-                                            </td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.trades_offered}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.sectors}</td>
+                                        <th className="p-3 min-w-[100px]">Trained</th>
+                                        <th className="p-3 min-w-[100px] border-r border-slate-200 dark:border-slate-700">Placed</th>
 
-                                            <td className="p-3 text-slate-600 dark:text-slate-400">{item.trained_last_year}</td>
-                                            <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.placed_last_year}</td>
-
-                                            <td className="p-3 sticky right-0 bg-white dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)] z-10">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
-                                                    <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                                </div>
-                                            </td>
+                                        <th className="p-3 sticky right-0 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)] z-10 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                    {centers.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={28} className="p-8 text-center text-slate-500">No centers added yet.</td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : (
+                                        centers.map((item) => (
+                                            <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                                <td className="p-3 text-center text-slate-500 border-r border-slate-200 dark:border-slate-700">{item.sno}</td>
+
+                                                <td className="p-3 font-medium text-slate-800 dark:text-slate-200">{item.training_center_name}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.center_address1}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.center_address2}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.block}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.district}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.pincode}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.year_started}</td>
+
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.class_room_count}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.seating_capacity}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.capacity_of_lab}</td>
+
+                                                <td className="p-3 text-center">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${item.is_residential === 'Y' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                                                        {item.is_residential}
+                                                    </span>
+                                                </td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.hostel_capacity_men}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.hostel_capacity_women}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.distance_hostel_center}</td>
+                                                <td className="hidden"></td>
+
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_person_name}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_role}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.contact_phone}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.contact_email}</td>
+
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.schemes_empanelled}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.funding_source}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">
+                                                    <a href={item.scheme_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate block max-w-[200px]">
+                                                        {item.scheme_url}
+                                                    </a>
+                                                </td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.trades_offered}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.sectors}</td>
+
+                                                <td className="p-3 text-slate-600 dark:text-slate-400">{item.trained_last_year}</td>
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 border-r border-slate-200 dark:border-slate-700">{item.placed_last_year}</td>
+
+                                                <td className="p-3 sticky right-0 bg-white dark:bg-slate-900 shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)] z-10">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
+                                                        <button onClick={() => handleDelete(item.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"><Trash2 className="w-4 h-4" /></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

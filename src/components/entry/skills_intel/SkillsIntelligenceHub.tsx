@@ -10,10 +10,11 @@ import GPDPGovernmentDemand from './GPDPGovernmentDemand';
 import PrimarySectorSkilling from './PrimarySectorSkilling';
 import ConsolidatedWorkPlan from './ConsolidatedWorkPlan';
 import { AsIsAnalysis } from './AsIsAnalysis';
-import { LayoutDashboard, BarChart3, PieChart, Calendar, Target, ShieldAlert, TrendingUp, Building2, Sprout, ClipboardCheck, History } from 'lucide-react';
+import AsIsScenario from '../../dashboards/AsIsScenario';
+import { LayoutDashboard, BarChart3, PieChart, Calendar, Target, ShieldAlert, TrendingUp, Sprout, ClipboardCheck, History } from 'lucide-react';
 
 export const SkillsIntelligenceHub: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'matrix' | 'demand' | 'gap' | 'priority' | 'comprehensive' | 'macro' | 'gpdp' | 'primary' | 'plan' | 'consolidated' | 'asis'>('matrix');
+    const [activeTab, setActiveTab] = useState<'matrix' | 'demand' | 'gap' | 'priority' | 'comprehensive' | 'macro_govt' | 'primary' | 'plan' | 'consolidated' | 'asis'>('matrix');
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -81,24 +82,14 @@ export const SkillsIntelligenceHub: React.FC = () => {
                         Comp. Gap
                     </button>
                     <button
-                        onClick={() => setActiveTab('macro')}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${activeTab === 'macro'
+                        onClick={() => setActiveTab('macro_govt')}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${activeTab === 'macro_govt'
                             ? 'bg-orange-50 text-orange-700 shadow-sm border border-orange-100'
                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                             }`}
                     >
                         <TrendingUp className="w-4 h-4" />
-                        Macro V2
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('gpdp')}
-                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${activeTab === 'gpdp'
-                            ? 'bg-orange-50 text-orange-700 shadow-sm border border-orange-100'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
-                            }`}
-                    >
-                        <Building2 className="w-4 h-4" />
-                        GPDP & Govt
+                        Macro & Govt
                     </button>
                     <button
                         onClick={() => setActiveTab('primary')}
@@ -165,13 +156,10 @@ export const SkillsIntelligenceHub: React.FC = () => {
                         <ComprehensiveGapAnalysis />
                     </div>
                 )}
-                {activeTab === 'macro' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {activeTab === 'macro_govt' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
                         <MacroEconomicDemandProjection />
-                    </div>
-                )}
-                {activeTab === 'gpdp' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
                         <GPDPGovernmentDemand />
                     </div>
                 )}
@@ -196,7 +184,8 @@ export const SkillsIntelligenceHub: React.FC = () => {
                     </div>
                 )}
                 {activeTab === 'asis' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                        <AsIsScenario />
                         <AsIsAnalysis />
                     </div>
                 )}

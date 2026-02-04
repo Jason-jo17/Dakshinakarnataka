@@ -1,6 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line } from 'recharts';
 import { Share, TrendingUp } from 'lucide-react';
-
+import GapAnalysis from '../../dashboards/GapAnalysis';
 const data = {
     district: "Dakshina Kannada",
     year: "2023-24",
@@ -113,6 +113,9 @@ export default function GapAnalysisReport() {
                     <p className="text-xs text-gray-400 mt-1">Pending approvals</p>
                 </div>
             </div>
+
+            {/* NEW: Gap Analysis Matrix (Supply vs Demand) */}
+            <GapAnalysis />
 
             {/* NEW: Specialized Gap Visuals */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -61,7 +61,7 @@ const initialFormState: Omit<TraineeDetails, 'id' | 'sno'> = {
     cycle_time: ''
 };
 
-const TraineeDetailsSection: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const TraineeDetailsSection: React.FC<{ onBack?: () => void; isRestricted?: boolean }> = ({ onBack, isRestricted }) => {
     const [trainees, setTrainees] = useState<TraineeDetails[]>([]);
     const [formData, setFormData] = useState(initialFormState);
     const [isEditing, setIsEditing] = useState(false);
@@ -158,25 +158,29 @@ const TraineeDetailsSection: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={onBack} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors">
-                            <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                        </button>
+                        {onBack && (
+                            <button onClick={onBack} className="p-2 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors">
+                                <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+                            </button>
+                        )}
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Trainee Details (1F.1)</h1>
                             <p className="text-slate-500 dark:text-slate-400">Manage candidate enrolment, training, and placement details</p>
                         </div>
                     </div>
-                    <div className="flex gap-3">
-                        <label className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors text-slate-700 dark:text-slate-200">
-                            <Upload size={16} />
-                            <span>Import CSV</span>
-                            <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
-                        </label>
-                        <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <Download size={16} />
-                            <span>Export CSV</span>
-                        </button>
-                    </div>
+                    {!isRestricted && (
+                        <div className="flex gap-3">
+                            <label className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors text-slate-700 dark:text-slate-200">
+                                <Upload size={16} />
+                                <span>Import CSV</span>
+                                <input type="file" accept=".csv" onChange={handleImport} className="hidden" />
+                            </label>
+                            <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <Download size={16} />
+                                <span>Export CSV</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Form Section */}
@@ -442,8 +446,9 @@ const TraineeDetailsSection: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 </div>
 
                 {/* Table Section */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Trainee Database</h3>
+                {!isRestricted && (
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Trainee Database</h3>
 
                     <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg max-h-[600px]">
                         <table className="w-full text-xs text-left whitespace-nowrap">
@@ -592,6 +597,7 @@ const TraineeDetailsSection: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                         </table>
                     </div>
                 </div>
+                )}
             </div>
         </div>
     );

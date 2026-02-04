@@ -4,6 +4,8 @@ import {
     PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis
 } from 'recharts';
 import { Download } from 'lucide-react';
+import { TooltipProvider, TooltipTrigger } from "../../ui/tooltip";
+import MatrixPriority from '../../dashboards/MatrixPriority';
 
 // Mock Data from User Prompt
 const data = {
@@ -143,6 +145,9 @@ export default function DistrictSkillMatrix() {
                     </button>
                 </div>
             </div>
+
+            {/* NEW: Priority Matrix Visuals */}
+            <MatrixPriority />
 
             {/* Top Metrics Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

@@ -6,12 +6,13 @@ import {
   Network,
   ArrowLeft,
   Plus,
-  FileText
+  FileText,
+  Calculator
 } from 'lucide-react';
 
 interface DataEntryPortalProps {
   onBack: () => void;
-  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis') => void;
+  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix') => void;
 }
 
 export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalProps) {
@@ -103,6 +104,14 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       icon: FileText, // Using FileText or similar, imported above
       color: 'bg-indigo-100 text-indigo-600',
       actionId: 'trainee-analysis'
+    },
+    {
+      id: 'district-skill-matrix',
+      title: 'District Skill Matrix',
+      description: 'Fill self-scoring grid and calculate district score.',
+      icon: Calculator,
+      color: 'bg-teal-100 text-teal-600',
+      actionId: 'district-skill-matrix'
     }
   ] as const;
 

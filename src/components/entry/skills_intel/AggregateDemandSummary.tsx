@@ -8,7 +8,16 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     AreaChart, Area, ComposedChart, Line, Treemap, Cell, ReferenceLine
 } from 'recharts';
+
+import AggregateDemand from '../../dashboards/AggregateDemand';
+import AggregateDemandComparison from '../../dashboards/AggregateDemandComparison';
 import { useState } from 'react';
+
+// ... (keep MOCK DATA as is, I will skip re-writing it in this replacement block if possible, but replace_file_content works on lines)
+// wait, I can't skip lines easily with replace_file_content if I'm doing a big move.
+// I'll try to do this in chunks.
+
+
 
 // --- MOCK DATA PROVIDED BY USER & IMAGES ---
 const DASHBOARD_DATA = {
@@ -147,6 +156,10 @@ export default function AggregateDemandSummary() {
             <main className="flex-1 overflow-y-auto p-6 md:p-8">
                 <div className="max-w-7xl mx-auto space-y-8">
 
+                    {/* NEW: Aggregate Demand Detailed Visuals (Moved to Top) */}
+                    <AggregateDemandComparison />
+                    <AggregateDemand />
+
                     {/* DASHBOARD HEADER */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
@@ -234,7 +247,10 @@ export default function AggregateDemandSummary() {
                                 {DASHBOARD_DATA.kpi.reliability.verified}
                             </div>
                         </div>
+
                     </div>
+
+
 
 
 
@@ -267,6 +283,10 @@ export default function AggregateDemandSummary() {
                             </ResponsiveContainer>
                         </div>
                     </div>
+
+                    {/* NEW: Aggregate Demand Detailed Visuals (Moved below Population Pyramid) */}
+                    {/* Removed from here to move to top */}
+
 
                     {/* ROW 1: WATERFALL & SOURCE STACKED */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
