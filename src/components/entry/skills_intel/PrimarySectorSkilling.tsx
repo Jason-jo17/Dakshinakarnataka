@@ -4,6 +4,7 @@ import {
     RadialBarChart, RadialBar
 } from 'recharts';
 import { Sprout, Sun, ArrowUp, AlertCircle, Leaf } from 'lucide-react';
+import { AIInsights } from '../../common/AIInsights';
 
 const data = {
     total_farmers: 76780,
@@ -179,6 +180,8 @@ export default function PrimarySectorSkilling() {
                     <strong>Strategic Insight:</strong> Arecanut and Pepper show the highest ROI for training interventions due to significant "yield gaps" caused by preventable diseases (Yellow Leaf & Quick Wilt). Prioritizing these crops can unlock ₹100 Cr+ value in Year 1.
                 </p>
             </div>
+
+            <AIInsights context="primary sector skilling and yield gap analysis" />
         </div>
     );
 }

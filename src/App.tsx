@@ -62,7 +62,7 @@ function App() {
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
 
-  const [isMapCollapsed, setIsMapCollapsed] = useState(false);
+  const [isMapCollapsed, setIsMapCollapsed] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showPopulationView, setShowPopulationView] = useState(false);
   const [showJobs, setShowJobs] = useState(false);

@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line } from 'recharts';
-import { Share, TrendingUp } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import GapAnalysis from '../../dashboards/GapAnalysis';
+import ComprehensiveGap from '../../dashboards/ComprehensiveGap';
 const data = {
     district: "Dakshina Kannada",
     year: "2023-24",
@@ -51,19 +52,10 @@ export default function GapAnalysisReport() {
 
     return (
         <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Gap Report Analysis</h1>
-                    <p className="text-gray-500 text-sm">Demand-Supply Mismatch Analysis for {data.year}</p>
-                </div>
-                <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-600/20 text-sm font-medium hover:brightness-110 transition-all">
-                        <Share className="w-4 h-4" />
-                        Export Report
-                    </button>
-                </div>
-            </div>
+            {/* NEW: Comprehensive Gap Analysis (8 Dimensions + Skills Delivery) */}
+            <ComprehensiveGap />
+
+            {/* NEW: KPI Strip (4 Cards) */}
 
             {/* NEW: KPI Strip (4 Cards) */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -116,6 +108,8 @@ export default function GapAnalysisReport() {
 
             {/* NEW: Gap Analysis Matrix (Supply vs Demand) */}
             <GapAnalysis />
+
+
 
             {/* NEW: Specialized Gap Visuals */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

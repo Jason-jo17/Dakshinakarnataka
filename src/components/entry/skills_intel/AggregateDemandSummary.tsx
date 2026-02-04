@@ -1,3 +1,4 @@
+
 import {
     Download, Users, TrendingUp, TrendingDown,
     BarChart3, PieChart as PieChartIcon, Activity, Globe,
@@ -8,6 +9,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     AreaChart, Area, ComposedChart, Line, Treemap, Cell, ReferenceLine
 } from 'recharts';
+import { AIInsights } from '../../common/AIInsights';
 
 import AggregateDemand from '../../dashboards/AggregateDemand';
 import AggregateDemandComparison from '../../dashboards/AggregateDemandComparison';
@@ -751,6 +753,7 @@ export default function AggregateDemandSummary() {
                 </div>
             </main>
 
+            <AIInsights context="aggregate skill demand forecast" />
         </div>
     );
 }

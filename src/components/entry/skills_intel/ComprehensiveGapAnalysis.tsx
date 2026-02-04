@@ -53,6 +53,8 @@ const SEVERITY_COLORS = {
     "Low": "#22c55e"
 };
 
+
+
 export default function ComprehensiveGapAnalysis() {
     return (
         <div className="p-6 space-y-6">

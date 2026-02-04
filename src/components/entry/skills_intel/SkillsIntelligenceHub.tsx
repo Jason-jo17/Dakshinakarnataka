@@ -11,10 +11,14 @@ import PrimarySectorSkilling from './PrimarySectorSkilling';
 import ConsolidatedWorkPlan from './ConsolidatedWorkPlan';
 import { AsIsAnalysis } from './AsIsAnalysis';
 import AsIsScenario from '../../dashboards/AsIsScenario';
-import { LayoutDashboard, BarChart3, PieChart, Calendar, Target, ShieldAlert, TrendingUp, Sprout, ClipboardCheck, History } from 'lucide-react';
+import MacroGPDP from '../../dashboards/MacroGPDP';
+import PrimarySector from '../../dashboards/PrimarySector';
+import AnnualWorkPlan from '../../dashboards/AnnualWorkPlan';
+import ExecutiveDashboard from '../../dashboards/ExecutiveDashboard';
+import { LayoutDashboard, BarChart3, PieChart, Calendar, Target, ShieldAlert, TrendingUp, Sprout, ClipboardCheck, History, Crown } from 'lucide-react';
 
 export const SkillsIntelligenceHub: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'matrix' | 'demand' | 'gap' | 'priority' | 'comprehensive' | 'macro_govt' | 'primary' | 'plan' | 'consolidated' | 'asis'>('matrix');
+    const [activeTab, setActiveTab] = useState<'executive' | 'matrix' | 'demand' | 'gap' | 'priority' | 'comprehensive' | 'macro_govt' | 'primary' | 'plan' | 'consolidated' | 'asis'>('executive');
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -30,7 +34,17 @@ export const SkillsIntelligenceHub: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-2 bg-gray-100 p-1.5 rounded-lg w-fit overflow-x-auto max-w-full no-scrollbar">
+                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <button
+                        onClick={() => setActiveTab('executive')}
+                        className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${activeTab === 'executive'
+                            ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                            }`}
+                    >
+                        <Crown className="w-4 h-4" />
+                        Executive
+                    </button>
                     <button
                         onClick={() => setActiveTab('asis')}
                         className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${activeTab === 'asis'
@@ -79,7 +93,7 @@ export const SkillsIntelligenceHub: React.FC = () => {
                             }`}
                     >
                         <ShieldAlert className="w-4 h-4" />
-                        Comp. Gap
+                        Consolidated
                     </button>
                     <button
                         onClick={() => setActiveTab('macro_govt')}
@@ -136,6 +150,11 @@ export const SkillsIntelligenceHub: React.FC = () => {
             </div>
 
             <div className="max-w-[1600px] mx-auto p-6 pb-10">
+                {activeTab === 'executive' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <ExecutiveDashboard />
+                    </div>
+                )}
                 {activeTab === 'matrix' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <DistrictSkillMatrix />
@@ -158,6 +177,8 @@ export const SkillsIntelligenceHub: React.FC = () => {
                 )}
                 {activeTab === 'macro_govt' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
+                        <MacroGPDP />
+                        <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
                         <MacroEconomicDemandProjection />
                         <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
                         <GPDPGovernmentDemand />
@@ -165,12 +186,16 @@ export const SkillsIntelligenceHub: React.FC = () => {
                 )}
                 {activeTab === 'primary' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <PrimarySector />
+                        <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
                         <PrimarySectorSkilling />
                     </div>
                 )}
                 {activeTab === 'plan' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <AnnualWorkPlanReport />
+                        <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
+                        <AnnualWorkPlan />
                     </div>
                 )}
                 {activeTab === 'consolidated' && (

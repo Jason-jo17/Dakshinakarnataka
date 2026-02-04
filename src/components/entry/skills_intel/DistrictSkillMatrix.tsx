@@ -6,6 +6,8 @@ import {
 import { Download } from 'lucide-react';
 
 import MatrixPriority from '../../dashboards/MatrixPriority';
+import DistrictSkillMatrixVisualization from '../../dashboards/DistrictSkillMatrixVisualization';
+import { AIInsights } from '../../common/AIInsights';
 
 // Mock Data from User Prompt
 const data = {
@@ -135,9 +137,9 @@ export default function DistrictSkillMatrix() {
         <div className="p-6 space-y-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">District Skill Matrix Dashboard</h1>
-                    <p className="text-gray-500 text-sm">TVET Capacity & Process Maturity Analysis for {data.district}</p>
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">District Skill Matrix</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">Comprehensive analysis of district skill development capacity and maturity</p>
                 </div>
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
@@ -145,6 +147,12 @@ export default function DistrictSkillMatrix() {
                     </button>
                 </div>
             </div>
+
+
+            {/* Dynamic Matrix Visualization from Data Entry - MOVED TO TOP */}
+            <DistrictSkillMatrixVisualization />
+
+            <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
 
             {/* NEW: Priority Matrix Visuals */}
             <MatrixPriority />
@@ -314,6 +322,9 @@ export default function DistrictSkillMatrix() {
                     </div>
                 </div>
             </div>
+
+            {/* AI Insights */}
+            <AIInsights context="district skill matrix and capacity maturity" />
         </div>
     );
 }

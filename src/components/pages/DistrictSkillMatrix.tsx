@@ -10,7 +10,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "../ui/tooltip";
-import MatrixPriority from '../dashboards/MatrixPriority';
 
 // Types (re-defined to ensure type safety)
 interface MatrixRowConfig {
@@ -210,8 +209,6 @@ const DistrictSkillMatrix = () => {
                     </div>
                 </div>
 
-                {/* NEW: Priority Matrix Visuals */}
-                <MatrixPriority />
 
                 {/* Main Table Container */}
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

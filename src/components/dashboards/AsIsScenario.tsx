@@ -2,6 +2,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cel
 import { cn } from '../../lib/utils';
 import { Users, Building2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import AIInsightPanel from '../ui/AIInsightPanel';
+import TrainingPlacementFunnel from './TrainingPlacementFunnel';
+import { AIInsights } from '../common/AIInsights';
 
 // Real Karnataka data
 const ITI_CAPACITY = {
@@ -142,6 +144,8 @@ export default function AsIsScenario() {
                 </div>
             </div>
 
+            <TrainingPlacementFunnel />
+
             {/* Top Trades Enrollment */}
             <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6">
                 <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Top 5 Trades: Capacity vs Enrollment</h3>
@@ -168,6 +172,15 @@ export default function AsIsScenario() {
                     ))}
                 </div>
             </div>
+
+            {/* AI Insights */}
+            <AIInsights context="as-is scenario and current training infrastructure" dataPoints={[
+                `Total ITI capacity: ${ITI_CAPACITY.total.seats.toLocaleString()} seats with ${ITI_CAPACITY.total.utilization}% utilization`,
+                `Private ITIs have 40% unutilized capacity (70K vacant seats)`,
+                `Government ITIs at ${ITI_CAPACITY.govt.utilization}% utilization - near full capacity`,
+                'DSC meetings improved +33% YoY (governance strengthening)',
+                'COPA and Electrician trades show highest enrollment rates (85-95%)'
+            ]} />
         </div>
     );
 }
