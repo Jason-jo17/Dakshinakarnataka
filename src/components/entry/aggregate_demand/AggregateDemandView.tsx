@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Building2, Users, FileText, Briefcase, Tractor, TrendingUp } from 'lucide-react';
 import SurveyEmployerForm from './SurveyEmployerForm';
 import SkillGapStudyForm from './SkillGapStudyForm';

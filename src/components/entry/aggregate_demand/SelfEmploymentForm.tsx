@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Save, Trash2 } from 'lucide-react';
 
 // 2E.1 Table Data Interface

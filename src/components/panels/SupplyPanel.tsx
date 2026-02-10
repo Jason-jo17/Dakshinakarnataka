@@ -44,7 +44,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
         const fetchInstitutionData = async () => {
             // Fetch from district_training_centers
             // Note: real table might not have 'highest_package' or 'nirf_rank' yet, so we'll mock or default them
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('district_training_centers')
                 .select('*')
                 .eq('district', currentDistrict || 'Dakshina Kannada');
