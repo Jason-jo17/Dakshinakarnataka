@@ -47,9 +47,19 @@ import EmployerSurveyForm from './components/entry/employer/EmployerSurveyForm';
 
 
 import { useAuthStore } from './store/useAuthStore';
+import { useCredentialStore } from './store/useCredentialStore';
+import { seedAllCredentials } from './utils/seedCredentials';
 
 
 function App() {
+  // Auto-seed credentials if empty (for Vercel/fresh installs)
+  useEffect(() => {
+    const { credentials } = useCredentialStore.getState();
+    if (credentials.length === 0) {
+      console.log('📦 No credentials found, auto-seeding test accounts...');
+      seedAllCredentials();
+    }
+  }, []);
 
   const institutions = useDataStore(state => state.institutions);
   const { isAuthenticated, user, currentDistrict } = useAuthStore();
