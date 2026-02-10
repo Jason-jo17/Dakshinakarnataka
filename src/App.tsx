@@ -20,8 +20,10 @@ import { DCSearch } from './components/dashboard/DCSearch';
 import { useDataStore } from './store/useDataStore';
 import CentralLoginPage from './components/auth/CentralLoginPage';
 import SuperAdminDashboard from './components/pages/SuperAdminDashboard';
+import CredentialManager from './components/admin/CredentialManager';
 
-import InstitutionEntryForm from './components/entry/InstitutionEntryForm';
+
+import InstitutionDataWizard from './components/entry/institution/InstitutionDataWizard';
 import CompanyEntryForm from './components/entry/CompanyEntryForm';
 import CoeEntryForm from './components/entry/CoeEntryForm';
 
@@ -29,6 +31,7 @@ import DistrictLobby from './components/pages/DistrictLobby';
 import DataEntryPortal from './components/pages/DataEntryPortal';
 
 import DistrictSkillPlan from './components/pages/DistrictSkillPlan';
+import DistrictAssignWork from './components/pages/DistrictAssignWork';
 import DistrictPlanList from './components/pages/DistrictPlanList';
 import SchemesSection from './components/pages/SchemesSection';
 import TrainerSection from './components/pages/TrainerSection';
@@ -38,6 +41,8 @@ import TraineeDetailsSection from './components/pages/TraineeDetailsSection';
 import { TraineeDataAnalysis } from './components/entry/analysis/TraineeDataAnalysis';
 import SkillsIntelligenceHub from './components/entry/skills_intel/SkillsIntelligenceHub';
 import DistrictSkillMatrix from './components/pages/DistrictSkillMatrix';
+import AggregateDemandView from './components/entry/aggregate_demand/AggregateDemandView';
+import EmployerSurveyForm from './components/entry/employer/EmployerSurveyForm';
 
 
 
@@ -50,14 +55,14 @@ function App() {
   const { isAuthenticated, user, currentDistrict } = useAuthStore();
 
 
-  const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | 'job' | null>(null);
+  const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // const [discoveredData, setDiscoveredData] = useState<Institution[]>([]); // Unused
   const [isKeySet, setIsKeySet] = useState(false);
 
-  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel'>('dashboard');
-  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix'>('lobby');
+  const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel' | 'credential-manager'>('dashboard');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand' | 'assign-work' | 'institution-wizard'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -107,9 +112,12 @@ function App() {
   useEffect(() => {
     if (isAuthenticated) {
       if (user?.role === 'institution') {
-        setAdminMode('training-center'); // Direct access for institutions
+        setAdminMode('institution-wizard'); // Direct access for institutions to the full suite
       } else if (user?.role === 'trainee') {
         setAdminMode('trainee-details'); // Direct access for trainees
+
+      } else if (user?.role === 'company') {
+        // Company user - no specific admin mode needed as we intercept in render
       } else {
         setAdminMode('lobby');
       }
@@ -129,6 +137,11 @@ function App() {
   // Super Admin District Selection
   if (user?.role === 'super_admin' && !currentDistrict) {
     return <SuperAdminDashboard />;
+  }
+
+  // Company Survey Flow
+  if (user?.role === 'company') {
+    return <EmployerSurveyForm />;
   }
 
   // District Admin Lobby Flow
@@ -171,6 +184,15 @@ function App() {
     );
   }
 
+  // Assign Work View
+  if (adminMode === 'assign-work') {
+    return (
+      <DistrictAssignWork
+        onBack={() => setAdminMode('lobby')}
+      />
+    );
+  }
+
   if (adminMode === 'portal') {
     return (
       <>
@@ -204,6 +226,9 @@ function App() {
             else if (action === 'district-skill-matrix') {
               setAdminMode('district-skill-matrix');
             }
+            else if (action === 'aggregate-demand') {
+              setAdminMode('aggregate-demand');
+            }
             else {
               setShowEntryForm(action);
             }
@@ -211,7 +236,7 @@ function App() {
         />
         {/* Render Entry Forms as Modals if triggered */}
         {showEntryForm === 'institution' && (
-          <InstitutionEntryForm
+          <InstitutionDataWizard
             onSuccess={() => setShowEntryForm(null)}
             onCancel={() => setShowEntryForm(null)}
           />
@@ -228,7 +253,7 @@ function App() {
             onCancel={() => setShowEntryForm(null)}
           />
         )}
-        {/* Job Form Placeholder - reusing Company or need new one? User said "we will do this part soon" */}
+
 
       </>
     );
@@ -255,8 +280,17 @@ function App() {
   if (adminMode === 'training-center') {
     return (
       <TrainingCenterSection
-        onBack={user?.role === 'institution' ? undefined : () => setAdminMode('portal')}
-        isRestricted={user?.role === 'institution'}
+        onBack={() => setAdminMode('portal')}
+        isRestricted={false}
+      />
+    );
+  }
+
+  if (adminMode === 'institution-wizard') {
+    return (
+      <InstitutionDataWizard
+        onSuccess={() => { }}
+        onCancel={() => useAuthStore.getState().logout()}
       />
     );
   }
@@ -304,6 +338,13 @@ function App() {
           <DistrictSkillMatrix />
         </div>
       </div>
+    );
+  }
+
+  // Aggregate Demand Section
+  if (adminMode === 'aggregate-demand') {
+    return (
+      <AggregateDemandView onBack={() => setAdminMode('portal')} />
     );
   }
 
@@ -362,6 +403,16 @@ function App() {
             if (view === 'analytics' && tab) setDashboardTab(tab);
           }}
         />;
+      case 'forecast':
+        return <DistrictDashboard
+          initialTab="forecasting"
+          onNavigate={(view, tab) => {
+            setCurrentView(view as any);
+            if (view === 'analytics' && tab) setDashboardTab(tab);
+          }}
+        />;
+      case 'credential-manager':
+        return <CredentialManager />;
       default:
         return null;
     }
@@ -371,10 +422,9 @@ function App() {
   // Handle Entry Forms
   if (showEntryForm === 'institution') {
     return (
-      <InstitutionEntryForm
+      <InstitutionDataWizard
         onSuccess={() => {
           setShowEntryForm(null);
-          // Optional: Show success notification or navigate to specific view
         }}
         onCancel={() => setShowEntryForm(null)}
       />

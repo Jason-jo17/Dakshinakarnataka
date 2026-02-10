@@ -233,7 +233,17 @@ const MapView: React.FC<MapViewProps> = ({
     const selectedInstitution = institutions.find(i => i.id === selectedId);
     const initialCenter: [number, number] = [12.9141, 74.8560]; // Mangalore
 
-    const heatPoints: [number, number, number][] = useMemo(() => institutions.map(inst => {
+    // Filter valid institutions
+    const validInstitutions = useMemo(() => {
+        return institutions.filter(inst =>
+            inst.location &&
+            inst.location.coordinates &&
+            typeof inst.location.coordinates.lat === 'number' &&
+            typeof inst.location.coordinates.lng === 'number'
+        );
+    }, [institutions]);
+
+    const heatPoints: [number, number, number][] = useMemo(() => validInstitutions.map(inst => {
         let intensity = 0.5; // Default intensity
         if (inst.category === 'University') intensity = 1.0;
         else if (inst.category === 'Engineering' || inst.category === 'Hospital') intensity = 0.8;
@@ -245,7 +255,7 @@ const MapView: React.FC<MapViewProps> = ({
             inst.location.coordinates.lng,
             intensity
         ];
-    }), [institutions]);
+    }), [validInstitutions]);
 
     return (
         <div className="relative h-full w-full">
@@ -276,7 +286,7 @@ const MapView: React.FC<MapViewProps> = ({
 
                 {!showHeatmap ? (
                     <>
-                        {institutions.map((inst) => {
+                        {validInstitutions.map((inst) => {
                             const seats = calculateSeats(inst);
                             const size = showPopulationView ? getMarkerSize(seats) : (inst.coe ? 16 : 12);
 
@@ -308,7 +318,7 @@ const MapView: React.FC<MapViewProps> = ({
                         })}
 
                         {/* Job Markers */}
-                        {showJobs && jobs?.map((job) => (
+                        {showJobs && jobs?.filter(j => j.coordinates).map((job) => (
                             <JobMarker key={job.job_id} job={job} />
                         ))}
                     </>
@@ -316,7 +326,7 @@ const MapView: React.FC<MapViewProps> = ({
                     <HeatmapLayer points={heatPoints} />
                 )}
 
-                {selectedInstitution && (
+                {selectedInstitution && selectedInstitution.location && selectedInstitution.location.coordinates && (
                     <MapController
                         center={[
                             selectedInstitution.location.coordinates.lat,

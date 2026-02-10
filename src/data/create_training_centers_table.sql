@@ -46,8 +46,13 @@ CREATE TABLE IF NOT EXISTS district_training_centers (
 -- Enable Row Level Security (RLS) if needed
 ALTER TABLE district_training_centers ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow all actions for authenticated users
-CREATE POLICY "Enable all access for authenticated users" ON district_training_centers
+-- Create policy to allow read access for all users (including anonymous)
+CREATE POLICY "Enable read access for all users" ON district_training_centers
+    FOR SELECT
+    USING (true);
+
+-- Create policy to allow insert/update/delete for authenticated users only
+CREATE POLICY "Enable write access for authenticated users" ON district_training_centers
     FOR ALL
     USING (auth.role() = 'authenticated')
     WITH CHECK (auth.role() = 'authenticated');

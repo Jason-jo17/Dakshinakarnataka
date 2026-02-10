@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Save, Plus, Trash2, Edit2, Download, Upload, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, Plus, Trash2, Edit2, Download, Upload, ArrowLeft, LogOut } from 'lucide-react';
 import * as Papa from 'papaparse';
 import type { TraineeDetails } from '../../types/trainee';
+import { useAuthStore } from '../../store/useAuthStore';
+import { supabase } from '../../lib/supabaseClient';
 
 const initialFormState: Omit<TraineeDetails, 'id' | 'sno'> = {
     // Candidate Details
@@ -62,10 +64,102 @@ const initialFormState: Omit<TraineeDetails, 'id' | 'sno'> = {
 };
 
 const TraineeDetailsSection: React.FC<{ onBack?: () => void; isRestricted?: boolean }> = ({ onBack, isRestricted }) => {
+    const { user } = useAuthStore();
     const [trainees, setTrainees] = useState<TraineeDetails[]>([]);
     const [formData, setFormData] = useState(initialFormState);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
+    const [trainingCenterData, setTrainingCenterData] = useState<any>(null);
+    const [allTrainingCenters, setAllTrainingCenters] = useState<any[]>([]);
+
+    // Fetch all training centers for the dropdown
+    useEffect(() => {
+        const fetchAllCenters = async () => {
+            const { data } = await supabase
+                .from('district_training_centers')
+                .select('*')
+                .order('training_center_name');
+            if (data) setAllTrainingCenters(data);
+        };
+        fetchAllCenters();
+    }, []);
+
+    // Fetch training center data if user is a trainee
+    useEffect(() => {
+        const fetchTrainingCenter = async () => {
+            if (user?.role === 'trainee' && user?.managedEntityId) {
+                const entityIdStr = String(user.managedEntityId).trim();
+                console.log('[TraineeDetails] Attempting pre-fill for managedEntityId:', entityIdStr);
+
+                // 1. Try to find in the already loaded local list (Case Insensitive + Trim)
+                let center = allTrainingCenters.find(c =>
+                    c.id === entityIdStr ||
+                    c.training_center_name?.trim().toLowerCase() === entityIdStr.toLowerCase()
+                );
+
+                // 2. If not found in local list, try to fetch directly from Supabase
+                if (!center) {
+                    console.log('[TraineeDetails] Not found in local list, querying Supabase for:', entityIdStr);
+                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entityIdStr);
+                    let query = supabase.from('district_training_centers').select('*');
+
+                    if (isUUID) {
+                        query = query.eq('id', entityIdStr);
+                    } else {
+                        // Use ilike for case-insensitive matching in Supabase
+                        query = query.ilike('training_center_name', entityIdStr);
+                    }
+
+                    const { data, error } = await query.limit(1).maybeSingle();
+                    if (error) {
+                        console.error('[TraineeDetails] Supabase query error:', error);
+                    }
+                    if (data) {
+                        console.log('[TraineeDetails] Found center in Supabase:', data.training_center_name);
+                        center = data;
+                    }
+                }
+
+                if (center) {
+                    console.log('[TraineeDetails] Pre-filling form for center:', center.training_center_name);
+                    setTrainingCenterData(center);
+                    // Pre-fill training center and candidate fields
+                    const [firstName, ...lastNameParts] = (user?.name || '').split(' ');
+                    const lastName = lastNameParts.join(' ');
+
+                    setFormData(prev => ({
+                        ...prev,
+                        first_name: prev.first_name || firstName || '',
+                        last_name: prev.last_name || lastName || '',
+                        email_id: prev.email_id || user?.email || '',
+                        training_center_name: center.training_center_name || '',
+                        training_city: center.block || center.center_address1 || '',
+                        training_center_pincode: center.pincode || '',
+                        training_district: center.district || 'Dakshina Kannada',
+                        training_state: 'Karnataka'
+                    }));
+                } else {
+                    console.warn('[TraineeDetails] Center NOT FOUND for managedEntityId:', entityIdStr);
+                }
+            }
+        };
+        fetchTrainingCenter();
+    }, [user, allTrainingCenters]);
+
+    const handleCenterSelect = (centerName: string) => {
+        const center = allTrainingCenters.find(c => c.training_center_name === centerName);
+        if (center) {
+            setFormData(prev => ({
+                ...prev,
+                training_center_name: center.training_center_name,
+                training_city: center.block || '',
+                training_center_pincode: center.pincode || '',
+                training_district: center.district || 'Dakshina Kannada'
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, training_center_name: centerName }));
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -94,7 +188,19 @@ const TraineeDetailsSection: React.FC<{ onBack?: () => void; isRestricted?: bool
             };
             setTrainees([...trainees, newEntry]);
         }
-        setFormData(initialFormState);
+        // Reset form but preserve training center data for trainees
+        if (user?.role === 'trainee' && trainingCenterData) {
+            setFormData({
+                ...initialFormState,
+                training_center_name: trainingCenterData.training_center_name || '',
+                training_city: trainingCenterData.block || '',
+                training_center_pincode: trainingCenterData.pincode || '',
+                training_district: trainingCenterData.district || 'Dakshina Kannada',
+                training_state: 'Karnataka'
+            });
+        } else {
+            setFormData(initialFormState);
+        }
     };
 
     const handleEdit = (item: TraineeDetails) => {
@@ -168,7 +274,15 @@ const TraineeDetailsSection: React.FC<{ onBack?: () => void; isRestricted?: bool
                             <p className="text-slate-500 dark:text-slate-400">Manage candidate enrolment, training, and placement details</p>
                         </div>
                     </div>
-                    {!isRestricted && (
+                    {isRestricted ? (
+                        <button
+                            onClick={() => useAuthStore.getState().logout()}
+                            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-red-200 dark:border-red-800"
+                        >
+                            <LogOut size={16} />
+                            <span>Exit & Log Out</span>
+                        </button>
+                    ) : (
                         <div className="flex gap-3">
                             <label className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors text-slate-700 dark:text-slate-200">
                                 <Upload size={16} />
@@ -277,19 +391,63 @@ const TraineeDetailsSection: React.FC<{ onBack?: () => void; isRestricted?: bool
                             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-slate-500 uppercase">Training Centre</label>
-                                    <input type="text" name="training_center_name" value={formData.training_center_name} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" />
+                                    {user?.role === 'trainee' && user?.managedEntityId ? (
+                                        <input
+                                            type="text"
+                                            name="training_center_name"
+                                            value={formData.training_center_name}
+                                            readOnly
+                                            className="w-full px-3 py-2 border rounded-lg bg-slate-100 dark:bg-slate-800 dark:border-slate-600 cursor-not-allowed"
+                                        />
+                                    ) : (
+                                        <select
+                                            name="training_center_name"
+                                            value={formData.training_center_name}
+                                            onChange={(e) => handleCenterSelect(e.target.value)}
+                                            className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 outline-none"
+                                            required
+                                        >
+                                            <option value="">Select Training Centre</option>
+                                            {allTrainingCenters.map((center) => (
+                                                <option key={center.id} value={center.training_center_name}>
+                                                    {center.training_center_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-slate-500 uppercase">City</label>
-                                    <input type="text" name="training_city" value={formData.training_city} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" />
+                                    <input
+                                        type="text"
+                                        name="training_city"
+                                        value={formData.training_city}
+                                        onChange={handleInputChange}
+                                        readOnly={!!formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)}
+                                        className={`w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 ${(formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}`}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-slate-500 uppercase">Center Pincode</label>
-                                    <input type="text" name="training_center_pincode" value={formData.training_center_pincode} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" />
+                                    <input
+                                        type="text"
+                                        name="training_center_pincode"
+                                        value={formData.training_center_pincode}
+                                        onChange={handleInputChange}
+                                        readOnly={!!formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)}
+                                        className={`w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 ${(formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}`}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-slate-500 uppercase">District</label>
-                                    <input type="text" name="training_district" value={formData.training_district} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600" />
+                                    <input
+                                        type="text"
+                                        name="training_district"
+                                        value={formData.training_district}
+                                        onChange={handleInputChange}
+                                        readOnly={!!formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)}
+                                        className={`w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 ${(formData.training_center_name && allTrainingCenters.some(c => c.training_center_name === formData.training_center_name)) ? 'bg-slate-100 dark:bg-slate-800 cursor-not-allowed' : ''}`}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-slate-500 uppercase">Program Name</label>

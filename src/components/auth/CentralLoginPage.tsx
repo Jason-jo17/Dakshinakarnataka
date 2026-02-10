@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight, FileText } from 'lucide-react';
+import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useCredentialStore } from '../../store/useCredentialStore';
 import { DISTRICTS } from '../../data/districts';
 import TraineeDetailsSection from '../pages/TraineeDetailsSection';
-import InstitutionEntryForm from '../entry/InstitutionEntryForm';
-import TrainingCenterSection from '../pages/TrainingCenterSection';
+import InstitutionDataWizard from '../entry/institution/InstitutionDataWizard';
+import EmployerSurveyForm from '../entry/employer/EmployerSurveyForm';
 
 export default function CentralLoginPage() {
   const { login, setDistrict } = useAuthStore();
   const [activeTab, setActiveTab] = useState<'super' | 'district' | 'institution' | 'student' | 'company'>('super');
-  const [activeInstTab, setActiveInstTab] = useState<'profile' | 'center'>('profile'); // New inner tab state
+  const [districtRole, setDistrictRole] = useState<'admin' | 'team'>('admin'); // Toggle for District Admin vs Team
   const [formData, setFormData] = useState({ id: '', password: '' });
   const [selectedDistrictVal, setSelectedDistrictVal] = useState('Dakshina Kannada');
 
@@ -23,6 +24,9 @@ export default function CentralLoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Get credentials for external role authentication
+    const { credentials } = useCredentialStore.getState();
+
     // Logic: Internal roles log in directly. External roles show the Portal Link modal after "Authentication".
     switch (activeTab) {
       case 'super':
@@ -31,44 +35,88 @@ export default function CentralLoginPage() {
         break;
       case 'district':
         login({
-          id: 'district_admin',
-          name: `District Admin (${selectedDistrictVal})`,
-          role: 'district_admin',
+          id: districtRole === 'admin' ? 'district_admin' : 'district_team_member',
+          name: districtRole === 'admin' ? `District Admin (${selectedDistrictVal})` : `District Team (${selectedDistrictVal})`,
+          role: districtRole === 'admin' ? 'district_admin' : 'district_team',
           managedEntityId: selectedDistrictVal
         });
         setDistrict(selectedDistrictVal);
         break;
 
-      // --- External Portals (Gatekeeper Pattern) ---
-      case 'institution':
-        setPortalData({
-          title: 'Institution Portal',
-          description: 'Access for Colleges & Universities',
-          url: 'https://inpulse-staging-recruitment.web.app/signin',
-          credentials: 'User: tpo@sahyadri.com\nPassword: tpo@sahyadri.com',
-          icon: School,
-          color: 'emerald'
-        });
-        break;
-      case 'student':
-        setPortalData({
-          title: 'Student Portal',
-          description: 'Access for Students & Learners',
-          url: 'https://inpulse-staging-recruitment.web.app/signin',
-          credentials: 'User: bddhanush03@gmail.com\nPassword: bddhanush03@gmail.com',
-          icon: GraduationCap,
-          color: 'violet'
-        });
-        break;
+
       case 'company':
-        setPortalData({
-          title: 'Company Portal',
-          description: 'Access for Industries & Recruiters',
-          url: 'https://inpulse-staging-recruitment.web.app/signin',
-          credentials: 'User: hr@inunity.in\nPassword: hr@inunity.in',
-          icon: Briefcase,
-          color: 'blue'
-        });
+        // Direct Login for Company with Credential Check
+        const cred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'company');
+
+        if (cred) {
+          login({
+            id: cred.id,
+            name: cred.entityName,
+            role: 'company',
+            managedEntityId: cred.entityId
+          });
+          setDistrict(null);
+        } else {
+          // If no local credentials found, show external portal link
+          setPortalData({
+            title: 'Recruiter Portal',
+            description: 'Employer Survey & Hiring Dashboard',
+            url: 'https://inpulse-staging-recruitment.web.app/recruiter',
+            credentials: `User: ${formData.id || 'hr@company.com'}\nPassword: ${formData.password || '••••••••'}`,
+            icon: Briefcase,
+            color: 'blue'
+          });
+        }
+        break;
+
+      case 'student':
+        // Direct Login for Trainee with Credential Check
+        const traineeCred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'trainee');
+
+        if (traineeCred) {
+          login({
+            id: traineeCred.id,
+            name: traineeCred.entityName,
+            role: 'trainee',
+            managedEntityId: traineeCred.linkedEntityId // Link to the training center
+          });
+          setDistrict(null);
+        } else {
+        // If no local credentials found, show external portal link or guidance
+          setPortalData({
+            title: 'Trainee Portal',
+            description: 'Skill Training & Data Collection',
+            url: 'https://inpulse-staging-recruitment.web.app/trainee',
+            credentials: `User: ${formData.id || 'student@email.com'}\nPassword: ${formData.password || '••••••••'}`,
+            icon: GraduationCap,
+            color: 'violet'
+          });
+        }
+        break;
+
+      case 'institution':
+        // Direct Login for Institution with Credential Check
+        const instCred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'institution');
+
+        if (instCred) {
+          login({
+            id: instCred.id,
+            name: instCred.entityName,
+            role: 'institution',
+            managedEntityId: instCred.entityId
+          });
+          setDistrict(null);
+        } else {
+          // If no local credentials found, show external portal link
+          setPortalData({
+            title: 'Institution Portal',
+            description: 'Access for Colleges & Universities',
+            url: 'https://inpulse-staging-recruitment.web.app/signin',
+            credentials: `User: ${formData.id || 'tpo@college.edu'}\nPassword: ${formData.password || '••••••••'}`,
+            icon: School,
+            color: 'emerald'
+          });
+        }
         break;
     }
   };
@@ -97,64 +145,28 @@ export default function CentralLoginPage() {
           </div>
         )}
         {activeTab === 'institution' && (
-          <div className="p-4 bg-slate-50 dark:bg-slate-900 min-h-screen">
-            <div className="max-w-7xl mx-auto">
-              {/* Overlay Header with Tabs */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <School className="text-emerald-600" />
-                    Institution Data Collection
-                  </h2>
-
-                  {/* Tabs */}
-                  <div className="flex p-1 bg-slate-200 dark:bg-slate-800 rounded-lg">
-                    <button
-                      onClick={() => setActiveInstTab('profile')}
-                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeInstTab === 'profile'
-                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                        }`}
-                    >
-                      Institution Profile
-                    </button>
-                    <button
-                      onClick={() => setActiveInstTab('center')}
-                      className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeInstTab === 'center'
-                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                        }`}
-                    >
-                      Training Center (1E.1)
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setShowEntryForm(false)}
-                  className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                >
-                  Back to Login
-                </button>
-              </div>
-
-              {/* Tab Content */}
-              {activeInstTab === 'profile' ? (
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                  <InstitutionEntryForm
-                    onSuccess={() => setActiveInstTab('center')} // Auto-advance to next tab
-                    onCancel={() => setShowEntryForm(false)}
-                  />
-                </div>
-              ) : (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                  <TrainingCenterSection
-                    onBack={() => setActiveInstTab('profile')}
-                    isRestricted={false}
-                  />
-                </div>
-              )}
+          <div className="flex-1 flex flex-col min-h-screen">
+            <InstitutionDataWizard
+              onSuccess={() => setShowEntryForm(false)}
+              onCancel={() => setShowEntryForm(false)}
+            />
+          </div>
+        )}
+        {activeTab === 'company' && (
+          <div className="flex-1 flex flex-col min-h-screen">
+            <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex justify-between items-center sticky top-0 z-20">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Briefcase className="text-blue-600" />
+                Employer Survey Form
+              </h2>
+              <button
+                onClick={() => setShowEntryForm(false)}
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+              >
+                Back to Login
+              </button>
             </div>
+            <EmployerSurveyForm />
           </div>
         )}
       </div>
@@ -232,50 +244,211 @@ export default function CentralLoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-5 max-w-lg">
               {activeTab === 'district' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                    Select District
-                  </label>
-                  <div className="relative">
-                    <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <select
-                      value={selectedDistrictVal}
-                      onChange={(e) => setSelectedDistrictVal(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none"
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                      Select District
+                    </label>
+                    <div className="relative">
+                      <Map className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <select
+                        value={selectedDistrictVal}
+                        onChange={(e) => setSelectedDistrictVal(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:text-white appearance-none"
+                      >
+                        {DISTRICTS.map(d => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Role Toggle */}
+                  <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => setDistrictRole('admin')}
+                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${districtRole === 'admin'
+                        ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                        }`}
                     >
-                      {DISTRICTS.map(d => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
+                      District Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDistrictRole('team')}
+                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${districtRole === 'team'
+                        ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                        }`}
+                    >
+                      District Team
+                    </button>
                   </div>
                 </div>
               )}
 
+
               {/* Instructions / Warning for Specific Roles */}
-              {(activeTab === 'student' || activeTab === 'institution') && (
+              {activeTab === 'student' && (
                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg p-4 text-left animate-in fade-in slide-in-from-top-2">
                   <div className="flex gap-3">
                     <div className="shrink-0 mt-0.5">
-                      <svg className="h-5 w-5 text-amber-600 dark:text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
+                      <GraduationCap className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                     </div>
                     <div className="text-sm text-amber-800 dark:text-amber-200 flex-1">
-                      <p className="font-medium mb-1">Important:</p>
-                      <p className="mb-3">
-                        Please ensure you have filled out the
-                        <span className="font-bold"> Data Collection Form </span>
-                        shared by the District Office before logging in.
+                      <p className="font-medium mb-1">Trainee Data Collection</p>
+                      <p className="mb-2">
+                        Enter your Student ID and password to access your localized profile.
                       </p>
-                      {/* Data Entry Trigger Button */}
-                      <button
-                        type="button"
-                        onClick={() => setShowEntryForm(true)}
-                        className="text-white bg-amber-600 hover:bg-amber-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
-                      >
-                        <FileText size={14} />
-                        Fill Data Collection Form Now
-                      </button>
+                      <p className="text-xs opacity-80">
+                        If you don't have local credentials, login to the state portal or continue to the manual entry form.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const { credentials } = useCredentialStore.getState();
+                        const traineeCred = credentials.find(c =>
+                          c.username === formData.id &&
+                          c.password === formData.password &&
+                          c.role === 'trainee'
+                        );
+
+                        if (formData.id && formData.password && traineeCred) {
+                          login({
+                            id: traineeCred.username,
+                            name: traineeCred.entityName,
+                            role: 'trainee',
+                            email: traineeCred.email,
+                            managedEntityId: traineeCred.linkedEntityId
+                          });
+                          setShowEntryForm(true);
+                        } else {
+                          alert("Invalid student credentials for pre-fill. Please enter a valid ID and Password or 'Continue as Guest'.");
+                        }
+                      }}
+                      className="text-white bg-amber-600 hover:bg-amber-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
+                    >
+                      <GraduationCap size={14} />
+                      Login & Fill Form
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowEntryForm(true)}
+                      className="text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
+                    >
+                      Continue as Guest
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'institution' && (
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700/50 rounded-lg p-4 text-left animate-in fade-in slide-in-from-top-2">
+                  <div className="flex gap-3">
+                    <div className="shrink-0 mt-0.5">
+                      <School className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
+                    </div>
+                    <div className="text-sm text-emerald-800 dark:text-emerald-200 flex-1">
+                      <p className="font-medium mb-1">Institution Data Collection</p>
+                      <p className="mb-3">
+                        Please fill out the institution profile and training center information.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const { credentials } = useCredentialStore.getState();
+                            const instCred = credentials.find(c =>
+                              c.username === formData.id &&
+                              c.password === formData.password &&
+                              c.role === 'institution'
+                            );
+
+                            if (formData.id && formData.password && instCred) {
+                              login({
+                                id: instCred.username,
+                                name: instCred.entityName,
+                                role: 'institution',
+                                managedEntityId: instCred.entityId
+                              });
+                            } else {
+                              setShowEntryForm(true); // Still allow guest/manual entry for institutions
+                            }
+                          }}
+                          className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
+                        >
+                          <School size={14} />
+                          Login & Fill Form
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowEntryForm(true)}
+                          className="text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
+                        >
+                          Continue as Guest
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+
+              {/* Instructions for Company */}
+              {activeTab === 'company' && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg p-4 text-left animate-in fade-in slide-in-from-top-2">
+                  <div className="flex gap-3">
+                    <div className="shrink-0 mt-0.5">
+                      <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-500" />
+                    </div>
+                    <div className="text-sm text-blue-800 dark:text-blue-200 flex-1">
+                      <p className="font-medium mb-1">Employer Survey & Recruitment</p>
+                      <p className="mb-2">
+                        You will be redirected to the Employer Survey Form upon login to update your organization's data.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const { credentials } = useCredentialStore.getState();
+                            const companyCred = credentials.find(c =>
+                              c.username === formData.id &&
+                              c.password === formData.password &&
+                              c.role === 'company'
+                            );
+
+                            if (formData.id && formData.password && companyCred) {
+                              login({
+                                id: companyCred.username,
+                                name: companyCred.entityName,
+                                role: 'company',
+                                email: companyCred.email,
+                                managedEntityId: companyCred.entityId
+                              });
+                              setShowEntryForm(true);
+                            } else {
+                              alert("Invalid company credentials for pre-fill. Please enter valid credentials or 'Continue as Guest'.");
+                            }
+                          }}
+                          className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
+                        >
+                          <Briefcase size={14} />
+                          Login & Fill Form
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowEntryForm(true)}
+                          className="text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
+                        >
+                          Continue as Guest
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

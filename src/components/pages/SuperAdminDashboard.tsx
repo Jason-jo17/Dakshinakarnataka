@@ -64,7 +64,7 @@ const SuperAdminDashboard = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12">
                     {filteredDistricts.length > 0 ? (
                         filteredDistricts.map((district) => (
                             <button
@@ -98,6 +98,61 @@ const SuperAdminDashboard = () => {
                             <p>No districts found matching "{searchQuery}"</p>
                         </div>
                     )}
+                </div>
+
+                {/* District Progress Section */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">District Data Entry Progress</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Live status of data collection across the state</p>
+                        </div>
+                        <div className="text-sm font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
+                            State Average: 68%
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-slate-50 dark:bg-slate-700 text-xs uppercase font-semibold text-slate-600 dark:text-slate-300">
+                                <tr>
+                                    <th className="px-6 py-3">District</th>
+                                    <th className="px-6 py-3 text-right">Institutions</th>
+                                    <th className="px-6 py-3 text-right">Trainers</th>
+                                    <th className="px-6 py-3 text-right">Trainees</th>
+                                    <th className="px-6 py-3">Status</th>
+                                    <th className="px-6 py-3">Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                {filteredDistricts.slice(0, 10).map((district, idx) => {
+                                    // Mock Data Generation based on index
+                                    const instCount = Math.floor(Math.random() * 50) + 10;
+                                    const trainerCount = Math.floor(instCount * 2.5);
+                                    const traineeCount = Math.floor(trainerCount * 15);
+                                    const status = idx % 3 === 0 ? 'Completed' : idx % 3 === 1 ? 'In Progress' : 'Pending Verification';
+                                    const statusColor = status === 'Completed' ? 'bg-green-100 text-green-700' : status === 'In Progress' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700';
+
+                                    return (
+                                        <tr key={district} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{district}</td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 text-right">{instCount}</td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 text-right">{trainerCount}</td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 text-right">{traineeCount}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${statusColor}`}>
+                                                    {status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">
+                                                {new Date().toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </main>
         </div>

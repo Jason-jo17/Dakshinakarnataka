@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DistrictSkillMatrix from './DistrictSkillMatrix';
 import AggregateDemandSummary from './AggregateDemandSummary';
 import GapAnalysisReport from './GapAnalysisReport';
+import { SWOTAnalysis } from './SWOTAnalysis';
 import AnnualWorkPlanReport from './AnnualWorkPlanReport';
 import PriorityAssignmentReport from './PriorityAssignmentReport';
 import ComprehensiveGapAnalysis from './ComprehensiveGapAnalysis';
@@ -204,7 +205,9 @@ export const SkillsIntelligenceHub: React.FC = () => {
                     </div>
                 )}
                 {activeTab === 'priority' && (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                        <SWOTAnalysis />
+                        <div className="border-t border-slate-200 dark:border-slate-700 my-8"></div>
                         <PriorityAssignmentReport />
                     </div>
                 )}

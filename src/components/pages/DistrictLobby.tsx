@@ -81,6 +81,32 @@ export default function DistrictLobby({ onSelectOption, userName }: DistrictLobb
                         </button>
                     </div>
 
+                    {/* District Team - Assign Work Section */}
+                    <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-8">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+                            District Team Management
+                        </h3>
+                        <div className="grid md:grid-cols-3 gap-6">
+                            <div
+                                onClick={() => onSelectOption('assign-work')}
+                                className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 transition-colors cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                                        <LayoutDashboard className="w-5 h-5" />
+                                    </div>
+                                    <h4 className="font-bold text-slate-800 dark:text-white">Assign Work</h4>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                    Delegate tasks to team members and track progress.
+                                </p>
+                                <span className="flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:underline">
+                                    Manage Assignments <ArrowRight className="w-3 h-3" />
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

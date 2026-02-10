@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit2, Download, Upload, ArrowLeft } from 'lucide-react';
 import * as Papa from 'papaparse';
+import { supabase } from '../../lib/supabaseClient';
 
 interface TrainingCenter {
     id: string;
@@ -66,6 +67,49 @@ const TrainingCenterSection: React.FC<{ onBack?: () => void; isRestricted?: bool
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState<string | null>(null);
 
+    useEffect(() => {
+        fetchCenters();
+    }, []);
+
+    const fetchCenters = async () => {
+        const { data } = await supabase
+            .from('district_training_centers')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (data) {
+            setCenters(data.map((item: any, index: number) => ({
+                id: item.id,
+                sno: index + 1,
+                training_center_name: item.training_center_name,
+                center_address1: item.center_address1 || '',
+                center_address2: item.center_address2 || '',
+                block: item.block || '',
+                district: item.district || 'Dakshina Kannada',
+                pincode: item.pincode || '',
+                year_started: item.year_started || '',
+                class_room_count: item.class_room_count?.toString() || '',
+                seating_capacity: item.seating_capacity?.toString() || '',
+                capacity_of_lab: item.capacity_of_lab?.toString() || '',
+                is_residential: item.is_residential || 'N',
+                hostel_capacity_men: item.hostel_capacity_men?.toString() || '',
+                hostel_capacity_women: item.hostel_capacity_women?.toString() || '',
+                distance_hostel_center: item.distance_hostel_center || '',
+                contact_person_name: item.contact_person_name || '',
+                contact_role: item.contact_role || '',
+                contact_phone: item.contact_phone || '',
+                contact_email: item.contact_email || '',
+                schemes_empanelled: item.schemes_empanelled || '',
+                funding_source: item.funding_source || '',
+                scheme_url: item.scheme_url || '',
+                trades_offered: item.trades_offered || '',
+                sectors: item.sectors || '',
+                trained_last_year: item.trained_last_year?.toString() || '',
+                placed_last_year: item.placed_last_year?.toString() || ''
+            })));
+        }
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -74,24 +118,62 @@ const TrainingCenterSection: React.FC<{ onBack?: () => void; isRestricted?: bool
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const dataToSave = {
+            training_center_name: formData.training_center_name,
+            center_address1: formData.center_address1,
+            center_address2: formData.center_address2,
+            block: formData.block,
+            district: formData.district,
+            pincode: formData.pincode,
+            year_started: formData.year_started,
+            class_room_count: parseInt(formData.class_room_count) || 0,
+            seating_capacity: parseInt(formData.seating_capacity) || 0,
+            capacity_of_lab: parseInt(formData.capacity_of_lab) || 0,
+            is_residential: formData.is_residential,
+            hostel_capacity_men: parseInt(formData.hostel_capacity_men) || 0,
+            hostel_capacity_women: parseInt(formData.hostel_capacity_women) || 0,
+            distance_hostel_center: formData.distance_hostel_center,
+            contact_person_name: formData.contact_person_name,
+            contact_role: formData.contact_role,
+            contact_phone: formData.contact_phone,
+            contact_email: formData.contact_email,
+            schemes_empanelled: formData.schemes_empanelled,
+            funding_source: formData.funding_source,
+            scheme_url: formData.scheme_url,
+            trades_offered: formData.trades_offered,
+            sectors: formData.sectors,
+            trained_last_year: parseInt(formData.trained_last_year) || 0,
+            placed_last_year: parseInt(formData.placed_last_year) || 0
+        };
+
         if (isEditing && editId) {
-            setCenters(prev => prev.map(item =>
-                item.id === editId
-                    ? { ...item, ...formData, id: editId, sno: item.sno }
-                    : item
-            ));
-            setIsEditing(false);
-            setEditId(null);
+            const { error } = await supabase
+                .from('district_training_centers')
+                .update(dataToSave)
+                .eq('id', editId);
+
+            if (!error) {
+                fetchCenters();
+                setIsEditing(false);
+                setEditId(null);
+            } else {
+                console.error("Error updating center:", error);
+                alert("Failed to update center.");
+            }
         } else {
-            const newEntry: TrainingCenter = {
-                id: Date.now().toString(),
-                sno: centers.length + 1,
-                ...formData
-            };
-            setCenters([...centers, newEntry]);
+            const { error } = await supabase
+                .from('district_training_centers')
+                .insert([dataToSave]);
+
+            if (!error) {
+                fetchCenters();
+            } else {
+                console.error("Error adding center:", error);
+                alert("Failed to add center.");
+            }
         }
         setFormData(initialFormState);
     };
@@ -126,14 +208,23 @@ const TrainingCenterSection: React.FC<{ onBack?: () => void; isRestricted?: bool
         });
         setIsEditing(true);
         setEditId(item.id);
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = (id: string) => {
+    const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this record?')) {
-            setCenters(prev => {
-                const filtered = prev.filter(item => item.id !== id);
-                return filtered.map((item, index) => ({ ...item, sno: index + 1 }));
-            });
+            const { error } = await supabase
+                .from('district_training_centers')
+                .delete()
+                .eq('id', id);
+
+            if (!error) {
+                fetchCenters();
+            } else {
+                console.error("Error deleting center:", error);
+                alert("Failed to delete center.")
+            }
         }
     };
 
@@ -172,7 +263,7 @@ const TrainingCenterSection: React.FC<{ onBack?: () => void; isRestricted?: bool
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-8">
+        <div className="w-full space-y-6">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}

@@ -8,6 +8,8 @@ import { Download } from 'lucide-react';
 import MatrixPriority from '../../dashboards/MatrixPriority';
 import DistrictSkillMatrixVisualization from '../../dashboards/DistrictSkillMatrixVisualization';
 import { AIInsights } from '../../common/AIInsights';
+import { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabaseClient';
 
 // Mock Data from User Prompt
 const data = {
@@ -46,11 +48,11 @@ const data = {
         },
         {
             category: "Industry Linkages",
-            score: 48,
+            score: 52,
             max_score: 100,
             indicators: [
                 { name: "MoUs with Industry", score: 45, weight: 0.3 },
-                { name: "Guest Lectures", score: 52, weight: 0.3 },
+                { name: "Recruiter Engagement (InUnity)", score: 75, weight: 0.3 },
                 { name: "Internship Placement", score: 47, weight: 0.4 }
             ]
         },
@@ -112,6 +114,59 @@ const data = {
 };
 
 export default function DistrictSkillMatrix() {
+    const [matrixData, setMatrixData] = useState(data);
+
+    useEffect(() => {
+        fetchMatrixData();
+    }, []);
+
+    const fetchMatrixData = async () => {
+        try {
+            // 1. Fetch Assessment
+            const { data: assessmentData } = await supabase
+                .from('dsm_assessments')
+                .select('*')
+                .eq('district_id', 'Dakshina Kannada') // Defaulting to DK for this view
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (assessmentData) {
+                // 2. Fetch Dimensions
+                const { data: dimensionsData } = await supabase
+                    .from('dsm_dimensions')
+                    .select('*')
+                    .eq('assessment_id', assessmentData.id);
+
+                if (dimensionsData) {
+                    // Map to component structure
+                    const mappedDimensions = dimensionsData.map((d: any) => ({
+                        category: d.category,
+                        score: Number(d.score),
+                        max_score: Number(d.max_score),
+                        indicators: d.indicators || []
+                    }));
+
+                    // We might want to sort dimensions to match the UI order if critical, 
+                    // but DB order usually follows insertion order which we controlled in seed.
+
+                    const newData = {
+                        district: assessmentData.district_id,
+                        assessment_date: assessmentData.assessment_year,
+                        dimensions: mappedDimensions,
+                        overall_score: Number(assessmentData.overall_score),
+                        maturity_level: assessmentData.maturity_level,
+                        benchmark_scores: assessmentData.benchmark_scores || data.benchmark_scores,
+                        priority_matrix: assessmentData.priority_matrix || data.priority_matrix
+                    };
+
+                    setMatrixData(newData);
+                }
+            }
+        } catch (e) {
+            console.error("Error fetching matrix data", e);
+        }
+    };
 
     const getScoreColor = (score: number) => {
         if (score >= 70) return '#10b981'; // Green
@@ -119,18 +174,17 @@ export default function DistrictSkillMatrix() {
         return '#f87171'; // Red
     };
 
-    // Prepare data for Radar Chart
-    const radarData = data.dimensions.map(d => ({
+    const radarData = matrixData.dimensions.map(d => ({
         subject: d.category,
         A: d.score,
-        B: data.benchmark_scores.state_average, // Comparative
+        B: matrixData.benchmark_scores.state_average, // Comparative
         fullMark: 100,
     }));
 
     // Prepare data for Gauge (Pie Chart simulation)
     const gaugeData = [
-        { name: 'Score', value: data.overall_score, fill: getScoreColor(data.overall_score) },
-        { name: 'Remaining', value: 100 - data.overall_score, fill: '#e5e7eb' },
+        { name: 'Score', value: matrixData.overall_score, fill: getScoreColor(matrixData.overall_score) },
+        { name: 'Remaining', value: 100 - matrixData.overall_score, fill: '#e5e7eb' },
     ];
 
     return (
@@ -178,8 +232,8 @@ export default function DistrictSkillMatrix() {
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute bottom-0 text-center">
-                            <span className="text-3xl font-bold text-gray-800">{data.overall_score}</span>
-                            <p className={`text-sm font-bold`} style={{ color: getScoreColor(data.overall_score) }}>{data.maturity_level}</p>
+                            <span className="text-3xl font-bold text-gray-800">{matrixData.overall_score}</span>
+                            <p className={`text-sm font-bold`} style={{ color: getScoreColor(matrixData.overall_score) }}>{matrixData.maturity_level}</p>
                         </div>
                     </div>
                 </div>
@@ -192,10 +246,10 @@ export default function DistrictSkillMatrix() {
                             <BarChart
                                 layout="vertical"
                                 data={[
-                                    { name: "Bottom District", score: data.benchmark_scores.bottom_district, fill: "#f87171" },
-                                    { name: "State Average", score: data.benchmark_scores.state_average, fill: "#6b7280" },
-                                    { name: "Dakshina Kannada", score: data.overall_score, fill: "#3b82f6" },
-                                    { name: "Top District", score: data.benchmark_scores.top_district, fill: "#10b981" },
+                                    { name: "Bottom District", score: matrixData.benchmark_scores.bottom_district, fill: "#f87171" },
+                                    { name: "State Average", score: matrixData.benchmark_scores.state_average, fill: "#6b7280" },
+                                    { name: "Dakshina Kannada", score: matrixData.overall_score, fill: "#3b82f6" },
+                                    { name: "Top District", score: matrixData.benchmark_scores.top_district, fill: "#10b981" },
                                 ]}
                                 margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
                                 barSize={20}
@@ -247,7 +301,7 @@ export default function DistrictSkillMatrix() {
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 layout="vertical"
-                                data={data.dimensions}
+                                data={matrixData.dimensions}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                 barSize={20}
                             >
@@ -256,7 +310,7 @@ export default function DistrictSkillMatrix() {
                                 <YAxis dataKey="category" type="category" width={140} tick={{ fontSize: 11 }} />
                                 <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                                 <Bar dataKey="score" radius={[0, 4, 4, 0]} name="Score">
-                                    {data.dimensions.map((entry, index) => (
+                                    {matrixData.dimensions.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={getScoreColor(entry.score)} />
                                     ))}
                                 </Bar>
@@ -271,7 +325,7 @@ export default function DistrictSkillMatrix() {
                 <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Indicator Heat Map</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        {data.dimensions.map((dim, idx) => (
+                        {matrixData.dimensions.map((dim, idx) => (
                             <div key={idx} className="border border-gray-100 rounded-lg p-3 hover:shadow-sm transition-shadow">
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-semibold text-sm text-gray-700">{dim.category}</h4>
@@ -311,8 +365,8 @@ export default function DistrictSkillMatrix() {
                                 <YAxis type="number" dataKey="impact" name="Impact" unit="%" label={{ value: 'Impact', angle: -90, position: 'insideLeft' }} />
                                 <ZAxis range={[100, 300]} />
                                 <RechartsTooltip cursor={{ strokeDasharray: '3 3' }} />
-                                <Scatter name="Projects" data={data.priority_matrix} fill="#8884d8">
-                                    {data.priority_matrix.map((entry, index) => (
+                                <Scatter name="Projects" data={matrixData.priority_matrix} fill="#8884d8">
+                                    {matrixData.priority_matrix.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.impact > 80 && entry.effort < 60 ? '#10b981' : '#3b82f6'} />
                                     ))}
                                 </Scatter>

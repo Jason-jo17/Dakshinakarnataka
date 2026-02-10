@@ -1,14 +1,14 @@
 import React from 'react';
 import type { Institution } from '../../types/institution';
-import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap, LogIn, LogOut } from 'lucide-react';
+import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap, LogIn, LogOut, Key } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 
 interface SidebarProps {
     institutions: Institution[];
     selectedId: string | null;
     onSelect: (id: string) => void;
-    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel';
-    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel') => void;
+    currentView: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel' | 'credential-manager';
+    onViewChange: (view: 'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel' | 'credential-manager') => void;
     showHeatmap: boolean;
     onToggleHeatmap: () => void;
     isDarkMode: boolean;
@@ -102,6 +102,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <MenuItem view="forecast" icon={PieChart} label="Forecast" />
                 <MenuItem view="centers" icon={MapPin} label="Career Centers (GCC)" />
                 <MenuItem view="reports" icon={FileText} label="Reports" />
+
+                <div className="my-2 border-t border-slate-200 dark:border-slate-800 mx-4"></div>
+                <div className="my-2 text-xs font-semibold text-icon uppercase tracking-wider px-4">Admin</div>
+                <MenuItem view="credential-manager" icon={Key} label="Credential Manager" />
 
                 <div className="my-2 border-t border-slate-200 dark:border-slate-800 mx-4"></div>
                 <div className="my-2 text-xs font-semibold text-icon uppercase tracking-wider px-4">AI Assistance</div>

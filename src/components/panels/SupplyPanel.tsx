@@ -3,31 +3,12 @@ import { Users, GraduationCap, Award, CheckCircle, MapPin } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
+import { supabase } from '../../lib/supabaseClient';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useState, useEffect } from "react";
 import StatCard from "../StatCard";
 
-// Consolidated Data for 17 DK Institutions
-const dashboardData = {
-    // Supply metrics calculated dynamically below
-    institutions: [
-        { id: 1, name: "NITK Surathkal", taluk: "Surathkal", total_students: 4500, placed_students: 756, placement_rate: 93, highest_package: 55.0, swtt_level: 4, nirf_rank: 17 },
-        { id: 2, name: "Alva's Inst. of Engg", taluk: "Moodbidri", total_students: 3200, placed_students: 680, placement_rate: 85, highest_package: 21.0, swtt_level: 3 },
-        { id: 3, name: "St. Joseph Engg College", taluk: "Vamanjoor", total_students: 2800, placed_students: 546, placement_rate: 78, highest_package: 24.5, swtt_level: 3 },
-        { id: 4, name: "Sahyadri College", taluk: "Adyar", total_students: 3000, placed_students: 585, placement_rate: 78, highest_package: 72.0, swtt_level: 3 }, // Updated to 72.0
-        { id: 5, name: "Mangalore Inst. (MITE)", taluk: "Moodbidri", total_students: 2800, placed_students: 532, placement_rate: 76, highest_package: 28.0, swtt_level: 3 },
-        { id: 6, name: "Srinivas Inst. (Valachil)", taluk: "Valachil", total_students: 2500, placed_students: 447, placement_rate: 86.9, highest_package: 18.0, swtt_level: 2 }, // Updated to 86.9
-        { id: 7, name: "Yenepoya Inst. (YIT)", taluk: "Moodbidri", total_students: 1800, placed_students: 360, placement_rate: 65, highest_package: 12.0, swtt_level: 2 },
-        { id: 8, name: "Canara Engineering", taluk: "Benjanapadavu", total_students: 2000, placed_students: 325, placement_rate: 65, highest_package: 15.0, swtt_level: 2 },
-        { id: 9, name: "PA College of Engg", taluk: "Nadupadavu", total_students: 2200, placed_students: 385, placement_rate: 62, highest_package: 10.0, swtt_level: 2 },
-        { id: 10, name: "AJ Inst. of Engg", taluk: "Boloor", total_students: 1800, placed_students: 270, placement_rate: 60, highest_package: 8.5, swtt_level: 2 },
-        { id: 11, name: "Vivekananda (VCET)", taluk: "Puttur", total_students: 1600, placed_students: 240, placement_rate: 60, highest_package: 9.0, swtt_level: 2 },
-        { id: 12, name: "SDM Inst. (SDMIT)", taluk: "Ujire", total_students: 1500, placed_students: 225, placement_rate: 60, highest_package: 10.0, swtt_level: 2 },
-        { id: 13, name: "Srinivas Univ. (SUIET)", taluk: "Mukka", total_students: 1200, placed_students: 180, placement_rate: 60, highest_package: 10.0, swtt_level: 2 },
-        { id: 14, name: "Shree Devi Inst.", taluk: "Kenjar", total_students: 1200, placed_students: 174, placement_rate: 58, highest_package: 6.5, swtt_level: 1 },
-        { id: 15, name: "Bearys Inst. (BIT)", taluk: "Innoli", total_students: 800, placed_students: 110, placement_rate: 55, highest_package: 6.0, swtt_level: 1 },
-        { id: 16, name: "KVG College", taluk: "Sullia", total_students: 1000, placed_students: 125, placement_rate: 50, highest_package: 5.0, swtt_level: 1 },
-        { id: 17, name: "Karavali Inst.", taluk: "Neermarga", total_students: 800, placed_students: 90, placement_rate: 45, highest_package: 4.0, swtt_level: 1 },
-    ]
-};
+
 
 // Internal StatCard component
 // Internal StatCard component removed in favor of shared component
@@ -42,28 +23,92 @@ interface PanelProps {
     };
 }
 
+interface InstitutionData {
+    id: string;
+    name: string;
+    taluk: string;
+    total_students: number;
+    placed_students: number;
+    placement_rate: number;
+    highest_package: number;
+    swtt_level: number;
+    nirf_rank?: number;
+}
+
 export default function SupplyPanel({ filters }: PanelProps) {
-    // Filter institutions based on props
-    const filteredInstitutions = dashboardData.institutions.filter(inst => {
-        let matches = true;
+    const { currentDistrict } = useAuthStore();
+    const [schemeCapacity, setSchemeCapacity] = useState<number>(0);
+    const [institutions, setInstitutions] = useState<InstitutionData[]>([]);
 
-        // Institution Name Filter
-        if (filters.institution !== 'all' && inst.name !== filters.institution) matches = false;
+    useEffect(() => {
+        const fetchInstitutionData = async () => {
+            // Fetch from district_training_centers
+            // Note: real table might not have 'highest_package' or 'nirf_rank' yet, so we'll mock or default them
+            const { data, error } = await supabase
+                .from('district_training_centers')
+                .select('*')
+                .eq('district', currentDistrict || 'Dakshina Kannada');
 
-        // Taluk/Location logic could be here if we had a Taluk filter. 
-        // For Sector/Industry: Since our mock data doesn't explicitly have 'sector' on institutions, 
-        // we generally assume all these engineering colleges supply to IT/Manufacturing.
-        // But if 'Healthcare' is selected, maybe we should show nothing or specific ones? 
-        // For this demo, let's assume if 'Healthcare' is picked, we filter out Engineering colleges if we had metadata.
-        // Currently, we'll focus on the 'Institution' filter which is very direct.
+            if (data) {
+                const mapped = data.map((d: any) => {
+                    const total = d.trained_last_year || 0;
+                    const placed = d.placed_last_year || 0;
+                    const rate = total > 0 ? Math.round((placed / total) * 100) : 0;
 
-        return matches;
+                    // Mocking some fields for visualization richness if they don't exist in the simple table yet
+                    const mockPackage = rate > 80 ? 12.5 : rate > 60 ? 6.5 : 3.5;
+                    const level = rate > 80 ? 4 : rate > 60 ? 3 : rate > 40 ? 2 : 1;
+
+                    return {
+                        id: d.id,
+                        name: d.training_center_name,
+                        taluk: d.block || 'Mangaluru', // Default if missing
+                        total_students: total,
+                        placed_students: placed,
+                        placement_rate: rate,
+                        highest_package: mockPackage, // Placeholder
+                        swtt_level: level,
+                        nirf_rank: d.training_center_name.includes('NITK') ? 17 : undefined
+                    };
+                });
+                setInstitutions(mapped);
+            }
+        };
+
+        const fetchSchemeData = async () => {
+            if (!currentDistrict) return;
+
+            const { data, error } = await supabase
+                .from('district_schemes')
+                .select('annual_intake')
+                .eq('district_name', currentDistrict);
+
+            if (error) {
+                console.error('Error fetching scheme data:', error);
+                return;
+            }
+
+            if (data) {
+                const total = data.reduce((sum, row) => sum + (row.annual_intake || 0), 0);
+                setSchemeCapacity(total);
+            }
+        };
+
+        fetchSchemeData();
+        fetchInstitutionData();
+    }, [currentDistrict]);
+
+    // Filter institutions
+    const filteredInstitutions = institutions.filter(inst => {
+        if (filters.institution !== 'all' && inst.name !== filters.institution) return false;
+        return true;
     });
 
     // Recalculate dynamic stats based on filtered list
     const totalStudents = filteredInstitutions.reduce((acc, curr) => acc + curr.total_students, 0);
     const annualGraduates = Math.round(totalStudents / 4);
-    const certifiedStudents = Math.round(annualGraduates * 0.6);
+    // const certifiedStudents = Math.round(annualGraduates * 0.6); // Replaced with real scheme data
+
     // Average placement rate for the filtered set
     const avgReadiness = filteredInstitutions.length > 0
         ? Math.round(filteredInstitutions.reduce((acc, curr) => acc + (curr.placement_rate || 0), 0) / filteredInstitutions.length)
@@ -144,8 +189,8 @@ export default function SupplyPanel({ filters }: PanelProps) {
                     color="indigo"
                 />
                 <StatCard
-                    title="Trained/Certified"
-                    value={certifiedStudents.toLocaleString()}
+                    title="Govt. Scheme Capacity"
+                    value={schemeCapacity.toLocaleString()}
                     icon={Award}
                     color="green"
                 />
@@ -256,7 +301,7 @@ export default function SupplyPanel({ filters }: PanelProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {dashboardData.institutions
+                            {filteredInstitutions
                                 .sort((a, b) => b.placement_rate - a.placement_rate)
                                 .map((inst, i) => (
                                     <TableRow key={inst.id} className={i < 1 ? 'bg-green-50/50 dark:bg-green-900/10' : i < 5 ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}>

@@ -2,7 +2,6 @@
 import {
   Building2,
   GraduationCap,
-  Briefcase,
   Network,
   ArrowLeft,
   Plus,
@@ -12,7 +11,7 @@ import {
 
 interface DataEntryPortalProps {
   onBack: () => void;
-  onAction: (action: 'institution' | 'company' | 'job' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix') => void;
+  onAction: (action: 'institution' | 'company' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand') => void;
 }
 
 export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalProps) {
@@ -49,14 +48,7 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       color: 'bg-blue-100 text-blue-600',
       actionId: 'company'
     },
-    {
-      id: 'job',
-      title: 'Post New Job',
-      description: 'Create a new job opening or internship opportunity.',
-      icon: Briefcase,
-      color: 'bg-indigo-100 text-indigo-600',
-      actionId: 'job'
-    },
+
     {
       id: 'coe',
       title: 'Add CoE',
@@ -112,6 +104,14 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       icon: Calculator,
       color: 'bg-teal-100 text-teal-600',
       actionId: 'district-skill-matrix'
+    },
+    {
+      id: 'aggregate-demand',
+      title: 'Aggregate Demand',
+      description: 'Surveys, Skill Gap Studies, and Macro Analysis.',
+      icon: Building2,
+      color: 'bg-blue-100 text-blue-600',
+      actionId: 'aggregate-demand'
     }
   ] as const;
 

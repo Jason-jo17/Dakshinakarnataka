@@ -3,6 +3,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Briefcase, Users, TrendingUp, DollarSign, Activity, Percent } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { dashboardData } from '../../data/dashboardData';
+import { supabase } from '../../lib/supabaseClient';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useState, useEffect } from "react";
 
 interface PanelProps {
     filters: {
@@ -40,6 +43,32 @@ export default function OverviewPanel({ filters }: PanelProps) {
     // If Industry filter is active, further narrow down if possible, or just rely on Sector for this high-level view.
     // If Institution is filtered, this high-level view might not change much unless we aggregate from specific institution data.
     // For now, let's make sure at least Sector filters work visibly.
+
+    const { currentDistrict } = useAuthStore();
+    const [schemeCapacity, setSchemeCapacity] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchSchemeData = async () => {
+            if (!currentDistrict) return;
+
+            const { data, error } = await supabase
+                .from('district_schemes')
+                .select('annual_intake')
+                .eq('district_name', currentDistrict);
+
+            if (error) {
+                console.error('Error fetching scheme data:', error);
+                return;
+            }
+
+            if (data) {
+                const total = data.reduce((sum, row) => sum + (row.annual_intake || 0), 0);
+                setSchemeCapacity(total);
+            }
+        };
+
+        fetchSchemeData();
+    }, [currentDistrict]);
 
     const readinessData = [
         { name: 'Job Ready', value: 72, color: '#22c55e' },
@@ -204,9 +233,9 @@ export default function OverviewPanel({ filters }: PanelProps) {
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
                     <CardContent className="p-4 text-center">
                         <div className="text-3xl font-bold text-green-700 dark:text-green-400">
-                            {dashboardData.supply.certifiedStudents.toLocaleString()}
+                            {schemeCapacity.toLocaleString()}
                         </div>
-                        <div className="text-xs text-green-600 dark:text-green-300 mt-1">Certified/Trained Students</div>
+                        <div className="text-xs text-green-600 dark:text-green-300 mt-1">Govt. Scheme Capacity</div>
                     </CardContent>
                 </Card>
 

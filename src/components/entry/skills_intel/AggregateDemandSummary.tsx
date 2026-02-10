@@ -13,7 +13,8 @@ import { AIInsights } from '../../common/AIInsights';
 
 import AggregateDemand from '../../dashboards/AggregateDemand';
 import AggregateDemandComparison from '../../dashboards/AggregateDemandComparison';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabaseClient';
 
 // ... (keep MOCK DATA as is, I will skip re-writing it in this replacement block if possible, but replace_file_content works on lines)
 // wait, I can't skip lines easily with replace_file_content if I'm doing a big move.
@@ -150,6 +151,87 @@ const PyramidTooltip = ({ active, payload, label }: any) => {
 
 export default function AggregateDemandSummary() {
     const [metricType, setMetricType] = useState<'abs' | 'pct'>('abs');
+    const [dashboardData, setDashboardData] = useState(DASHBOARD_DATA);
+    const [waterfallDataState, setWaterfallDataState] = useState(waterfallData);
+
+    useEffect(() => {
+        fetchRealData();
+    }, []);
+
+    const fetchRealData = async () => {
+        try {
+            const { data } = await supabase
+                .from('ad_survey_employer')
+                .select('expected_recruit_num');
+
+            if (data) {
+                const totalSurveyDemand = data.reduce((sum, item) => sum + (Number(item.expected_recruit_num) || 0), 0);
+
+                // Update specific source: "Employer Survey"
+                const updatedSources = DASHBOARD_DATA.demand_by_source.map(s => {
+                    if (s.source === "Employer Survey") {
+                        return { ...s, demand: totalSurveyDemand };
+                    }
+                    return s;
+                });
+
+                // Recalculate Total Demand based on new survey data
+                // Others are still mock, so we sum them up
+                const otherSourcesDemand = updatedSources
+                    .filter(s => s.source !== "Employer Survey")
+                    .reduce((sum, s) => sum + s.demand, 0);
+
+                const newTotalDemand = totalSurveyDemand + otherSourcesDemand;
+
+                // Update Percentage
+                const finalSources = updatedSources.map(s => ({
+                    ...s,
+                    percentage: newTotalDemand > 0 ? Number(((s.demand / newTotalDemand) * 100).toFixed(1)) : 0
+                }));
+
+                const newDashboardData = {
+                    ...DASHBOARD_DATA,
+                    total_demand: newTotalDemand,
+                    demand_by_source: finalSources
+                };
+
+                setDashboardData(newDashboardData);
+
+                // Calculate Waterfall Data
+                // Order: Employer -> GPDP -> Macro -> Govt -> Yield -> Total
+                // We need to accumulate start values
+                let currentStart = 0;
+                const wfData: any[] = finalSources.map(s => {
+                    const item = {
+                        name: s.source.split(' ')[0], // Short name
+                        uv: s.demand,
+                        start: currentStart,
+                        fill: s.source === 'Employer Survey' ? '#3b82f6' :
+                            s.source.includes('GPDP') ? '#f59e0b' :
+                                s.source.includes('Macro') ? '#10b981' :
+                                    s.source.includes('Govt') ? '#6366f1' : '#f87171'
+                    };
+                    currentStart += s.demand;
+                    return item;
+                });
+
+                // Add Total Column
+                wfData.push({
+                    name: 'Total',
+                    uv: newTotalDemand,
+                    start: 0,
+                    fill: '#1e293b',
+                    isTotal: true
+                });
+
+                setWaterfallDataState(wfData);
+            }
+        } catch (e) {
+            console.error("Error fetching dashboard data", e);
+        }
+    };
+
+    const displayData = dashboardData;
 
     return (
         <div className="flex flex-col h-screen bg-slate-50 font-sans overflow-hidden">
@@ -169,7 +251,7 @@ export default function AggregateDemandSummary() {
                                 <Globe className="w-4 h-4" />
                                 <span>Dakshina Kannada</span>
                                 <span className="text-slate-300">|</span>
-                                <span>FY {DASHBOARD_DATA.year}</span>
+                                <span>FY {displayData.year}</span>
                             </div>
                             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Consolidated Demand Model <span className="text-blue-600">(5-Source)</span></h1>
                         </div>
@@ -205,10 +287,12 @@ export default function AggregateDemandSummary() {
                                 <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Forecasted Demand</div>
                                 <Users className="w-5 h-5 text-blue-600" />
                             </div>
-                            <div className="text-3xl font-bold text-slate-900 mb-2">{DASHBOARD_DATA.kpi.forecast.value}</div>
+                            {/* Display real total demand if updated, else forecast */}
+                            {/* For our specific update, we want the total_demand we calculated */}
+                            <div className="text-3xl font-bold text-slate-900 mb-2">{displayData.total_demand.toLocaleString()}</div>
                             <div className="flex items-center gap-1 text-xs font-semibold text-green-600">
                                 <TrendingUp className="w-4 h-4" />
-                                {DASHBOARD_DATA.kpi.forecast.trend}
+                                {displayData.kpi.forecast.trend}
                             </div>
                         </div>
 
@@ -218,9 +302,9 @@ export default function AggregateDemandSummary() {
                                 <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">High-Growth Sector</div>
                                 <Bolt className="w-5 h-5 text-blue-600" />
                             </div>
-                            <div className="text-xl font-bold text-slate-900 mb-3 truncate">{DASHBOARD_DATA.kpi.growth_sector.name}</div>
+                            <div className="text-xl font-bold text-slate-900 mb-3 truncate">{displayData.kpi.growth_sector.name}</div>
                             <div className="flex items-center gap-1 text-xs text-slate-500">
-                                {DASHBOARD_DATA.kpi.growth_sector.growth}
+                                {displayData.kpi.growth_sector.growth}
                             </div>
                         </div>
 
@@ -230,10 +314,10 @@ export default function AggregateDemandSummary() {
                                 <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">Job Postings Volume</div>
                                 <ClipboardList className="w-5 h-5 text-blue-600" />
                             </div>
-                            <div className="text-2xl font-bold text-slate-900 mb-2">{DASHBOARD_DATA.kpi.postings.value}</div>
+                            <div className="text-2xl font-bold text-slate-900 mb-2">{displayData.kpi.postings.value}</div>
                             <div className="flex items-center gap-1 text-xs font-semibold text-red-500">
                                 <TrendingDown className="w-4 h-4" />
-                                {DASHBOARD_DATA.kpi.postings.gap}
+                                {displayData.kpi.postings.gap}
                             </div>
                         </div>
 
@@ -243,10 +327,10 @@ export default function AggregateDemandSummary() {
                                 <div className="text-slate-500 text-xs font-bold uppercase tracking-wider">Model Reliability</div>
                                 <ShieldCheck className="w-5 h-5 text-blue-600" />
                             </div>
-                            <div className="text-3xl font-bold text-slate-900 mb-2">{DASHBOARD_DATA.kpi.reliability.value}</div>
+                            <div className="text-3xl font-bold text-slate-900 mb-2">{displayData.kpi.reliability.value}</div>
                             <div className="flex items-center gap-1 text-xs font-semibold text-green-600">
                                 <CheckCircle className="w-4 h-4" />
-                                {DASHBOARD_DATA.kpi.reliability.verified}
+                                {displayData.kpi.reliability.verified}
                             </div>
                         </div>
 
@@ -269,7 +353,7 @@ export default function AggregateDemandSummary() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                     layout="vertical"
-                                    data={DASHBOARD_DATA.population_pyramid}
+                                    data={displayData.population_pyramid}
                                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                     stackOffset="sign"
                                 >
@@ -301,7 +385,7 @@ export default function AggregateDemandSummary() {
                             </div>
                             <div className="h-72 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={waterfallData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                    <BarChart data={waterfallDataState} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                         <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                                         <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -311,7 +395,7 @@ export default function AggregateDemandSummary() {
                                         />
                                         <Bar dataKey="start" stackId="a" fill="transparent" />
                                         <Bar dataKey="uv" stackId="a" radius={[4, 4, 0, 0]}>
-                                            {waterfallData.map((entry, index) => (
+                                            {waterfallDataState.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.fill} />
                                             ))}
                                         </Bar>
@@ -327,7 +411,7 @@ export default function AggregateDemandSummary() {
                                 <PieChartIcon className="w-5 h-5 text-slate-400" />
                             </div>
                             <div className="space-y-4">
-                                {DASHBOARD_DATA.demand_by_source.map((item, idx) => (
+                                {displayData.demand_by_source.map((item, idx) => (
                                     <div key={idx} className="group cursor-pointer">
                                         <div className="flex justify-between text-sm mb-1.5">
                                             <span className="font-medium text-slate-700 group-hover:text-blue-600 transition-colors">{item.source}</span>
@@ -367,7 +451,7 @@ export default function AggregateDemandSummary() {
                             {/* 1. Sources */}
                             <div className="flex flex-col justify-center gap-2 z-10">
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Sources</div>
-                                {DASHBOARD_DATA.demand_by_source.slice(0, 3).map((s, i) => (
+                                {displayData.demand_by_source.slice(0, 3).map((s, i) => (
                                     <div key={i} className="bg-slate-50 border border-slate-200 p-3 rounded-lg flex justify-between items-center shadow-sm relative group hover:border-blue-400 transition-colors">
                                         <span className="text-xs font-bold text-slate-700">{s.source}</span>
                                         <span className="text-xs text-slate-400">{s.percentage}%</span>
@@ -388,7 +472,7 @@ export default function AggregateDemandSummary() {
                             {/* 2. Sectors */}
                             <div className="flex flex-col justify-center gap-1 z-10">
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Key Sectors</div>
-                                {DASHBOARD_DATA.demand_by_sector.slice(0, 5).map((s, i) => (
+                                {displayData.demand_by_sector.slice(0, 5).map((s, i) => (
                                     <div key={i} className={`p-2 rounded flex justify-between items-center text-xs text-white shadow-sm ${i === 0 ? 'bg-blue-600' :
                                         i === 1 ? 'bg-teal-500' :
                                             i === 2 ? 'bg-purple-500' :
@@ -403,7 +487,7 @@ export default function AggregateDemandSummary() {
                             {/* 3. Skill Level */}
                             <div className="flex flex-col justify-center gap-4 z-10">
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">Skill Level</div>
-                                {DASHBOARD_DATA.demand_by_skill_level.map((l, i) => (
+                                {displayData.demand_by_skill_level.map((l, i) => (
                                     <div key={i} className="bg-white border-2 border-slate-100 p-3 rounded-xl shadow-sm text-center relative overflow-hidden">
                                         <div className={`absolute top-0 left-0 w-1 h-full ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-indigo-500' : 'bg-violet-500'
                                             }`}></div>
@@ -427,7 +511,7 @@ export default function AggregateDemandSummary() {
                             <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <Treemap
-                                        data={DASHBOARD_DATA.demand_by_sector.map(s => ({ name: s.sector, size: s.demand }))}
+                                        data={displayData.demand_by_sector.map(s => ({ name: s.sector, size: s.demand }))}
                                         dataKey="size"
                                         aspectRatio={4 / 3}
                                         stroke="#fff"
@@ -445,7 +529,7 @@ export default function AggregateDemandSummary() {
                             </div>
                             <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <ComposedChart layout="vertical" data={DASHBOARD_DATA.demand_by_sector.slice(0, 6)} margin={{ top: 0, right: 20, bottom: 0, left: 30 }}>
+                                    <ComposedChart layout="vertical" data={displayData.demand_by_sector.slice(0, 6)} margin={{ top: 0, right: 20, bottom: 0, left: 30 }}>
                                         <CartesianGrid stroke="#f1f5f9" horizontal={false} />
                                         <XAxis type="number" hide />
                                         <YAxis dataKey="sector" type="category" scale="band" tick={{ fontSize: 10 }} width={80} />
@@ -472,7 +556,7 @@ export default function AggregateDemandSummary() {
                             </div>
                             <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={DASHBOARD_DATA.temporal_distribution} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                                    <AreaChart data={displayData.temporal_distribution} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                                         <defs>
                                             <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
@@ -489,7 +573,7 @@ export default function AggregateDemandSummary() {
                                 </ResponsiveContainer>
                             </div>
                             <div className="mt-4 flex justify-between text-xs text-slate-500">
-                                {DASHBOARD_DATA.temporal_distribution.map((d, i) => (
+                                {displayData.temporal_distribution.map((d, i) => (
                                     <div key={i} className="text-center">
                                         <span className={`block w-2 h-2 rounded-full mx-auto mb-1 ${d.recruitment_season === 'Peak' ? 'bg-green-500' :
                                             d.recruitment_season === 'Medium' ? 'bg-amber-500' : 'bg-slate-300'
@@ -516,7 +600,7 @@ export default function AggregateDemandSummary() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
-                                        {DASHBOARD_DATA.top_20_skills.map((skill, idx) => (
+                                        {displayData.top_20_skills.map((skill, idx) => (
                                             <tr key={idx} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-4 py-3 font-medium text-slate-800 group-hover:text-blue-600 transition-colors">
                                                     {skill.skill}

@@ -72,9 +72,42 @@ interface PanelProps {
     };
 }
 
+import { supabase } from '../../lib/supabaseClient';
+import { useState, useEffect } from "react";
+
 export default function DemandPanel({ filters }: PanelProps) {
     // Suppress unused warning until filter logic is fully implemented
     void filters;
+
+    const [topCompanies, setTopCompanies] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchTopCompanies = async () => {
+            const { data, error } = await supabase
+                .from('ad_survey_employer')
+                .select('employer_name, sector, expected_recruit_job_role, expected_recruit_num')
+                .eq('district_id', 'Dakshina Kannada')
+                .order('expected_recruit_num', { ascending: false })
+                .limit(10);
+
+            if (error) {
+                console.error('Error fetching top companies:', error);
+            }
+
+
+            if (data) {
+                setTopCompanies(data.map(c => ({
+                    company_name: c.employer_name,
+                    sector: c.sector || 'Various',
+                    job_role: c.expected_recruit_job_role || 'Various Roles',
+                    demand_count: c.expected_recruit_num || 0,
+                    company_type: 'Private' // Placeholder or derive if possible
+                })));
+            }
+        };
+
+        fetchTopCompanies();
+    }, []);
 
     // Tree map data from actual Dakshina Kannada job market
     const treeMapData = [
@@ -90,7 +123,7 @@ export default function DemandPanel({ filters }: PanelProps) {
     ];
 
     // Actual companies with job openings
-    const companyDemand = dashboardData.industryDemand.slice(0, 10);
+    const companyDemand = topCompanies.length > 0 ? topCompanies : dashboardData.industryDemand.slice(0, 10);
 
     // Top trending job roles with actual data
     const jobRoles = [

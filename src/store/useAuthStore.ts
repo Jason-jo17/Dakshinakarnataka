@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UserRole = 'super_admin' | 'district_admin' | 'admin' | 'institution' | 'company' | 'coe' | 'guest' | 'trainee';
+export type UserRole = 'super_admin' | 'district_admin' | 'district_team' | 'admin' | 'institution' | 'company' | 'coe' | 'guest' | 'trainee';
 
 export interface User {
     id: string;
     name: string;
     role: UserRole;
+    email?: string;
     managedEntityId?: string | number; // ID of the institution/company/coe they manage
 }
 

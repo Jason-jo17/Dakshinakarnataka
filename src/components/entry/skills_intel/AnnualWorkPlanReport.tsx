@@ -5,9 +5,9 @@ import { CheckCircle, Share, ChevronLeft, ChevronRight, Calendar } from 'lucide-
 
 const data = {
     plan_year: "2024-25",
-    total_budget: 15750000,
+    total_budget: 25750000,
     funding_sources: [
-        { name: "State Budget", value: 8500000, color: "#3b82f6" },
+        { name: "State Budget", value: 18500000, color: "#3b82f6" },
         { name: "SDRF", value: 4200000, color: "#10b981" },
         { name: "Industry", value: 2050000, color: "#f59e0b" },
         { name: "Central", value: 1000000, color: "#6366f1" }
@@ -17,22 +17,24 @@ const data = {
         { month: "May", budget: 14.2 },
         { month: "Jun", budget: 16.8 },
         { month: "Jul", budget: 21.0 },
-        { month: "Aug", budget: 19.5 },
-        { month: "Sep", budget: 15.8 },
-        { month: "Oct", budget: 12.5 },
-        { month: "Nov", budget: 9.8 },
-        { month: "Dec", budget: 12.0 },
-        { month: "Jan", budget: 7.5 },
-        { month: "Feb", budget: 6.5 },
-        { month: "Mar", budget: 3.4 }
+        { month: "Aug", budget: 45.5 }, // Increased for new initiatives starting Aug
+        { month: "Sep", budget: 35.8 },
+        { month: "Oct", budget: 32.5 },
+        { month: "Nov", budget: 29.8 },
+        { month: "Dec", budget: 22.0 },
+        { month: "Jan", budget: 17.5 },
+        { month: "Feb", budget: 16.5 },
+        { month: "Mar", budget: 13.4 }
     ],
     initiatives: [
+        { name: "Placement & Apprenticeship Drive", start: 5, duration: 8, status: "On Track", progress: 0, budget: "50L" },
+        { name: "Digital Outreach (CCTV/Biometric)", start: 5, duration: 8, status: "Planning", progress: 0, budget: "5L" },
+        { name: "CEDOK Self-Employment", start: 5, duration: 8, status: "On Track", progress: 0, budget: "15L" },
+        { name: "Interdepartmental Online Portal", start: 5, duration: 8, status: "Planning", progress: 0, budget: "30L" },
         { name: "IT Skilling Center", start: 1, duration: 6, status: "In Progress", progress: 40 },
         { name: "Healthcare Training", start: 3, duration: 10, status: "Planning", progress: 10 },
         { name: "CNC Manufacturing", start: 2, duration: 8, status: "In Progress", progress: 30 },
-        { name: "Trainer Capacity", start: 1, duration: 12, status: "On Track", progress: 25 },
-        { name: "Industry Connect", start: 1, duration: 12, status: "On Track", progress: 20 },
-        { name: "Digital Upgrade", start: 4, duration: 8, status: "Delayed", progress: 5 }
+        { name: "Recruiter Pilot Program (InUnity)", start: 6, duration: 7, status: "Active", progress: 85, budget: "12L" }
     ]
 };
 
@@ -145,7 +147,7 @@ export default function AnnualWorkPlanReport() {
                             <div className="col-span-3 pl-2">
                                 <div className="font-medium text-sm text-gray-900">{item.name}</div>
                                 <div className={`text-[10px] w-fit px-1.5 py-0.5 rounded mt-1 ${(STATUS_COLORS as any)[item.status]}`}>
-                                    {item.status} • {item.progress}%
+                                    {item.status} • {item.progress}% {(item as any).budget && `• ₹${(item as any).budget}`}
                                 </div>
                             </div>
 
