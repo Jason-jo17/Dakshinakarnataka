@@ -52,12 +52,11 @@ interface EmployerSurveyData {
 }
 
 export default function EmployerSurveyForm() {
-    const { logout, user, setVerified } = useAuthStore();
+    const { logout, user } = useAuthStore();
     const { generateCredential } = useCredentialStore();
     const { companyName: urlCompanyName, role: urlRole } = useParams();
     const [activeSection, setActiveSection] = useState<number>(1);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-    const [isVerifying, setIsVerifying] = useState(false);
     const [requestedCreds, setRequestedCreds] = useState<GeneratedCredential | null>(null);
     const [isRequestingCreds, setIsRequestingCreds] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -99,10 +98,6 @@ export default function EmployerSurveyForm() {
     const [pastHiring, setPastHiring] = useState<JobRoleHistory[]>([]);
     const [futureHiring, setFutureHiring] = useState<JobRoleFuture[]>([]);
 
-    // Delegate State
-    const [isDelegateMode, setIsDelegateMode] = useState(false);
-    const [delegateEmail, setDelegateEmail] = useState('');
-    const [delegationStatus, setDelegationStatus] = useState<'none' | 'pending' | 'filled' | 'approved'>('none');
 
 
 
@@ -113,14 +108,47 @@ export default function EmployerSurveyForm() {
             const identifier = user?.id || localStorage.getItem('employer_survey_session_id');
             if (!identifier) return;
 
-            const { data, error } = await supabase
+            let query = supabase
                 .from('user_drafts')
                 .select('state')
-                .eq(user ? 'user_id' : 'guest_id', identifier)
-                .eq('form_type', 'employer_survey')
+                .eq('form_type', 'employer_survey');
+
+            // Build or filter safely
+            const orConditions = [];
+            if (user) {
+                orConditions.push(`user_id.eq.${identifier}`);
+                orConditions.push(`user_id.eq.${user.name}`);
+            } else {
+                orConditions.push(`guest_id.eq.${identifier}`);
+            }
+
+            // ONLY include UUID check if the DB haven't been migrated yet 
+            // but we want to be as broad as possible to find the draft on any PC
+            const { data, error } = await query
+                .or(orConditions.join(','))
                 .maybeSingle();
 
             if (error) {
+                // If it fails with 22P02, retry with name only
+                if (error.code === '22P02' && user) {
+                    console.warn('UUID mismatch in draft lookup, retrying with name-only...');
+                    const { data: retryData } = await supabase
+                        .from('user_drafts')
+                        .select('state')
+                        .eq('user_id', user.name)
+                        .eq('form_type', 'employer_survey')
+                        .maybeSingle();
+                    if (retryData) {
+                        try {
+                            const { formData: savedForm, pastHiring: savedPast, futureHiring: savedFuture } = retryData.state;
+                            if (savedForm) setFormData(prev => ({ ...prev, ...savedForm }));
+                            if (savedPast) setPastHiring(savedPast);
+                            if (savedFuture) setFutureHiring(savedFuture);
+                            setDraftSavedAt('Restored (Name-match)');
+                        } catch (e) { }
+                    }
+                    return;
+                }
                 console.error('Failed to fetch draft:', error);
                 return;
             }
@@ -142,29 +170,40 @@ export default function EmployerSurveyForm() {
         loadDraftFromDB();
     }, [user, guestSessionId]);
 
+    const handleSaveDraft = async (manual = false) => {
+        const identifier = user?.id || guestSessionId;
+        if (!identifier) return;
+
+        if (manual) setSaveStatus('saving');
+        const draftState = { formData, pastHiring, futureHiring };
+        const { error } = await supabase
+            .from('user_drafts')
+            .upsert({
+                [user ? 'user_id' : 'guest_id']: identifier,
+                form_type: 'employer_survey',
+                state: draftState,
+                updated_at: new Date().toISOString()
+            }, { onConflict: user ? 'user_id,form_type' : 'guest_id,form_type' });
+
+        if (!error) {
+            setDraftSavedAt(new Date().toLocaleTimeString());
+            if (manual) {
+                setTimeout(() => setSaveStatus('idle'), 2000);
+                alert("Draft saved successfully!");
+            }
+        } else {
+            console.error('Save draft error:', error);
+            if (manual) {
+                setSaveStatus('idle');
+                alert("Failed to save draft. Check console for details.");
+            }
+        }
+    };
+
     // Auto-save to DB
     useEffect(() => {
         if (!isSubmitted) {
-            const timer = setTimeout(async () => {
-                const identifier = user?.id || guestSessionId;
-                if (!identifier) return;
-
-                const draftState = { formData, pastHiring, futureHiring };
-                const { error } = await supabase
-                    .from('user_drafts')
-                    .upsert({
-                        [user ? 'user_id' : 'guest_id']: identifier,
-                        form_type: 'employer_survey',
-                        state: draftState,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: user ? 'user_id,form_type' : 'guest_id,form_type' }); // Note: unique constraint needed on DB for this to work perfectly
-
-                if (!error) {
-                    setDraftSavedAt(new Date().toLocaleTimeString());
-                } else {
-                    console.error('Auto-save error:', error);
-                }
-            }, 2000); // 2 second delay
+            const timer = setTimeout(() => handleSaveDraft(false), 2000); // 2 second delay
             return () => clearTimeout(timer);
         }
     }, [formData, pastHiring, futureHiring, isSubmitted, user, guestSessionId]);
@@ -206,12 +245,22 @@ export default function EmployerSurveyForm() {
 
     // Master Table State
     const [surveyData, setSurveyData] = useState<any[]>([]);
+
+    // Debug state changes
+    useEffect(() => {
+        if (surveyData.length > 0) {
+            console.log("📈 surveyData updated with", surveyData.length, "items.");
+        }
+    }, [surveyData]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [sessionSubmissionIds, setSessionSubmissionIds] = useState<string[]>([]);
+    const [sessionSubmissionIds, setSessionSubmissionIds] = useState<string[]>(() => {
+        const saved = localStorage.getItem('employer_survey_session_ids');
+        return saved ? JSON.parse(saved) : [];
+    });
 
     useEffect(() => {
-        fetchSurveyData();
+        fetchSurveyData(sessionSubmissionIds);
         if (user?.role === 'company') {
             fetchExistingCompanyData();
         }
@@ -220,49 +269,65 @@ export default function EmployerSurveyForm() {
     const fetchExistingCompanyData = async () => {
         if (!user) return;
         try {
-            const { data, error } = await supabase
+            console.log("Searching for existing data for:", user.name);
+
+            // Helper to check if string is UUID
+            const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
+            let existingSurvey = null;
+
+            // Priority 1: Match by NAME (Most reliable for companies across PCs)
+            const { data: nameMatch } = await supabase
                 .from('ad_survey_employer')
                 .select('*')
-                .eq('created_by_credential_id', user.id)
+                .ilike('employer_name', `%${user.name}%`)
                 .order('created_at', { ascending: false })
                 .limit(1)
-                .single();
+                .maybeSingle();
 
-            if (data && !error) {
+            existingSurvey = nameMatch;
+
+            // Priority 2: Match by credential ID IF it's a valid UUID (fallback)
+            if (!existingSurvey && isUUID(user.id)) {
+                const { data } = await supabase
+                    .from('ad_survey_employer')
+                    .select('*')
+                    .eq('created_by_credential_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                existingSurvey = data;
+            }
+
+            if (existingSurvey) {
+                console.log("Found existing survey data, auto-filling...");
                 setFormData({
-                    companyName: data.employer_name || '',
-                    registrationNumber: data.registration_number || '',
-                    companyType: data.company_type || '',
-                    industrySector: data.sector || '',
-                    subSector: data.sub_sector || '',
-                    businessActivity: data.business_activity || '',
-                    officeAddress: data.employer_address || '',
-                    manufacturingLocation: data.manufacturing_location || '',
-                    district: data.district_id || 'Dakshina Kannada',
-                    state: data.state || 'Karnataka',
-                    contactName: data.contact_person_name || '',
-                    contactDesignation: data.contact_person_designation || '',
-                    contactDepartment: data.contact_department || '',
-                    contactPhone: data.contact_person_phone || '',
-                    contactEmail: data.contact_person_email || ''
+                    companyName: existingSurvey.employer_name || '',
+                    registrationNumber: existingSurvey.registration_number || '',
+                    companyType: existingSurvey.company_type || '',
+                    industrySector: existingSurvey.sector || '',
+                    subSector: existingSurvey.sub_sector || '',
+                    businessActivity: existingSurvey.business_activity || '',
+                    officeAddress: existingSurvey.employer_address || '',
+                    manufacturingLocation: existingSurvey.manufacturing_location || '',
+                    district: existingSurvey.district_id || 'Dakshina Kannada',
+                    state: existingSurvey.state || 'Karnataka',
+                    contactName: existingSurvey.contact_person_name || '',
+                    contactDesignation: existingSurvey.contact_person_designation || '',
+                    contactDepartment: existingSurvey.contact_department || '',
+                    contactPhone: existingSurvey.contact_person_phone || '',
+                    contactEmail: existingSurvey.contact_person_email || ''
                 });
 
-                // Load Delegation State
-                if (data.is_delegated) {
-                    setIsDelegateMode(true);
-                    setDelegateEmail(data.delegate_email || '');
-                    setDelegationStatus(data.delegation_status || 'pending');
-                }
             } else {
-                // FALLBACK: Try to fetch from DIC Master Sheet if no survey submission exists
-                // We match by employer_name which effectively is the user.name for company logins
-                const { data: masterData, error: masterError } = await supabase
+                // FALLBACK: Try to fetch from DIC Master Sheet
+                const { data: masterData } = await supabase
                     .from('dic_master_companies')
                     .select('*')
-                    .eq('employer_name', user.name)
+                    .ilike('employer_name', `%${user.name}%`)
                     .maybeSingle();
 
-                if (masterData && !masterError) {
+                if (masterData) {
                     console.log("Auto-populating from DIC Master Data");
                     setFormData(prev => ({
                         ...prev,
@@ -271,8 +336,9 @@ export default function EmployerSurveyForm() {
                         district: masterData.district_id || prev.district,
                         contactName: masterData.contact_person_name || prev.contactName,
                         contactEmail: masterData.contact_person_email || prev.contactEmail,
+                        contactPhone: masterData.contact_person_phone || prev.contactPhone,
                         registrationNumber: masterData.registration_number || prev.registrationNumber,
-                        // Add address if available in master data in future
+                        officeAddress: masterData.address || prev.officeAddress,
                     }));
                 }
             }
@@ -281,92 +347,99 @@ export default function EmployerSurveyForm() {
         }
     };
 
-    const handleDelegate = async () => {
-        if (!delegateEmail || !formData.companyName) return;
 
-        try {
-            // 1. Ensure we have credentials for the company
-            let credentialsToShare = user;
-            if (!credentialsToShare) {
-                // Generate/Get credentials if guest
-                const cred = await generateCredential({
-                    role: 'company',
-                    entityId: `company-${formData.companyName.toLowerCase().replace(/\s+/g, '-')}`,
-                    entityName: formData.companyName,
-                    email: formData.contactEmail || delegateEmail // Fallback to delegate email if contact missing
-                });
-                credentialsToShare = { ...cred, id: cred.id } as any;
-            }
-
-            // 2. Save Delegation Status to DB
-            // We need to upsert the record first to establish the ID/Record
-
-
-            // Basic Upsert to ensure record exists
-            const { error } = await supabase
-                .from('ad_survey_employer')
-                .upsert({
-                    employer_name: formData.companyName,
-                    // If guest, we might rely on created_by_credential_id if we have it, or just this flag
-                    delegate_email: delegateEmail,
-                    is_delegated: true,
-                    delegation_status: 'pending',
-                    created_by_credential_id: credentialsToShare?.id
-                }, { onConflict: 'employer_name' }) // simplified assumption
-                .select()
-                .single();
-
-            if (error) throw error;
-
-            // 3. Send Email (Mocking the service call for now)
-            console.log(`Sending delegation email to ${delegateEmail} with creds:`, credentialsToShare);
-            await emailService.sendDelegationEmail(delegateEmail, formData.companyName, credentialsToShare);
-
-            alert(`Delegation link sent to ${delegateEmail}!`);
-            setDelegationStatus('pending');
-
-        } catch (error: any) {
-            console.error("Delegation failed:", error);
-            alert("Failed to delegate: " + error.message);
-        }
-    };
-
-    const fetchSurveyData = async () => {
+    const fetchSurveyData = async (manualIds?: string[]) => {
         try {
             setLoading(true);
+            const currentIds = manualIds || sessionSubmissionIds;
+
+            console.log("🔍 Fetching Survey Data...");
+            console.log("User State:", {
+                id: user?.id,
+                name: user?.name,
+                role: user?.role,
+                managedEntityId: user?.managedEntityId
+            });
+            console.log("Session/Manual IDs:", currentIds);
 
             let query = supabase
                 .from('ad_survey_employer')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            // GUEST USER: Can ONLY see submissions from this session
+            // GUEST USER: Can ONLY see submissions from this session/storage
             if (!user) {
-                if (sessionSubmissionIds.length === 0) {
+                if (currentIds.length === 0) {
+                    console.log("⚠️ No IDs for guest, returning empty.");
                     setSurveyData([]);
                     setLoading(false);
                     return;
                 }
-                // Filter to only show session IDs
-                query = query.in('id', sessionSubmissionIds);
+                query = query.in('id', currentIds);
             }
             // LOGGED IN USER: RLS-like logic for Company role
             else if (user?.role === 'company') {
-                const filters = [`created_by_credential_id.eq.${user.id}`];
+                const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
+                // Clean the name for the filter
+                const nameFilter = user.name.replace(/[()]/g, '');
+
+                const filters = [
+                    `employer_name.ilike.%${nameFilter}%`
+                ];
+
+                // ONLY query by ID if it's a valid UUID to prevent PostgREST errors
+                if (isUUID(user.id)) {
+                    filters.push(`created_by_credential_id.eq.${user.id}`);
+                }
+
                 if (user.managedEntityId) {
                     filters.push(`id.eq.${user.managedEntityId}`);
                 }
-                // Also include any session IDs (e.g. if they just created one that hasn't synced yet or similar, though created_by covers it)
-                if (sessionSubmissionIds.length > 0) {
-                    filters.push(`id.in.(${sessionSubmissionIds.join(',')})`);
+
+                if (currentIds.length > 0) {
+                    filters.push(`id.in.(${currentIds.join(',')})`);
                 }
-                query = query.or(filters.join(','));
+
+                const orFilter = filters.join(',');
+                console.log("🛠️ Applying OR Filter:", orFilter);
+                query = query.or(orFilter);
+            }
+            // ADMINS: See everything (Dakshina Kannada default)
+            else {
+                console.log("👑 Admin/Default view, fetching all.");
             }
 
             const { data, error } = await query;
 
-            if (error) throw error;
-            setSurveyData(data || []);
+            if (error) {
+                // If it fails with UUID syntax error (22P02) before migration, retry with name match ONLY
+                if (error.code === '22P02' && user?.role === 'company') {
+                    console.warn('⚠️ UUID syntax error in table query, retrying with Name-only lookup...');
+                    const nameFilter = user.name.replace(/[()]/g, '');
+                    const { data: retryData, error: retryError } = await supabase
+                        .from('ad_survey_employer')
+                        .select('*')
+                        .ilike('employer_name', `%${nameFilter}%`)
+                        .order('created_at', { ascending: false });
+
+                    if (retryError) throw retryError;
+
+                    // Deduplicate by ID just in case
+                    const uniqueData = Array.from(new Map((retryData || []).map(item => [item.id, item])).values());
+
+                    console.log(`✅ Retry Success! Found ${uniqueData.length} unique records.`);
+                    setSurveyData(uniqueData);
+                    return;
+                }
+                console.error('❌ Supabase Query Error:', error);
+                throw error;
+            }
+
+            // Deduplicate by ID for normal queries too
+            const uniqueData = Array.from(new Map((data || []).map(item => [item.id, item])).values());
+            console.log(`✅ Success! Found ${uniqueData.length} unique records.`);
+            setSurveyData(uniqueData);
         } catch (error) {
             console.error('Error fetching survey data:', error);
         } finally {
@@ -459,53 +532,40 @@ export default function EmployerSurveyForm() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleVerifyInformation = async () => {
-        if (!user?.email) {
-            alert("Please ensure your account has an email address associated with it.");
-            return;
-        }
-
-        setIsVerifying(true);
-        try {
-            await emailService.sendVerificationEmail(user.email, user.name);
-            setVerified(true);
-            alert("Information verified and confirmation email sent!");
-        } catch (error) {
-            console.error("Verification failed:", error);
-            alert("Failed to send verification email. Please try again.");
-        } finally {
-            setIsVerifying(false);
-        }
-    };
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this record?')) return;
 
+        console.log("🗑️ Deleting record ID:", id);
         const { error } = await supabase.from('ad_survey_employer').delete().eq('id', id);
 
         if (error) {
             console.error('Error deleting:', error);
-            alert('Failed to delete record');
+            alert(`Failed to delete record: ${error.message}`);
         } else {
+            // Optimistic update
+            setSurveyData(prev => prev.filter(item => item.id !== id));
+            console.log("✅ Record deleted successfully from state.");
+            alert("Record deleted successfully!");
+            // Full refresh to be sure
             fetchSurveyData();
         }
     };
 
     const handleSubmitSurvey = async () => {
+        if (saveStatus === 'saving') return;
         setSaveStatus('saving');
 
         if (editingId) {
-            // For edit, we update the specific record with the first item from the lists
-            // (Assuming edit mode focuses on one row at a time as per table structure)
+            // For edit, we update the primary record (the one clicked)
+            // and if there are more records in the list, we insert them as NEW rows
             const pastItem = pastHiring[0];
             const futureItem = futureHiring[0];
 
-            const updateData = {
+            const primaryUpdateData = {
                 employer_name: formData.companyName,
-                // Auto-advance delegation status
-                delegation_status: delegationStatus === 'pending' ? 'filled' :
-                    delegationStatus === 'filled' ? 'approved' :
-                        delegationStatus,
+                status: 'submitted',
+                submitted_at: new Date().toISOString(),
                 employer_address: formData.officeAddress,
                 registration_number: formData.registrationNumber,
                 company_type: formData.companyType,
@@ -514,6 +574,7 @@ export default function EmployerSurveyForm() {
                 business_activity: formData.businessActivity,
                 manufacturing_location: formData.manufacturingLocation,
                 state: formData.state,
+                created_by_credential_id: user?.id, // Ensure this is captured/updated
 
                 recruited_past_12m_num: pastItem?.num_trainees || 0,
                 recruited_past_12m_avg_salary: pastItem?.avg_salary || 0,
@@ -533,16 +594,46 @@ export default function EmployerSurveyForm() {
                 place_of_recruitment: futureItem?.place_of_deployment || ''
             };
 
-            const { error } = await supabase
+            // 1. Update the original row
+            const { error: updateError } = await supabase
                 .from('ad_survey_employer')
-                .update(updateData)
+                .update(primaryUpdateData)
                 .eq('id', editingId);
 
-            if (error) {
-                console.error('Submission error:', error);
-                alert('Failed to update survey: ' + error.message);
+            if (updateError) {
+                console.error('Update error:', updateError);
+                alert('Failed to update survey: ' + updateError.message);
                 setSaveStatus('idle');
                 return;
+            }
+
+            // 2. Handle ADDITIONAL rows if user added more during edit session
+            const maxRecords = Math.max(pastHiring.length, futureHiring.length);
+            if (maxRecords > 1) {
+                const additionalData = [];
+                for (let i = 1; i < maxRecords; i++) {
+                    const pH = pastHiring[i];
+                    const fH = futureHiring[i];
+                    additionalData.push({
+                        ...primaryUpdateData,
+                        id: undefined, // Let DB generate new UUID
+                        recruited_past_12m_num: pH?.num_trainees || 0,
+                        recruited_past_12m_avg_salary: pH?.avg_salary || 0,
+                        recruited_job_roles: pH?.job_roles || '',
+                        skill_gaps_observed: pH?.has_skill_gaps ? (pH?.skill_gaps || '') : '',
+                        expected_recruit_num: fH?.num_people || 0,
+                        expected_recruit_salary: fH?.salary || 0,
+                        expected_recruit_job_role: fH?.job_role || '',
+                        expected_recruit_qualification: fH?.qualification || '',
+                        place_of_recruitment: fH?.place_of_deployment || ''
+                    });
+                }
+                const { data: newInserted, error: insertError } = await supabase.from('ad_survey_employer').insert(additionalData).select();
+                if (newInserted) {
+                    const newIds = newInserted.map(d => d.id);
+                    setSessionSubmissionIds(prev => [...prev, ...newIds]);
+                }
+                if (insertError) console.error("Error inserting additional rows during edit:", insertError);
             }
         } else {
             // Group hiring records.
@@ -565,6 +656,8 @@ export default function EmployerSurveyForm() {
                     manufacturing_location: formData.manufacturingLocation,
                     state: formData.state,
                     created_by_credential_id: user?.id,
+                    status: 'submitted',
+                    submitted_at: new Date().toISOString(),
 
                     // Recruited Past (if exists)
                     recruited_past_12m_num: pastItem?.num_trainees || 0,
@@ -592,7 +685,12 @@ export default function EmployerSurveyForm() {
 
             if (data) {
                 const newIds = data.map(d => d.id);
-                setSessionSubmissionIds(prev => [...prev, ...newIds]);
+                setSessionSubmissionIds(prev => {
+                    const updated = [...prev, ...newIds];
+                    localStorage.setItem('employer_survey_session_ids', JSON.stringify(updated));
+                    fetchSurveyData(updated); // Immediate fetch with new IDs
+                    return updated;
+                });
             }
             if (error) {
                 console.error('Submission error:', error);
@@ -628,7 +726,6 @@ export default function EmployerSurveyForm() {
             });
         }
 
-        fetchSurveyData();
         if (editingId) setEditingId(null);
         clearDraft(); // Clear local storage after successful submission
         setIsSubmitted(true); // Show acknowledgment screen
@@ -637,25 +734,61 @@ export default function EmployerSurveyForm() {
 
     const handleDownloadCSV = () => {
         const dataForExport = [
+            // Section 1: Company
+            { Field: '--- SECTION 1: COMPANY INFORMATION ---', Value: '' },
             { Field: 'Company Name', Value: formData.companyName },
             { Field: 'Registration Number', Value: formData.registrationNumber },
             { Field: 'Company Type', Value: formData.companyType },
             { Field: 'Industry Sector', Value: formData.industrySector },
             { Field: 'Sub Sector', Value: formData.subSector },
             { Field: 'Business Activity', Value: formData.businessActivity },
+
+            // Section 2: Location
+            { Field: '', Value: '' },
+            { Field: '--- SECTION 2: LOCATION ---', Value: '' },
             { Field: 'Office Address', Value: formData.officeAddress },
             { Field: 'Manufacturing Location', Value: formData.manufacturingLocation },
             { Field: 'District', Value: formData.district },
+            { Field: 'State', Value: formData.state },
+
+            // Section 3: Past Hiring
+            { Field: '', Value: '' },
+            { Field: '--- SECTION 3: RECRUITED IN PAST 12 MONTHS ---', Value: '' },
+            ...pastHiring.flatMap((row, index) => [
+                { Field: `Past Hiring Record #${index + 1}`, Value: '' },
+                { Field: '  No. Trainees', Value: row.num_trainees },
+                { Field: '  Avg Salary', Value: row.avg_salary },
+                { Field: '  Job Roles', Value: row.job_roles },
+                { Field: '  Skill Gaps?', Value: row.has_skill_gaps ? 'Yes' : 'No' },
+                { Field: '  Gap Description', Value: row.has_skill_gaps ? row.skill_gaps : 'N/A' },
+            ]),
+
+            // Section 3: Future Hiring
+            { Field: '', Value: '' },
+            { Field: '--- SECTION 3: EXPECTED HIRING (NEXT 12M) ---', Value: '' },
+            ...futureHiring.flatMap((row, index) => [
+                { Field: `Future Hiring Plan #${index + 1}`, Value: '' },
+                { Field: '  No. People', Value: row.num_people },
+                { Field: '  Job Role', Value: row.job_role },
+                { Field: '  Salary', Value: row.salary },
+                { Field: '  Qualification', Value: row.qualification },
+                { Field: '  Place of Deployment', Value: row.place_of_deployment },
+            ]),
+
+            // Section 4: Contact
+            { Field: '', Value: '' },
+            { Field: '--- SECTION 4: CONTACT PERSON ---', Value: '' },
             { Field: 'Contact Name', Value: formData.contactName },
             { Field: 'Contact Designation', Value: formData.contactDesignation },
             { Field: 'Contact Email', Value: formData.contactEmail },
-            { Field: 'Contact Phone', Value: formData.contactPhone }
+            { Field: 'Contact Phone', Value: formData.contactPhone },
+            { Field: 'Contact Department', Value: formData.contactDepartment }
         ];
 
         const worksheet = XLSX.utils.json_to_sheet(dataForExport);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Survey_Data");
-        XLSX.writeFile(workbook, `${formData.companyName.replace(/\s+/g, '_')}_Survey.xlsx`);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Full_Survey_Report");
+        XLSX.writeFile(workbook, `${formData.companyName.replace(/\s+/g, '_')}_Full_Report.xlsx`);
     };
 
     const handleDownloadPDF = () => {
@@ -699,24 +832,114 @@ export default function EmployerSurveyForm() {
                     )}
 
                     <div className="mb-10">
-                        <h2 className="text-lg font-bold mb-6 flex items-center gap-2 print:text-base print:mb-2">
+                        <h2 className="text-lg font-bold mb-6 flex items-center gap-2 print:text-base print:mb-2 border-b-2 border-slate-100 dark:border-slate-700/50 pb-2">
                             <FileText size={20} className="text-blue-500 print:w-4 print:h-4" />
-                            Submission Summary
+                            Complete Submission Report
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 print:grid-cols-2 print:gap-4">
-                            {[
-                                { label: 'Organization', value: formData.companyName },
-                                { label: 'Sector', value: formData.industrySector },
-                                { label: 'Type', value: formData.companyType },
-                                { label: 'Contact', value: formData.contactName },
-                                { label: 'Email', value: formData.contactEmail },
-                                { label: 'Location', value: `${formData.district}, ${formData.state}` }
-                            ].map((item, idx) => (
-                                <div key={idx} className="border-b border-slate-100 dark:border-slate-700/50 pb-2 print:pb-1 print:border-slate-200">
-                                    <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1 font-medium">{item.label}</span>
-                                    <span className="text-slate-800 dark:text-slate-200 font-medium print:text-sm">{item.value || 'N/A'}</span>
+
+                        <div className="space-y-8">
+                            {/* Section 1 & 2 */}
+                            <section>
+                                <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-wider print:text-xs">1. Organization & Location</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 print:grid-cols-2 print:gap-4">
+                                    {[
+                                        { label: 'Organization', value: formData.companyName },
+                                        { label: 'Registration', value: formData.registrationNumber },
+                                        { label: 'Type', value: formData.companyType },
+                                        { label: 'Sector', value: formData.industrySector },
+                                        { label: 'Sub Sector', value: formData.subSector },
+                                        { label: 'Activity', value: formData.businessActivity },
+                                        { label: 'Office Address', value: formData.officeAddress },
+                                        { label: 'Plant Location', value: formData.manufacturingLocation },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="border-b border-slate-50 dark:border-slate-700/30 pb-2 print:pb-1">
+                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5 font-medium">{item.label}</span>
+                                            <span className="text-slate-800 dark:text-slate-200 font-medium print:text-sm">{item.value || 'N/A'}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            </section>
+
+                            {/* Section 3: Past */}
+                            {pastHiring.length > 0 && (
+                                <section>
+                                    <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-wider print:text-xs">2. Records: Past 12 Months</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm print:text-xs">
+                                            <thead>
+                                                <tr className="bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Trainees</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Salary</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Roles</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Skill Gaps</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                {pastHiring.map((row, idx) => (
+                                                    <tr key={idx}>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">{row.num_trainees}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">₹{row.avg_salary}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">{row.job_roles}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">
+                                                            {row.has_skill_gaps ? row.skill_gaps : 'None'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Section 3: Future */}
+                            {futureHiring.length > 0 && (
+                                <section>
+                                    <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-wider print:text-xs">3. Future Hiring Plans</h3>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm print:text-xs">
+                                            <thead>
+                                                <tr className="bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-700">
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">People</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Role</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Salary</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Qualif.</th>
+                                                    <th className="p-2 font-bold text-slate-600 dark:text-slate-400">Location</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                {futureHiring.map((row, idx) => (
+                                                    <tr key={idx}>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">{row.num_people}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300 font-medium">{row.job_role}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">₹{row.salary}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">{row.qualification}</td>
+                                                        <td className="p-2 text-slate-700 dark:text-slate-300">{row.place_of_deployment}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* Section 4 */}
+                            <section>
+                                <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-4 uppercase tracking-wider print:text-xs">4. Contact Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 print:grid-cols-2 print:gap-4">
+                                    {[
+                                        { label: 'Contact Name', value: formData.contactName },
+                                        { label: 'Designation', value: formData.contactDesignation },
+                                        { label: 'Department', value: formData.contactDepartment },
+                                        { label: 'Email', value: formData.contactEmail },
+                                        { label: 'Phone', value: formData.contactPhone },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="border-b border-slate-50 dark:border-slate-700/30 pb-2 print:pb-1">
+                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5 font-medium">{item.label}</span>
+                                            <span className="text-slate-800 dark:text-slate-200 font-medium print:text-sm">{item.value || 'N/A'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
                         </div>
                     </div>
 
@@ -814,95 +1037,6 @@ export default function EmployerSurveyForm() {
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
 
                     {/* Section 1: Company Information */}
-                    {/* Delegate Workflow Section */}
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-indigo-100 dark:border-slate-700">
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                                    <ShieldCheck className="w-5 h-5 text-indigo-600" />
-                                    Delegate Form Filling
-                                </h3>
-                                <p className="text-sm text-slate-500 mt-1">
-                                    You can delegate this form to a colleague. They will receive a link to fill it out.
-                                    You will review and approve it before final submission.
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only peer"
-                                        checked={isDelegateMode}
-                                        onChange={(e) => {
-                                            setIsDelegateMode(e.target.checked);
-                                            if (!e.target.checked) setDelegateEmail('');
-                                        }}
-                                        disabled={delegationStatus !== 'none'}
-                                    />
-                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        {isDelegateMode && delegationStatus === 'none' && (
-                            <div className="mt-4 p-4 bg-indigo-50 dark:bg-slate-900/50 rounded-lg border border-indigo-100 dark:border-slate-700 animate-in slide-in-from-top-2">
-                                <div className="flex gap-4 items-end">
-                                    <div className="flex-1">
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                            Delegate Email Address
-                                        </label>
-                                        <div className="relative">
-                                            <input
-                                                type="email"
-                                                value={delegateEmail}
-                                                onChange={(e) => setDelegateEmail(e.target.value)}
-                                                placeholder="colleague@company.com"
-                                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500"
-                                            />
-                                            <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={handleDelegate}
-                                        disabled={!delegateEmail || !formData.companyName}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        <Key className="w-4 h-4" />
-                                        Send Access Link
-                                    </button>
-                                </div>
-                                {!formData.companyName && (
-                                    <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-                                        <AlertCircle className="w-3 h-3" />
-                                        Please enter Company Name below first.
-                                    </p>
-                                )}
-                            </div>
-                        )}
-
-                        {delegationStatus === 'pending' && (
-                            <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 text-amber-800 dark:text-amber-200 flex items-center gap-3">
-                                <span className="relative flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-                                </span>
-                                <div>
-                                    <p className="font-medium">Delegation Pending</p>
-                                    <p className="text-sm opacity-90">Waiting for delegate ({delegateEmail}) to fill the form.</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {delegationStatus === 'filled' && (
-                            <div className="mt-4 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 text-emerald-800 dark:text-emerald-200 flex items-center gap-3">
-                                <Check className="w-5 h-5 text-emerald-600" />
-                                <div>
-                                    <p className="font-medium">Ready for Approval</p>
-                                    <p className="text-sm opacity-90">Delegate has completed the form. Please review and submit.</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
 
                     {activeSection === 1 && (
                         <div className="p-8 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -946,15 +1080,11 @@ export default function EmployerSurveyForm() {
                             <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                                 <div className="flex items-center gap-3">
                                     <button
-                                        onClick={handleVerifyInformation}
-                                        disabled={user?.isVerified || isVerifying}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm font-medium ${user?.isVerified
-                                            ? 'bg-emerald-100 text-emerald-700'
-                                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                            }`}
+                                        onClick={() => handleSaveDraft(true)}
+                                        disabled={saveStatus === 'saving'}
+                                        className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-sm"
                                     >
-                                        <ShieldCheck className="w-4 h-4" />
-                                        {user?.isVerified ? 'Verified' : isVerifying ? 'Verifying...' : 'Verify Information'}
+                                        <ShieldCheck className="w-4 h-4" /> Save Draft
                                     </button>
 
                                     {!user && !requestedCreds && (
@@ -1039,9 +1169,18 @@ export default function EmployerSurveyForm() {
                                     <input type="text" name="state" value={formData.state} disabled className="w-full input-standard bg-slate-100" />
                                 </div>
                             </div>
-                            <div className="mt-8 flex justify-between">
+                            <div className="mt-8 flex justify-between items-center">
                                 <button onClick={() => setActiveSection(1)} className="btn-secondary">Back</button>
-                                <button onClick={() => setActiveSection(3)} className="btn-primary">Next: Hiring Plans</button>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleSaveDraft(true)}
+                                        disabled={saveStatus === 'saving'}
+                                        className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <ShieldCheck className="w-4 h-4" /> Save Draft
+                                    </button>
+                                    <button onClick={() => setActiveSection(3)} className="btn-primary">Next: Hiring Plans</button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -1150,9 +1289,18 @@ export default function EmployerSurveyForm() {
                                 </div>
                             </div>
 
-                            <div className="mt-8 flex justify-between">
+                            <div className="mt-8 flex justify-between items-center">
                                 <button onClick={() => setActiveSection(2)} className="btn-secondary">Back</button>
-                                <button onClick={() => setActiveSection(4)} className="btn-primary">Next: Contact Info</button>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleSaveDraft(true)}
+                                        disabled={saveStatus === 'saving'}
+                                        className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <ShieldCheck className="w-4 h-4" /> Save Draft
+                                    </button>
+                                    <button onClick={() => setActiveSection(4)} className="btn-primary">Next: Contact Info</button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -1195,14 +1343,23 @@ export default function EmployerSurveyForm() {
                                 </div>
                             </div>
 
-                            <div className="mt-8 flex justify-between">
+                            <div className="mt-8 flex justify-between items-center bg-slate-50 dark:bg-slate-900/40 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
                                 <button onClick={() => setActiveSection(3)} className="btn-secondary">Back</button>
-                                <button
-                                    onClick={() => setActiveSection(5)}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 font-medium flex items-center gap-2"
-                                >
-                                    Preview Submission <ArrowRight className="w-4 h-4" />
-                                </button>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleSaveDraft(true)}
+                                        disabled={saveStatus === 'saving'}
+                                        className="px-6 py-2 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <ShieldCheck className="w-4 h-4" /> Save Draft
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveSection(5)}
+                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 font-medium flex items-center gap-2"
+                                    >
+                                        Preview Submission <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -1239,11 +1396,13 @@ export default function EmployerSurveyForm() {
                                             { label: 'Type', value: formData.companyType },
                                             { label: 'District', value: formData.district },
                                             { label: 'State', value: formData.state },
-                                            { label: 'Registration', value: formData.registrationNumber || 'N/A' }
+                                            { label: 'Registration', value: formData.registrationNumber || 'N/A' },
+                                            { label: 'Office Address', value: formData.officeAddress },
+                                            { label: 'Plant Location', value: formData.manufacturingLocation || 'N/A' }
                                         ].map((item, i) => (
                                             <div key={i} className="flex flex-col">
                                                 <span className="text-[10px] uppercase text-slate-400 font-bold block mb-1 tracking-wider">{item.label}</span>
-                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate" title={item.value || ''}>{item.value || 'N/A'}</span>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-200" title={item.value || ''}>{item.value || 'N/A'}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -1263,7 +1422,7 @@ export default function EmployerSurveyForm() {
                                     <div className="space-y-4">
                                         <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                             <span className="text-[10px] uppercase text-slate-400 font-bold block mb-2 tracking-wider">Trainees Recruited (Past 12m)</span>
-                                            <div className="flex flex-wrap gap-6 text-sm">
+                                            <div className="flex flex-wrap gap-6 text-sm mb-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-slate-500">Total Count</span>
                                                     <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{pastHiring.reduce((sum, h) => sum + (h.num_trainees || 0), 0)}</span>
@@ -1273,10 +1432,18 @@ export default function EmployerSurveyForm() {
                                                     <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{pastHiring.length}</span>
                                                 </div>
                                             </div>
+                                            <div className="space-y-1">
+                                                {pastHiring.map((h, i) => h.job_roles && (
+                                                    <div key={i} className="text-xs flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                        <div className="w-1 h-1 rounded-full bg-blue-400"></div>
+                                                        <span className="font-semibold text-slate-700 dark:text-slate-300">{h.num_trainees}x</span> {h.job_roles}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                             <span className="text-[10px] uppercase text-slate-400 font-bold block mb-2 tracking-wider">Future Demand (Next 12m)</span>
-                                            <div className="flex flex-wrap gap-6 text-sm">
+                                            <div className="flex flex-wrap gap-6 text-sm mb-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-slate-500">Planned Openings</span>
                                                     <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{futureHiring.reduce((sum, h) => sum + (h.num_people || 0), 0)}</span>
@@ -1285,6 +1452,14 @@ export default function EmployerSurveyForm() {
                                                     <span className="text-xs text-slate-500">Planned Roles</span>
                                                     <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">{futureHiring.length}</span>
                                                 </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                {futureHiring.map((h, i) => h.job_role && (
+                                                    <div key={i} className="text-xs flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                        <div className="w-1 h-1 rounded-full bg-blue-400"></div>
+                                                        <span className="font-semibold text-slate-700 dark:text-slate-300">{h.num_people}x</span> {h.job_role}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
@@ -1322,7 +1497,7 @@ export default function EmployerSurveyForm() {
                                     <h4 className="font-bold text-blue-900 dark:text-blue-200 mb-1 text-lg">Ready to final submit?</h4>
                                     <p className="text-sm text-blue-700 dark:text-blue-400">Please review your entries. You can go back and make changes if needed.</p>
                                 </div>
-                                <div className="flex items-center gap-3 w-full md:w-auto">
+                                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                                     <button
                                         onClick={() => setActiveSection(4)}
                                         className="flex-1 md:flex-none px-6 py-3 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-slate-700 dark:text-slate-300 shadow-sm"
@@ -1330,17 +1505,22 @@ export default function EmployerSurveyForm() {
                                         Back to Form
                                     </button>
                                     <button
-                                    onClick={handleSubmitSurvey}
+                                        onClick={() => handleSaveDraft(true)}
                                         disabled={saveStatus === 'saving'}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-10 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all font-bold shadow-lg shadow-blue-500/30 active:scale-95 disabled:bg-blue-400"
-                                >
+                                        className="flex-1 md:flex-none px-6 py-3 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all font-semibold shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                        <ShieldCheck className="w-5 h-5" />
+                                        {saveStatus === 'saving' ? 'Saving...' : 'Save Draft'}
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitSurvey}
+                                        disabled={saveStatus === 'saving'}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 md:px-10 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl transition-all font-bold shadow-lg shadow-blue-500/30 active:scale-95 disabled:bg-blue-400 whitespace-nowrap"
+                                    >
                                         <Check className="w-5 h-5" />
-                                        {saveStatus === 'saving' ? 'Submitting...' :
-                                            delegationStatus === 'filled' ? 'Approve & Final Submit' :
-                                                delegationStatus === 'pending' ? 'Submit for Approval' :
-                                                    'Confirm & Final Submit'}
-                                </button>
-                            </div>
+                                        {saveStatus === 'saving' ? 'Submitting...' : 'Confirm & Final Submit'}
+                                    </button>
+                                </div>
                         </div>
                         </div>
                     )}
@@ -1355,7 +1535,7 @@ export default function EmployerSurveyForm() {
                             <p className="text-sm text-slate-500">View and manage all employer survey entries</p>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={fetchSurveyData} className="px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                            <button onClick={() => fetchSurveyData()} className="px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                 Refresh
                             </button>
                         </div>
@@ -1363,6 +1543,8 @@ export default function EmployerSurveyForm() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
+                            {/* Debugging Log in console only */}
+                            {(() => { if (surveyData.length > 0) console.log("📊 Rendering table with:", surveyData); return null; })()}
                             <thead className="text-xs text-slate-700 uppercase bg-slate-100 dark:bg-slate-700 dark:text-slate-300">
                                 <tr>
                                     <th rowSpan={2} className="px-4 py-3 align-middle border-r dark:border-slate-600">S.no</th>
@@ -1478,18 +1660,6 @@ export default function EmployerSurveyForm() {
                 </div>
             </div>
 
-            {/* Styles Injection for this component specifically if needed, or rely on global index.css */}
-            <style>{`
-        .input-standard {
-          @apply px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-all;
-        }
-        .btn-primary {
-          @apply px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 font-medium;
-        }
-        .btn-secondary {
-          @apply px-6 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium;
-        }
-      `}</style>
         </div>
     );
 }

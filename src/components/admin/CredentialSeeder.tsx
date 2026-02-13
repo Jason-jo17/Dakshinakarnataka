@@ -66,7 +66,24 @@ export const CredentialSeeder: React.FC = () => {
         count++;
       }
 
-      // 3. Trainees (Expanded)
+      // 3. Ecosystem Partners (InUnity, etc.)
+      const partners = [
+        { name: 'InUnity (Recruiter)', username: 'inunity_recruiter', email: 'johnson@inunity.in', entityId: 'recruiter-inunity' }
+      ];
+
+      for (const p of partners) {
+        await generateCredential({
+          role: 'company',
+          entityId: p.entityId,
+          entityName: p.name,
+          username: p.username,
+          password: 'Password@2025',
+          email: p.email
+        });
+        count++;
+      }
+
+      // 4. Trainees (Expanded)
       const trainees = [
         { name: 'Preetham', username: 'trainee_preetham', email: 'preetham@sahyadri.edu', linkedEntityId: 'Govt.ITI(M)Mangaluru-4' },
         { name: 'Sanjay Kumar', username: 'trainee_sanjay', email: 'sanjay@kgtti.edu', linkedEntityId: 'KGTTI Mangaluru' },
@@ -75,30 +92,50 @@ export const CredentialSeeder: React.FC = () => {
       ];
 
       for (const t of trainees) {
-        await generateCredential({
-          role: 'trainee',
-          entityId: crypto.randomUUID(),
-          entityName: t.name,
-          linkedEntityId: t.linkedEntityId,
-          email: t.email,
-          username: t.username,
-          password: `Pass@${t.username.split('_')[1]}123`
-        });
-        count++;
+        // Check if trainee with this email already exists
+        const { data: existingTrainee } = await supabase
+          .from('users')
+          .select('id')
+          .ilike('email', t.email)
+          .maybeSingle();
+
+        if (!existingTrainee) {
+          await generateCredential({
+            role: 'trainee',
+            entityId: crypto.randomUUID(),
+            entityName: t.name,
+            linkedEntityId: t.linkedEntityId,
+            email: t.email,
+            username: t.username,
+            password: `Pass@${t.username.split('_')[1]}123`
+          });
+          count++;
+        }
       }
 
-      // 4. Auto-Sync Companies from Employer Survey Table (Safer Select)
+      // 5. Auto-Sync Companies from BOTH Survey and DIC Master tables
       try {
+        // Fetch from Survey
         const { data: employers, error: empError } = await supabase
           .from('ad_survey_employer')
           .select('employer_name, contact_person_email');
 
-        if (!empError && employers) {
+        // Fetch from DIC Master
+        const { data: dicCompanies, error: dicError } = await supabase
+          .from('dic_master_companies')
+          .select('employer_name, contact_person_email');
+
+        const allCompanies = [
+          ...(employers || []),
+          ...(dicCompanies || [])
+        ];
+
+        if (allCompanies.length > 0) {
           // Unique companies by name
-          const uniqueEmployers = Array.from(new Set(employers.map(e => e.employer_name as string).filter(Boolean)));
+          const uniqueEmployers = Array.from(new Set(allCompanies.map(e => e.employer_name as string).filter(Boolean)));
 
           for (const empName of uniqueEmployers) {
-            const emp = employers.find(e => e.employer_name === empName);
+            const emp = allCompanies.find(e => e.employer_name === empName);
 
             // Generate a unique password for each company
             const uniquePass = 'Pass@' + Math.random().toString(36).slice(-8).toUpperCase() + '2025';
@@ -111,16 +148,17 @@ export const CredentialSeeder: React.FC = () => {
               role: 'company',
               entityId: `company-${sanitizedName}`,
               entityName: empName,
-              email: (emp as any)?.contact_person_email || `${sanitizedName}@company.com`,
+              email: emp?.contact_person_email || `${sanitizedName}@company.com`,
               username: username,
               password: uniquePass
             });
             count++;
           }
-        } else if (empError) {
-          console.warn("Could not sync companies (possibly missing column):", empError.message);
-          // Don't throw here, just skip company sync if table/column isn't ready
-        }
+        } 
+
+        if (empError) console.warn("Survey sync warning:", empError.message);
+        if (dicError) console.warn("DIC sync warning:", dicError.message);
+
       } catch (err) {
         console.error("Critical error during company sync:", err);
       }

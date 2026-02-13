@@ -10,7 +10,7 @@ import { CredentialSeeder } from './CredentialSeeder';
 
 const CredentialManager: React.FC = () => {
     const { credentials, generateCredential, revokeCredential, syncWithDatabase } = useCredentialStore();
-    const [activeTab, setActiveTab] = useState<'generate' | 'master' | 'dic'>('generate');
+    const [activeTab, setActiveTab] = useState<'generate' | 'master' | 'survey' | 'dic'>('generate');
 
     // Generation State
     const [selectedRole, setSelectedRole] = useState<UserRole>('institution');
@@ -24,40 +24,72 @@ const CredentialManager: React.FC = () => {
     const [dicEntries, setDicEntries] = useState<any[]>([]);
     const [showDicForm, setShowDicForm] = useState(false);
 
+
+    // Survey Data State
+    const [surveyEntries, setSurveyEntries] = useState<any[]>([]);
+
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchData = async () => {
             console.log('[CredentialManager] Fetching data...');
+            setErrorMsg(null);
 
-            // Fetch DIC Master Companies
-            const { data: dicList } = await supabase
+            // 1. Fetch DIC Master Companies
+            const { data: dicList, error: dicError } = await supabase
                 .from('dic_master_companies')
                 .select('*')
-                .eq('district_id', 'Dakshina Kannada');
+                .eq('district_id', 'Dakshina Kannada')
+                .order('created_at', { ascending: false });
 
-            if (dicList) {
+            if (dicError) {
+                console.error('[CredentialManager] Error fetching DIC companies:', dicError);
+                setErrorMsg(`Error fetching DIC companies: ${dicError.message} (${dicError.code})`);
+            } else if (dicList) {
                 setDicEntries(dicList);
+                // For dropdowns, we might want to include both, or just DIC.
+                // Let's start with DIC for now.
                 setDbCompanies(dicList.map(c => ({ id: c.id, name: c.employer_name })));
             }
 
-            // Also fetch from surveys for backward compatibility/legacy view
-            const { data: companies } = await supabase
+            // 2. Fetch Survey Companies (Aggregate Demand)
+            const { data: surveyList, error: surveyError } = await supabase
                 .from('ad_survey_employer')
                 .select('id, employer_name, sector, contact_person_name, contact_person_email, district_id')
-                .eq('district_id', 'Dakshina Kannada');
+                .eq('district_id', 'Dakshina Kannada')
+                .order('created_at', { ascending: false });
 
-            if (companies && !dicList) {
-            // Only fallback if dicList is actually empty/error
-                setDbCompanies(companies.map(c => ({ id: c.id, name: c.employer_name })));
-                setDicEntries(companies); 
+            if (surveyError) console.error('[CredentialManager] Error fetching survey companies:', surveyError);
+
+            if (surveyList) {
+                setSurveyEntries(surveyList);
+
+                // If DIC list is empty, fallback to survey for generation dropdown
+                if (!dicList || dicList.length === 0) {
+                    setDbCompanies(surveyList.map(c => ({ id: c.id, name: c.employer_name })));
+                } else {
+                    // Option: Merge them for the dropdown? 
+                    // Let's keep them separate in tabs, but maybe merge for "Company" role generation?
+                    // User requested separation, so let's keep tabs separate. 
+                    // But for generating credentials, we might want to pick from either.
+                    // For now, let's append survey companies to dbCompanies with a marker or just merge.
+                    const combined = [
+                        ...dicList.map(c => ({ id: c.id, name: c.employer_name })),
+                        ...surveyList.map(c => ({ id: c.id, name: `${c.employer_name} (Survey)` }))
+                    ];
+                    // Remove duplicates by ID if any
+                    const unique = combined.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+                    setDbCompanies(unique);
+                }
             }
 
-            // Fetch Institutions
+            // 3. Fetch Institutions
             const { data: institutions, error: instError } = await supabase
                 .from('district_training_centers')
                 .select('id, training_center_name')
                 .eq('district', 'Dakshina Kannada');
 
-            console.log('[CredentialManager] Institutions:', institutions, 'Error:', instError);
+            if (instError) console.error('[CredentialManager] Error fetching institutions:', instError);
 
             if (institutions) {
                 setDbInstitutions(institutions.map(i => ({ id: i.id, name: i.training_center_name })));
@@ -251,6 +283,11 @@ const CredentialManager: React.FC = () => {
                         Generate and manage access credentials for verified ecosystem partners.
                     </p>
                 </div>
+                {errorMsg && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
+                        <p>{errorMsg}</p>
+                    </div>
+                )}
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
                     <button
                         onClick={() => setActiveTab('generate')}
@@ -269,6 +306,15 @@ const CredentialManager: React.FC = () => {
                             }`}
                     >
                         Master Sheet
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('survey')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'survey'
+                            ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                            }`}
+                    >
+                        Survey Companies
                     </button>
                     <button
                         onClick={() => setActiveTab('dic')}
@@ -433,6 +479,7 @@ const CredentialManager: React.FC = () => {
                     </div>
                 </div>
             ) : activeTab === 'master' ? (
+                    // ... (Master Sheet Logic - kept same)
                 <div className="space-y-6">
                     <div className="flex justify-end">
                         <button
@@ -509,80 +556,13 @@ const CredentialManager: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                ) : (
+                ) : activeTab === 'survey' ? (
                     <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => setShowDicForm(!showDicForm)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
-                                >
-                                    <Users className="w-4 h-4" />
-                                    {showDicForm ? 'Cancel' : 'Add Company'}
-                                </button>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept=".xlsx, .csv"
-                                        onChange={handleDicImport}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    />
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm transition-colors border border-slate-200 dark:border-slate-700">
-                                        <FileSpreadsheet className="w-4 h-4" />
-                                        Import CSV
-                                    </button>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleDicExport}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors"
-                            >
-                                <FileSpreadsheet className="w-4 h-4" />
-                                Export DIC Sheet
-                            </button>
-                        </div>
-
-                        {showDicForm && (
-                            <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 animate-in slide-in-from-top duration-300">
-                                <h3 className="font-semibold mb-4">Add Registered Company (DIC Entry)</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <input
-                                        placeholder="Company Name"
-                                        className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
-                                        value={newDicEntry.companyName}
-                                        onChange={e => setNewDicEntry({ ...newDicEntry, companyName: e.target.value })}
-                                    />
-                                    <input
-                                        placeholder="Sector (e.g. Automotive)"
-                                        className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
-                                        value={newDicEntry.sector}
-                                        onChange={e => setNewDicEntry({ ...newDicEntry, sector: e.target.value })}
-                                    />
-                                    <input
-                                        placeholder="Contact Person Name"
-                                        className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
-                                        value={newDicEntry.contactPersonName}
-                                        onChange={e => setNewDicEntry({ ...newDicEntry, contactPersonName: e.target.value })}
-                                    />
-                                    <input
-                                        placeholder="Contact Email"
-                                        className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
-                                        value={newDicEntry.contactPersonEmail}
-                                        onChange={e => setNewDicEntry({ ...newDicEntry, contactPersonEmail: e.target.value })}
-                                    />
-                                </div>
-                                <div className="mt-4 flex justify-end">
-                                    <button
-                                        onClick={handleAddDicEntry}
-                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                                    >
-                                        Save Entry
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
                         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Survey Companies (Aggregate Demand)</h3>
+                                <p className="text-sm text-slate-500 mt-1">Companies added via Employer Survey form</p>
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
@@ -594,7 +574,7 @@ const CredentialManager: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                        {dicEntries.map((entry) => (
+                                        {surveyEntries.map((entry) => (
                                             <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                                 <td className="p-4 font-medium text-slate-900 dark:text-slate-200">{entry.employer_name}</td>
                                                 <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
@@ -609,10 +589,10 @@ const CredentialManager: React.FC = () => {
                                                 </td>
                                             </tr>
                                         ))}
-                                        {dicEntries.length === 0 && (
+                                        {surveyEntries.length === 0 && (
                                             <tr>
                                                 <td colSpan={4} className="p-8 text-center text-slate-500">
-                                                    No companies found in the employer survey or DIC sheet.
+                                                    No survey data found.
                                                 </td>
                                             </tr>
                                         )}
@@ -621,7 +601,121 @@ const CredentialManager: React.FC = () => {
                             </div>
                         </div>
                     </div>
-            )}
+                ) : activeTab === 'dic' ? (
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setShowDicForm(!showDicForm)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
+                                >
+                                    <Users className="w-4 h-4" />
+                                    {showDicForm ? 'Cancel' : 'Add Company'}
+                                </button>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept=".xlsx, .csv"
+                                                onChange={handleDicImport} // Fixed: Correctly referencing the handler
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            />
+                                            <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm transition-colors border border-slate-200 dark:border-slate-700">
+                                                <FileSpreadsheet className="w-4 h-4" />
+                                                Import CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleDicExport}
+                                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors"
+                                    >
+                                        <FileSpreadsheet className="w-4 h-4" />
+                                        Export DIC Sheet
+                                    </button>
+                                </div>
+
+                                {showDicForm && (
+                                    <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 animate-in slide-in-from-top duration-300">
+                                        <h3 className="font-semibold mb-4">Add Registered Company (DIC Entry)</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <input
+                                                placeholder="Company Name"
+                                                className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
+                                                value={newDicEntry.companyName}
+                                                onChange={e => setNewDicEntry({ ...newDicEntry, companyName: e.target.value })}
+                                            />
+                                            <input
+                                                placeholder="Sector (e.g. Automotive)"
+                                                className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
+                                                value={newDicEntry.sector}
+                                                onChange={e => setNewDicEntry({ ...newDicEntry, sector: e.target.value })}
+                                            />
+                                            <input
+                                                placeholder="Contact Person Name"
+                                                className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
+                                                value={newDicEntry.contactPersonName}
+                                                onChange={e => setNewDicEntry({ ...newDicEntry, contactPersonName: e.target.value })}
+                                            />
+                                            <input
+                                                placeholder="Contact Email"
+                                                className="p-2 rounded border dark:bg-slate-800 dark:border-slate-700"
+                                                value={newDicEntry.contactPersonEmail}
+                                                onChange={e => setNewDicEntry({ ...newDicEntry, contactPersonEmail: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="mt-4 flex justify-end">
+                                            <button
+                                                onClick={handleAddDicEntry}
+                                                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                                            >
+                                                Save Entry
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+                                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Company Name</th>
+                                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sector</th>
+                                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Primary Contact</th>
+                                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">District</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                                {dicEntries.map((entry) => (
+                                                    <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                        <td className="p-4 font-medium text-slate-900 dark:text-slate-200">{entry.employer_name}</td>
+                                                        <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
+                                                            {entry.sector || 'Not specified'}
+                                                        </td>
+                                                        <td className="p-4">
+                                                            <div className="text-sm font-medium text-slate-900 dark:text-slate-200">{entry.contact_person_name || 'N/A'}</div>
+                                                            <div className="text-xs text-slate-500">{entry.contact_person_email || 'No email provided'}</div>
+                                                        </td>
+                                                        <td className="p-4 text-xs text-slate-500">
+                                                            {entry.district_id}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                {dicEntries.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={4} className="p-8 text-center text-slate-500">
+                                                            No companies found in the employer survey or DIC sheet.
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                </div >
+
+            ) : null
+            }
         </div>
     );
 };

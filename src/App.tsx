@@ -169,13 +169,10 @@ function App() {
     return <SuperAdminDashboard />;
   }
 
-  // Company Survey Flow
-  if (user?.role === 'company') {
-    return <EmployerSurveyForm />;
-  }
+
 
   // District Admin Lobby Flow
-  if (adminMode === 'lobby') {
+  if (adminMode === 'lobby' && user?.role !== 'company') {
     return (
       <>
         <DistrictLobby
@@ -462,7 +459,7 @@ function App() {
     }
 
     if (user?.role === 'company') {
-      return <EmployerSurveyForm />;
+      return <Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} replace />;
     }
 
     // Handle Admin Paths via Route or State
@@ -723,13 +720,17 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<CentralLoginPage />} />
-      <Route path="/company/:companyName/survey/:role" element={<EmployerSurveyForm />} />
-      <Route path="/company-survey" element={<EmployerSurveyForm />} />
+      <Route path="/company-survey/:companyName" element={<EmployerSurveyForm />} />
+      <Route path="/company-survey" element={<Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'guest'}`} replace />} />
       <Route path="/company_survey" element={<Navigate to="/company-survey" replace />} />
       <Route path="/admin/plan/:planId" element={renderMainContent()} />
       <Route path="/admin/:adminPath" element={renderMainContent()} />
       <Route path="/:view" element={renderMainContent()} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={
+        user?.role === 'company'
+          ? <Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} replace />
+          : <Navigate to="/dashboard" replace />
+      } />
     </Routes>
   );
 }

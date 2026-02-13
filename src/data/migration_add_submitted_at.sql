@@ -1,0 +1,2 @@
+ALTER TABLE ad_survey_employer
+ADD COLUMN IF NOT EXISTS submitted_at TIMESTAMP WITH TIME ZONE;

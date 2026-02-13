@@ -164,7 +164,8 @@ export const useCredentialStore = create<CredentialStore>()(
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .range(0, 9999);
 
             if (error) {
                 console.error("Error syncing credentials:", error);

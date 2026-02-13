@@ -11,6 +11,22 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
     const [logs, setLogs] = useState<string[]>([]);
     const [seededCredentials, setSeededCredentials] = useState<any[]>([]);
 
+    // Load from localStorage on mount
+    useState(() => {
+        const saved = localStorage.getItem('dic_last_seeded_credentials');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setSeededCredentials(parsed);
+                    setLogs(['📋 Loaded previous session credentials from storage.']);
+                }
+            } catch (e) {
+                console.error("Failed to load saved credentials", e);
+            }
+        }
+    });
+
     const handleSeed = async () => {
         setLoading(true);
         setLogs([]);
@@ -94,8 +110,10 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
                                     .from('dic_master_companies')
                                     .insert({
                                         employer_name: companyName,
+                                        sector: row['Sector'] || null,
                                         address: row['Address'],
                                         contact_person_name: row['Primary Contact 1'],
+                                        contact_person_name_2: row['Primary Contact 2'] || null, 
                                         contact_person_email: row['Primary Contact Mail Id'],
                                         contact_person_phone: row['Primary Contact Number'],
                                         district_id: 'Dakshina Kannada',
@@ -126,8 +144,9 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
                     }
 
                     setSeededCredentials(newCredentials);
+                    localStorage.setItem('dic_last_seeded_credentials', JSON.stringify(newCredentials));
                     setLoading(false);
-                    setLogs(prev => [...prev, '✅ Seeding complete!']);
+                    setLogs(prev => [...prev, '✅ Seeding complete! Credentials saved to local storage.']);
                 },
                 error: (error: any) => {
                     setLoading(false);
