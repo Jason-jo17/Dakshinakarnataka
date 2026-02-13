@@ -27,8 +27,8 @@ export const seedAllCredentials = async () => {
 
   console.log(`📚 Generating ${institutions.length} institution credentials...`);
 
-  institutions.forEach((inst) => {
-    const cred = generateCredential({
+  for (const inst of institutions) {
+    const cred = await generateCredential({
       role: 'institution',
       entityId: inst.name, // Use name as ID for seeded data consistency
       entityName: inst.name,
@@ -40,7 +40,7 @@ export const seedAllCredentials = async () => {
     cred.password = inst.password;
 
     console.log(`✅ Generated: ${inst.name} (${inst.username})`);
-  });
+  }
 
   // Student/Trainee Credentials
   const trainees = [
@@ -80,8 +80,8 @@ export const seedAllCredentials = async () => {
 
   console.log(`👨‍🎓 Generating ${trainees.length} trainee credentials...`);
 
-  trainees.forEach(trainee => {
-    const cred = generateCredential({
+  for (const trainee of trainees) {
+    const cred = await generateCredential({
       role: 'trainee',
       entityId: crypto.randomUUID(),
       entityName: trainee.name,
@@ -94,7 +94,7 @@ export const seedAllCredentials = async () => {
     cred.password = trainee.password;
 
     console.log(`✅ Generated: ${trainee.name} → ${trainee.linkedInstitution} (${trainee.username})`);
-  });
+  }
 
   // Recruiter Credentials
   const recruiters = [
@@ -108,8 +108,8 @@ export const seedAllCredentials = async () => {
 
   console.log(`💼 Generating ${recruiters.length} recruiter credentials...`);
 
-  recruiters.forEach(recruiter => {
-    const cred = generateCredential({
+  for (const recruiter of recruiters) {
+    const cred = await generateCredential({
       role: 'company',
       entityId: 'recruiter-inunity',
       entityName: recruiter.name,
@@ -121,7 +121,7 @@ export const seedAllCredentials = async () => {
     cred.password = recruiter.password;
 
     console.log(`✅ Generated: ${recruiter.name} (${recruiter.username})`);
-  });
+  }
 
   console.log('🎉 Credential seeding complete!');
   console.log('📋 Total credentials generated:', institutions.length + trainees.length + recruiters.length);
