@@ -104,6 +104,24 @@ export default function DistrictLobby({ onSelectOption, userName }: DistrictLobb
                                     Manage Assignments <ArrowRight className="w-3 h-3" />
                                 </span>
                             </div>
+
+                            <div
+                                onClick={() => onSelectOption('dic-seeder')}
+                                className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 transition-colors cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                        <Database className="w-5 h-5" />
+                                    </div>
+                                    <h4 className="font-bold text-slate-800 dark:text-white">DIC Database Seeder</h4>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                    Import companies from CSV and generate credentials.
+                                </p>
+                                <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:underline">
+                                    Open Seeder <ArrowRight className="w-3 h-3" />
+                                </span>
+                            </div>
                         </div>
                     </div>
 

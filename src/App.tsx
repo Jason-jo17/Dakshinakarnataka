@@ -44,6 +44,7 @@ import SkillsIntelligenceHub from './components/entry/skills_intel/SkillsIntelli
 import DistrictSkillMatrix from './components/pages/DistrictSkillMatrix';
 import AggregateDemandView from './components/entry/aggregate_demand/AggregateDemandView';
 import EmployerSurveyForm from './components/entry/employer/EmployerSurveyForm';
+import DicSeeder from './components/admin/DicSeeder';
 
 
 
@@ -74,7 +75,7 @@ function App() {
   const [isKeySet, setIsKeySet] = useState(false);
 
   const [currentView, setCurrentView] = useState<'map' | 'dashboard' | 'eee-overview' | 'institutions' | 'assessments' | 'industry' | 'coe' | 'centers' | 'ai-search' | 'reports' | 'analytics' | 'forecast' | 'skills-intel' | 'credential-manager'>('dashboard');
-  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand' | 'assign-work' | 'institution-wizard'>('lobby');
+  const [adminMode, setAdminMode] = useState<'lobby' | 'dashboard' | 'portal' | 'plan' | 'plan-list' | 'plan-edit' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand' | 'assign-work' | 'institution-wizard' | 'dic-seeder'>('lobby');
 
   const [dashboardTab, setDashboardTab] = useState('overview'); // Control dashboard tab
   // const [aiInitialQuery, setAiInitialQuery] = useState(''); // Unused after sidebar cleanup
@@ -119,6 +120,23 @@ function App() {
   }, []);
 
 
+
+
+  // Handle Entry Forms - MOVED TO TOP to fix Hook Error
+  const { view: routeView, adminPath, planId: routePlanId } = useParams<{ view?: string, adminPath?: string, planId?: string }>();
+
+  useEffect(() => {
+    if (routeView && (routeView as any) !== currentView) {
+      setCurrentView(routeView as any);
+    }
+  }, [routeView]);
+
+  useEffect(() => {
+    if (routePlanId && routePlanId !== selectedId) {
+      setSelectedId(routePlanId);
+      setAdminMode('plan-edit');
+    }
+  }, [routePlanId]);
 
   // Auth Guard
   useEffect(() => {
@@ -240,6 +258,9 @@ function App() {
             }
             else if (action === 'aggregate-demand') {
               setAdminMode('aggregate-demand');
+            }
+            else if (action === 'dic-seeder') {
+              setAdminMode('dic-seeder');
             }
             else {
               setShowEntryForm(action);
@@ -431,21 +452,7 @@ function App() {
   };
 
 
-  // Handle Entry Forms
-  const { view: routeView, adminPath, planId: routePlanId } = useParams<{ view?: string, adminPath?: string, planId?: string }>();
 
-  useEffect(() => {
-    if (routeView && (routeView as any) !== currentView) {
-      setCurrentView(routeView as any);
-    }
-  }, [routeView]);
-
-  useEffect(() => {
-    if (routePlanId && routePlanId !== selectedId) {
-      setSelectedId(routePlanId);
-      setAdminMode('plan-edit');
-    }
-  }, [routePlanId]);
 
   const renderMainContent = () => {
     if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -558,6 +565,11 @@ function App() {
         );
       case 'aggregate-demand':
         return <AggregateDemandView onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} />;
+      case 'dic-seeder':
+        return <DicSeeder onBack={() => {
           setAdminMode('portal');
           navigate('/admin/portal');
         }} />;

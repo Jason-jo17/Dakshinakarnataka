@@ -45,5 +45,28 @@ export const emailService = {
       console.error('Failed to send survey completion email:', error);
       throw error;
     }
+  },
+
+  /**
+   * Sends a delegation email with credentials
+   */
+  sendDelegationEmail: async (toEmail: string, companyName: string, credentials: any) => {
+    try {
+      const templateParams = {
+        to_email: toEmail,
+        company_name: companyName,
+        username: credentials.username,
+        password: credentials.password_hash || 'Welcome@2024', // Fallback if hash hidden
+        message: `You have been invited to fill the survey for ${companyName}. Please login with these credentials.`
+      };
+
+      // Reuse verify template or a new one - using verify for now as a fallback
+      const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID_VERIFY, templateParams, PUBLIC_KEY);
+      console.log('Delegation email sent:', response.status);
+      return response;
+    } catch (error) {
+      console.error('Failed to send delegation email:', error);
+      throw error;
+    }
   }
 };

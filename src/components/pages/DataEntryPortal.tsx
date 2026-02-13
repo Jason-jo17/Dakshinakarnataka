@@ -6,12 +6,13 @@ import {
   ArrowLeft,
   Plus,
   FileText,
-  Calculator
+  Calculator,
+  Database
 } from 'lucide-react';
 
 interface DataEntryPortalProps {
   onBack: () => void;
-  onAction: (action: 'institution' | 'company' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand') => void;
+  onAction: (action: 'institution' | 'company' | 'coe' | 'plan' | 'schemes' | 'trainer' | 'iti-trade' | 'training-center' | 'trainee-details' | 'trainee-analysis' | 'district-skill-matrix' | 'aggregate-demand' | 'dic-seeder') => void;
 }
 
 export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalProps) {
@@ -112,6 +113,14 @@ export default function DataEntryPortal({ onBack, onAction }: DataEntryPortalPro
       icon: Building2,
       color: 'bg-blue-100 text-blue-600',
       actionId: 'aggregate-demand'
+    },
+    {
+      id: 'dic-seeder',
+      title: 'DIC Master Seeder',
+      description: 'Seed company data for auto-fill functionality.',
+      icon: Database,
+      color: 'bg-green-100 text-green-600',
+      actionId: 'dic-seeder'
     }
   ] as const;
 

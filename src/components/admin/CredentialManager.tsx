@@ -117,6 +117,7 @@ const CredentialManager: React.FC = () => {
             "Role": c.role,
             "Username": c.username,
             "Values (Password)": c.password,
+            "Email": c.email || 'N/A',
             "Status": c.status,
             "Generated At": new Date(c.generatedAt).toLocaleDateString()
         })));
@@ -452,6 +453,7 @@ const CredentialManager: React.FC = () => {
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Username</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Password</th>
+                                            <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                                     </tr>
@@ -471,6 +473,9 @@ const CredentialManager: React.FC = () => {
                                             <td className="p-4 font-mono text-sm">{cred.username}</td>
                                             <td className="p-4 font-mono text-sm text-slate-500">
                                                 <span className="blur-[2px] hover:blur-none transition-all cursor-pointer">{cred.password}</span>
+                                            </td>
+                                            <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
+                                                {cred.email || '-'}
                                             </td>
                                             <td className="p-4">
                                                 <span className={`flex items-center gap-1.5 text-xs font-medium ${cred.status === 'active' ? 'text-green-600' : 'text-red-600'
