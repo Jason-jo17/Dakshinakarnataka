@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import { Menu, X, Minimize2, Map as MapIcon } from 'lucide-react';
 import MapView from './components/map/MapView';
 import Sidebar from './components/layout/Sidebar';
@@ -61,6 +62,7 @@ function App() {
     }
   }, []);
 
+  const navigate = useNavigate();
   const institutions = useDataStore(state => state.institutions);
   const { isAuthenticated, user, currentDistrict } = useAuthStore();
 
@@ -430,197 +432,293 @@ function App() {
 
 
   // Handle Entry Forms
-  if (showEntryForm === 'institution') {
-    return (
-      <InstitutionDataWizard
-        onSuccess={() => {
-          setShowEntryForm(null);
-        }}
-        onCancel={() => setShowEntryForm(null)}
-      />
-    );
-  }
+  const { view: routeView, adminPath, planId: routePlanId } = useParams<{ view?: string, adminPath?: string, planId?: string }>();
 
-  if (showEntryForm === 'company') {
-    return (
-      <CompanyEntryForm
-        onSuccess={() => setShowEntryForm(null)}
-        onCancel={() => setShowEntryForm(null)}
-      />
-    );
-  }
+  useEffect(() => {
+    if (routeView && (routeView as any) !== currentView) {
+      setCurrentView(routeView as any);
+    }
+  }, [routeView]);
 
-  if (showEntryForm === 'coe') {
-    return (
-      <CoeEntryForm
-        onSuccess={() => setShowEntryForm(null)}
-        onCancel={() => setShowEntryForm(null)}
-      />
-    );
-  }
+  useEffect(() => {
+    if (routePlanId && routePlanId !== selectedId) {
+      setSelectedId(routePlanId);
+      setAdminMode('plan-edit');
+    }
+  }, [routePlanId]);
 
+  const renderMainContent = () => {
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
 
+    if (user?.role === 'super_admin' && !currentDistrict) {
+      return <SuperAdminDashboard />;
+    }
 
+    if (user?.role === 'company') {
+      return <EmployerSurveyForm />;
+    }
 
-  return (
-    <div className="flex h-screen w-full bg-background overflow-hidden">
-      {/* Mobile Menu Button */}
+    // Handle Admin Paths via Route or State
+    const effectiveAdminMode = adminPath || (routePlanId ? 'plan-edit' : adminMode);
 
-
-      <button
-        className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}
-      </button>
-
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-[1999] bg-black/50 backdrop-blur-sm"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar Wrapper */}
-      <div className={`
-        fixed md:relative top-0 bottom-0 z-[2000] flex flex-col h-full bg-white shadow-xl md:shadow-none transition-transform duration-300 ease-in-out
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
-        <Sidebar
-          institutions={currentView === 'map' ? filteredData : institutions}
-          selectedId={selectedId}
-          onSelect={(id) => {
-            setSelectedId(id);
-            setIsMobileMenuOpen(false);
-          }}
-          currentView={currentView as any}
-          onViewChange={(view) => {
-            setCurrentView(view);
-            setIsMobileMenuOpen(false);
-          }}
-          showHeatmap={showHeatmap}
-          onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
-          isDarkMode={isDarkMode}
-          onToggleTheme={() => setIsDarkMode(!isDarkMode)}
-          // Pass Filters
-          searchQuery={filters.search}
-          onSearchChange={setSearch}
-          selectedCategories={filters.categories}
-          onToggleCategory={toggleCategory}
-
-          // Partner Login
-          onLogin={() => {
-            // setShowLogin(true); // Replaced by global auth guard
-            setIsMobileMenuOpen(false);
-          }}
-        />
-      </div>
-
-      <div className="flex-1 relative overflow-hidden h-full">
-
-        {/* Main View Area */}
-        {currentView !== 'map' && (
-          <div className="absolute inset-0 z-20 overflow-y-auto bg-slate-50 dark:bg-slate-900 animate-in fade-in duration-300 scrollbar-hide">
-            {renderCurrentView()}
-          </div>
-        )}
-
-        {/* Map Container - Acts as Main View, Pop-out, or Collapsed Pill */}
-        <div
-          className={`
-            transition-all duration-500 ease-in-out bg-white dark:bg-slate-800 shadow-2xl
-            ${currentView !== 'map'
-              ? isMapCollapsed
-                ? 'absolute bottom-6 right-6 w-auto h-auto z-30 rounded-full border-2 border-white dark:border-slate-700 overflow-hidden cursor-pointer hover:scale-105'
-                : 'absolute bottom-6 right-6 w-80 h-56 z-30 rounded-xl border-4 border-white dark:border-slate-700 overflow-hidden group cursor-pointer hover:scale-105 hover:shadow-3xl'
-              : 'absolute inset-0 w-full h-full z-10'
-            }
-          `}
-          onClick={() => {
-            if (currentView !== 'map') {
-              if (isMapCollapsed) setIsMapCollapsed(false);
-              else setCurrentView('map');
-            }
-          }}
-        >
-          {currentView !== 'map' && isMapCollapsed ? (
-            <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-              <MapIcon size={18} />
-              <span className="font-semibold text-sm whitespace-nowrap">Show Map</span>
+    switch (effectiveAdminMode as string) {
+      case 'lobby':
+        return <DistrictLobby onSelectOption={(option) => {
+          setAdminMode(option as any);
+          navigate(`/admin/${option}`);
+        }} userName={user?.name} />;
+      case 'plan-list':
+        return (
+          <DistrictPlanList
+            onBack={() => {
+              setAdminMode('lobby');
+              navigate('/admin/lobby');
+            }}
+            onSelectPlan={(id) => {
+              setSelectedId(id);
+              navigate(`/admin/plan/${id}`);
+            }}
+          />
+        );
+      case 'plan-edit':
+        const currentPlanId = routePlanId || selectedId;
+        return <DistrictSkillPlan planId={currentPlanId} onBack={() => {
+          setAdminMode('plan-list');
+          navigate('/admin/plan-list');
+        }} />;
+      case 'assign-work':
+        return <DistrictAssignWork onBack={() => {
+          setAdminMode('lobby');
+          navigate('/admin/lobby');
+        }} />;
+      case 'institution-wizard':
+        return <InstitutionDataWizard onSuccess={() => { }} onCancel={() => {
+          setAdminMode('lobby');
+          navigate('/admin/lobby');
+        }} />;
+      case 'schemes':
+        return <SchemesSection onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} />;
+      case 'trainer':
+        return <TrainerSection onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} />;
+      case 'iti-trade':
+        return <ItiTradeSection onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} />;
+      case 'training-center':
+        return <TrainingCenterSection onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} isRestricted={false} />;
+      case 'trainee-details':
+        return (
+          <TraineeDetailsSection
+            onBack={user?.role === 'trainee' ? undefined : () => {
+              setAdminMode('portal');
+              navigate('/admin/portal');
+            }}
+            isRestricted={user?.role === 'trainee'}
+          />
+        );
+      case 'trainee-analysis':
+        return (
+          <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
+            <div className="max-w-7xl mx-auto">
+              <button onClick={() => {
+                setAdminMode('portal');
+                navigate('/admin/portal');
+              }} className="flex items-center gap-2 text-slate-600 mb-6 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
+                Close Analysis
+              </button>
+              <TraineeDataAnalysis />
             </div>
-          ) : (
-            <>
-              <div className="w-full h-full relative pointer-events-auto">
-                <MapView
-                  institutions={filteredData}
-                  selectedId={selectedId}
-                  onSelect={setSelectedId}
-                  showHeatmap={showHeatmap}
-                  showPopulationView={showPopulationView}
-                  showJobs={showJobs}
-                  jobs={JOBS}
-                  hideLegend={currentView !== 'map'}
-                />
-              </div>
+          </div>
+        );
+      case 'district-skill-matrix':
+        return (
+          <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6">
+            <div className="mx-auto max-w-[1800px]">
+              <button onClick={() => {
+                setAdminMode('portal');
+                navigate('/admin/portal');
+              }} className="flex items-center gap-2 text-slate-600 mb-6 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
+                Back to Portal
+              </button>
+              <DistrictSkillMatrix />
+            </div>
+          </div>
+        );
+      case 'aggregate-demand':
+        return <AggregateDemandView onBack={() => {
+          setAdminMode('portal');
+          navigate('/admin/portal');
+        }} />;
+      default:
+        if (showEntryForm === 'institution') return <InstitutionDataWizard onSuccess={() => setShowEntryForm(null)} onCancel={() => setShowEntryForm(null)} />;
+        if (showEntryForm === 'company') return <CompanyEntryForm onSuccess={() => setShowEntryForm(null)} onCancel={() => setShowEntryForm(null)} />;
+        if (showEntryForm === 'coe') return <CoeEntryForm onSuccess={() => setShowEntryForm(null)} onCancel={() => setShowEntryForm(null)} />;
 
-              {/* Minimize Button - visible only when floating and expanded */}
+        return (
+          <div className="flex h-screen w-full bg-background overflow-hidden text-slate-900">
+            <button
+              className="md:hidden fixed top-4 left-4 z-[2001] p-2 bg-white rounded-md shadow-lg border border-slate-200"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}
+            </button>
+
+            {isMobileMenuOpen && (
+              <div
+                className="md:hidden fixed inset-0 z-[1999] bg-black/50 backdrop-blur-sm"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+            )}
+
+            <div className={`
+                fixed md:relative top-0 bottom-0 z-[2000] flex flex-col h-full bg-white shadow-xl md:shadow-none transition-transform duration-300 ease-in-out
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+              `}>
+              <Sidebar
+                institutions={currentView === 'map' ? filteredData : institutions}
+                selectedId={selectedId}
+                onSelect={(id) => {
+                  setSelectedId(id);
+                  setIsMobileMenuOpen(false);
+                }}
+                currentView={currentView}
+                onViewChange={(view) => {
+                  setCurrentView(view);
+                  setIsMobileMenuOpen(false);
+                  navigate(`/${view}`);
+                }}
+                showHeatmap={showHeatmap}
+                onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
+                isDarkMode={isDarkMode}
+                onToggleTheme={() => setIsDarkMode(!isDarkMode)}
+                searchQuery={filters.search}
+                onSearchChange={setSearch}
+                selectedCategories={filters.categories}
+                onToggleCategory={toggleCategory}
+                onLogin={() => setIsMobileMenuOpen(false)}
+              />
+            </div>
+
+            <div className="flex-1 relative overflow-hidden h-full">
               {currentView !== 'map' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMapCollapsed(true);
-                  }}
-                  className="absolute top-2 right-2 z-50 p-1.5 bg-white/90 dark:bg-slate-800/90 rounded-full shadow-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
-                  title="Minimize Map"
-                >
-                  <Minimize2 size={16} className="text-slate-600 dark:text-slate-300" />
-                </button>
-              )}
-
-              {/* Overlay for Expand Prompt in Minimized Mode */}
-              {currentView !== 'map' && !isMapCollapsed && (
-                <div className="absolute inset-0 bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors pointer-events-none">
-                  <div className="bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                    Click to Expand
-                  </div>
+                <div className="absolute inset-0 z-20 overflow-y-auto bg-slate-50 dark:bg-slate-900 animate-in fade-in duration-300 scrollbar-hide">
+                  {renderCurrentView()}
                 </div>
               )}
 
-              {/* Map Controls - Only visible in Full Map Mode */}
-              {currentView === 'map' && (
-                <>
-                  <FloatingFilterPanel
-                    selectedDomains={filters.domains}
-                    onToggleDomain={toggleDomain}
-                    selectedTools={filters.tools}
-                    onToggleTool={toggleTool}
-                    selectedDegrees={filters.degrees}
-                    onToggleDegree={toggleDegree}
-                    showCoeOnly={filters.coe}
-                    onToggleCoe={toggleCoe}
-                    showPopulationView={showPopulationView}
-                    onTogglePopulationView={() => setShowPopulationView(!showPopulationView)}
-                    showJobs={showJobs}
-                    onToggleJobs={() => setShowJobs(!showJobs)}
-                  />
+              <div
+                className={`
+                    transition-all duration-500 ease-in-out bg-white dark:bg-slate-800 shadow-2xl
+                    ${currentView !== 'map'
+                    ? isMapCollapsed
+                      ? 'absolute bottom-6 right-6 w-auto h-auto z-30 rounded-full border-2 border-white dark:border-slate-700 overflow-hidden cursor-pointer hover:scale-105'
+                      : 'absolute bottom-6 right-6 w-80 h-56 z-30 rounded-xl border-4 border-white dark:border-slate-700 overflow-hidden group cursor-pointer hover:scale-105 hover:shadow-3xl'
+                    : 'absolute inset-0 w-full h-full z-10'
+                  }
+                  `}
+                onClick={() => {
+                  if (currentView !== 'map') {
+                    if (isMapCollapsed) setIsMapCollapsed(false);
+                    else setCurrentView('map');
+                  }
+                }}
+              >
+                {currentView !== 'map' && isMapCollapsed ? (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                    <MapIcon size={18} />
+                    <span className="font-semibold text-sm whitespace-nowrap">Show Map</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-full h-full relative pointer-events-auto">
+                      <MapView
+                        institutions={filteredData}
+                        selectedId={selectedId}
+                        onSelect={setSelectedId}
+                        showHeatmap={showHeatmap}
+                        showPopulationView={showPopulationView}
+                        showJobs={showJobs}
+                        jobs={JOBS}
+                        hideLegend={currentView !== 'map'}
+                      />
+                    </div>
+                      {currentView !== 'map' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMapCollapsed(true);
+                          }}
+                          className="absolute top-2 right-2 z-50 p-1.5 bg-white/90 dark:bg-slate-800/90 rounded-full shadow-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <Minimize2 size={16} className="text-slate-600 dark:text-slate-300" />
+                        </button>
+                      )}
 
-                  {selectedInstitution && (
-                    <InstitutionDetail
-                      institution={selectedInstitution}
-                      onClose={() => setSelectedId(null)}
-                      isKeySet={isKeySet}
-                    />
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
+                      {currentView !== 'map' && !isMapCollapsed && (
+                        <div className="absolute inset-0 bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors pointer-events-none">
+                          <div className="bg-white/90 dark:bg-slate-800/90 text-slate-800 dark:text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                            Click to Expand
+                          </div>
+                        </div>
+                      )}
 
-      </div>
+                      {currentView === 'map' && (
+                        <>
+                          <FloatingFilterPanel
+                            selectedDomains={filters.domains}
+                            onToggleDomain={toggleDomain}
+                            selectedTools={filters.tools}
+                            onToggleTool={toggleTool}
+                            selectedDegrees={filters.degrees}
+                            onToggleDegree={toggleDegree}
+                            showCoeOnly={filters.coe}
+                            onToggleCoe={toggleCoe}
+                            showPopulationView={showPopulationView}
+                            onTogglePopulationView={() => setShowPopulationView(!showPopulationView)}
+                            showJobs={showJobs}
+                            onToggleJobs={() => setShowJobs(!showJobs)}
+                          />
+                        {selectedInstitution && (
+                          <InstitutionDetail
+                            institution={selectedInstitution}
+                            onClose={() => setSelectedId(null)}
+                            isKeySet={isKeySet}
+                          />
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
 
-    </div>
+  return (
+    <Routes>
+      <Route path="/login" element={<CentralLoginPage />} />
+      <Route path="/company/:companyName/survey/:role" element={<EmployerSurveyForm />} />
+      <Route path="/company-survey" element={<EmployerSurveyForm />} />
+      <Route path="/company_survey" element={<Navigate to="/company-survey" replace />} />
+      <Route path="/admin/plan/:planId" element={renderMainContent()} />
+      <Route path="/admin/:adminPath" element={renderMainContent()} />
+      <Route path="/:view" element={renderMainContent()} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }
 

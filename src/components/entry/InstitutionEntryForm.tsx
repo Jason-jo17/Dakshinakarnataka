@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useDataStore } from '../../store/useDataStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { CheckCircle, Save } from 'lucide-react';
+import { useCredentialStore } from '../../store/useCredentialStore';
+import { CheckCircle, Save, Key } from 'lucide-react';
 import type { Institution } from '../../types/institution';
+import type { GeneratedCredential } from '../../store/useCredentialStore';
 
 interface InstitutionEntryFormProps {
     onSuccess: () => void;
@@ -12,7 +14,10 @@ interface InstitutionEntryFormProps {
 const InstitutionEntryForm: React.FC<InstitutionEntryFormProps> = ({ onSuccess, onCancel }) => {
     const addInstitution = useDataStore(state => state.addInstitution);
     const user = useAuthStore(state => state.user);
+    const { generateCredential } = useCredentialStore();
     const [submitted, setSubmitted] = useState(false);
+    const [requestedCreds, setRequestedCreds] = useState<GeneratedCredential | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Initial State derived from Institution Interface
     const [formData, setFormData] = useState<Partial<Institution>>({
@@ -56,17 +61,31 @@ const InstitutionEntryForm: React.FC<InstitutionEntryFormProps> = ({ onSuccess, 
     const categories = ['Engineering', 'Polytechnic', 'ITI', 'Training', 'University', 'Degree College', 'PU College'];
     const taluks = ['Mangaluru', 'Bantwal', 'Puttur', 'Belthangady', 'Sullia', 'Moodbidri', 'Kadaba', 'Ullal', 'Mulki'];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Validation could go here
+        setIsGenerating(true);
 
-        // Ensure required fields are present (casting for now as it's a new entry)
-        addInstitution(formData as Institution);
-        setSubmitted(true);
-        if (onSuccess) onSuccess();
-        setTimeout(() => {
-            onCancel(); // Go back to dashboard/login
-        }, 2000);
+        try {
+            // 1. Add Institution to State/DB
+            addInstitution(formData as Institution);
+
+            // 2. Generate Credentials automatically
+            const cred = await generateCredential({
+                role: 'institution',
+                entityId: formData.id!,
+                entityName: formData.name!,
+                email: formData.contact?.email || `${formData.name?.toLowerCase().replace(/\s+/g, '')}@institution.com`
+            });
+
+            setRequestedCreds(cred);
+            setSubmitted(true);
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error("Failed to add institution or generate credentials:", error);
+            alert("Failed to save. Please try again.");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const updateLocation = (field: string, value: any) => {
@@ -85,12 +104,38 @@ const InstitutionEntryForm: React.FC<InstitutionEntryFormProps> = ({ onSuccess, 
 
     if (submitted) {
         return (
-            <div className="flex flex-col items-center justify-center h-full p-12 text-center">
-                <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                    <CheckCircle size={32} />
+            <div className="flex flex-col items-center justify-center min-h-[400px] p-12 text-center bg-white dark:bg-slate-800 rounded-2xl shadow-xl">
+                <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                    <CheckCircle size={40} />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Submission Successful!</h2>
-                <p className="text-slate-600 dark:text-slate-400">Your institution data has been added to the directory.</p>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-3">Institution Added!</h2>
+                <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md">Your institution data has been added to the directory and credentials have been generated.</p>
+
+                {requestedCreds && (
+                    <div className="w-full max-w-sm p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl mb-8 animate-in zoom-in-95 duration-500">
+                        <h3 className="text-slate-900 dark:text-white font-bold mb-4 flex items-center justify-center gap-2">
+                            <Key className="w-5 h-5 text-blue-500" />
+                            Access Credentials
+                        </h3>
+                        <div className="grid grid-cols-1 gap-4 text-left">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">Username</span>
+                                <code className="font-bold text-blue-600 dark:text-blue-400">{requestedCreds.username}</code>
+                            </div>
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <span className="text-slate-500 block text-xs mb-1 uppercase tracking-wider">Password</span>
+                                <code className="font-bold text-green-600 dark:text-green-400">{requestedCreds.password}</code>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <button
+                    onClick={onCancel}
+                    className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20"
+                >
+                    Continue to Dashboard
+                </button>
             </div>
         );
     }
@@ -206,9 +251,11 @@ const InstitutionEntryForm: React.FC<InstitutionEntryFormProps> = ({ onSuccess, 
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2"
+                            disabled={isGenerating}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white px-8 py-3 rounded-lg flex items-center gap-2 font-bold shadow-lg shadow-blue-500/20 transition-all"
                         >
-                            <Save size={18} /> Save Institution
+                            <Save size={18} />
+                            {isGenerating ? 'Saving & Generating...' : 'Save Institution'}
                         </button>
                     </div>
 

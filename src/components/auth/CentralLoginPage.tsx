@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
 import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -10,6 +12,7 @@ import EmployerSurveyForm from '../entry/employer/EmployerSurveyForm';
 
 export default function CentralLoginPage() {
   const { login, setDistrict } = useAuthStore();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'super' | 'district' | 'institution' | 'student' | 'company'>('super');
   const [districtRole, setDistrictRole] = useState<'admin' | 'team'>('admin'); // Toggle for District Admin vs Team
   const [formData, setFormData] = useState({ id: '', password: '' });
@@ -21,103 +24,65 @@ export default function CentralLoginPage() {
   // State for Data Entry Form Overlay
   const [showEntryForm, setShowEntryForm] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Get credentials for external role authentication
-    const { credentials } = useCredentialStore.getState();
+    // Query Supabase for the user record
+    const { data: userRecord, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', formData.id)
+      .eq('password_hash', formData.password)
+      .eq('status', 'active')
+      .single();
 
-    // Logic: Internal roles log in directly. External roles show the Portal Link modal after "Authentication".
-    switch (activeTab) {
-      case 'super':
-        login({ id: 'super_admin', name: 'Super Admin', role: 'super_admin' });
-        setDistrict(null);
-        break;
-      case 'district':
-        login({
-          id: districtRole === 'admin' ? 'district_admin' : 'district_team_member',
-          name: districtRole === 'admin' ? `District Admin (${selectedDistrictVal})` : `District Team (${selectedDistrictVal})`,
-          role: districtRole === 'admin' ? 'district_admin' : 'district_team',
-          managedEntityId: selectedDistrictVal
+    if (error || !userRecord) {
+      // If no local credentials found, show external portal link or error
+      if (activeTab === 'company') {
+        setPortalData({
+          title: 'Recruiter Portal',
+          description: 'Employer Survey & Hiring Dashboard',
+          url: 'https://inpulse-staging-recruitment.web.app/recruiter',
+          credentials: `User: ${formData.id || 'hr@company.com'}\nPassword: ${formData.password || '••••••••'}`,
+          icon: Briefcase,
+          color: 'blue'
         });
-        setDistrict(selectedDistrictVal);
-        break;
+      } else if (activeTab === 'student') {
+        setPortalData({
+          title: 'Trainee Portal',
+          description: 'Skill Training & Data Collection',
+          url: 'https://inpulse-staging-recruitment.web.app/trainee',
+          credentials: `User: ${formData.id || 'student@email.com'}\nPassword: ${formData.password || '••••••••'}`,
+          icon: GraduationCap,
+          color: 'violet'
+        });
+      } else {
+        alert('Invalid credentials or account revoked. Please check your username and password.');
+      }
+      return;
+    }
 
+    // Success: Login with the retrieved record
+    login({
+      id: userRecord.id,
+      name: userRecord.entity_name,
+      role: userRecord.role as any,
+      managedEntityId: userRecord.entity_id || userRecord.linked_entity_id
+    });
 
-      case 'company':
-        // Direct Login for Company with Credential Check
-        const cred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'company');
+    if (userRecord.role === 'district_admin' || userRecord.role === 'district_team') {
+      setDistrict(userRecord.entity_id || 'Dakshina Kannada');
+    } else {
+      setDistrict(null);
+    }
 
-        if (cred) {
-          login({
-            id: cred.id,
-            name: cred.entityName,
-            role: 'company',
-            managedEntityId: cred.entityId
-          });
-          setDistrict(null);
-        } else {
-          // If no local credentials found, show external portal link
-          setPortalData({
-            title: 'Recruiter Portal',
-            description: 'Employer Survey & Hiring Dashboard',
-            url: 'https://inpulse-staging-recruitment.web.app/recruiter',
-            credentials: `User: ${formData.id || 'hr@company.com'}\nPassword: ${formData.password || '••••••••'}`,
-            icon: Briefcase,
-            color: 'blue'
-          });
-        }
-        break;
-
-      case 'student':
-        // Direct Login for Trainee with Credential Check
-        const traineeCred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'trainee');
-
-        if (traineeCred) {
-          login({
-            id: traineeCred.id,
-            name: traineeCred.entityName,
-            role: 'trainee',
-            managedEntityId: traineeCred.linkedEntityId // Link to the training center
-          });
-          setDistrict(null);
-        } else {
-        // If no local credentials found, show external portal link or guidance
-          setPortalData({
-            title: 'Trainee Portal',
-            description: 'Skill Training & Data Collection',
-            url: 'https://inpulse-staging-recruitment.web.app/trainee',
-            credentials: `User: ${formData.id || 'student@email.com'}\nPassword: ${formData.password || '••••••••'}`,
-            icon: GraduationCap,
-            color: 'violet'
-          });
-        }
-        break;
-
-      case 'institution':
-        // Direct Login for Institution with Credential Check
-        const instCred = credentials.find(c => c.username === formData.id && c.password === formData.password && c.role === 'institution');
-
-        if (instCred) {
-          login({
-            id: instCred.id,
-            name: instCred.entityName,
-            role: 'institution',
-            managedEntityId: instCred.entityId
-          });
-          setDistrict(null);
-        } else {
-          // If no local credentials found, show external portal link
-          setPortalData({
-            title: 'Institution Portal',
-            description: 'Access for Colleges & Universities',
-            url: 'https://inpulse-staging-recruitment.web.app/signin',
-            credentials: `User: ${formData.id || 'tpo@college.edu'}\nPassword: ${formData.password || '••••••••'}`,
-            icon: School,
-            color: 'emerald'
-          });
-        }
-        break;
+    // REDIRECTION LOGIC
+    if (userRecord.role === 'company') {
+      navigate('/company-survey');
+    } else if (userRecord.role === 'super_admin' || userRecord.role === 'district_admin' || userRecord.role === 'district_team') {
+      navigate('/dashboard');
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -425,7 +390,7 @@ export default function CentralLoginPage() {
 
                             if (formData.id && formData.password && companyCred) {
                               login({
-                                id: companyCred.username,
+                                id: companyCred.id,
                                 name: companyCred.entityName,
                                 role: 'company',
                                 email: companyCred.email,
@@ -446,7 +411,8 @@ export default function CentralLoginPage() {
                           onClick={() => setShowEntryForm(true)}
                           className="text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
                         >
-                          Continue as Guest
+                          <User size={14} />
+                          Fill Survey as Guest
                         </button>
                       </div>
                     </div>

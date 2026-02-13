@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Check, AlertCircle } from 'lucide-react';
 import { useCredentialStore } from '../../store/useCredentialStore';
+import { supabase } from '../../lib/supabaseClient';
 
 /**
  * CredentialSeeder Component
@@ -11,122 +12,122 @@ import { useCredentialStore } from '../../store/useCredentialStore';
 export const CredentialSeeder: React.FC = () => {
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<{ success: boolean; message: string; count?: number } | null>(null);
-  const { generateCredential, clearCredentials } = useCredentialStore();
+  const { generateCredential } = useCredentialStore();
 
-  const handleSeedCredentials = () => {
+  const handleSeedCredentials = async () => {
     setIsSeeding(true);
     setSeedResult(null);
 
-    // Clear old credentials first to ensure we use the latest robust IDs
-    clearCredentials();
+    // Note: We no longer clearCredentials() to avoid deleting real requested credentials.
+    // Instead, we rely on the upsert logic in the store to handle duplicates.
 
     try {
       let count = 0;
 
-      // Training Center/Institution Credentials
-      const institutions = [
-        { name: 'District Agriculture Training Centre Belthangady', username: 'institution_datcbelth', password: 'Pass@datc123' },
-        { name: 'RUDSETI Ujire', username: 'institution_rudsetiujire', password: 'Pass@rudseti123' },
-        { name: 'Horticulture', username: 'institution_horticulture', password: 'Pass@horti123' },
-        { name: 'College of Fisheries, Mangaluru', username: 'institution_fisheries', password: 'Pass@fish123' },
-        { name: 'Govt.ITI(M)Mangaluru-4', username: 'institution_govtitimng4', password: 'Pass@iti123' },
-        { name: 'GOVT. ITI (WOMEN) MANGALORE', username: 'institution_itiwoman', password: 'Pass@women123' },
-        { name: 'KGTTI Mangaluru', username: 'institution_kgtti', password: 'Pass@kgtti123' },
-        { name: 'GTTC, MANGALORE', username: 'institution_gttc', password: 'Pass@gttc123' },
-        { name: 'JNV DAKSHINA KANNADA', username: 'institution_jnv', password: 'Pass@jnv123' },
-        { name: 'CEDOK', username: 'institution_cedok', password: 'Pass@cedok123' },
-        { name: 'KV No.1 Mangaluru', username: 'institution_kv1', password: 'Pass@kv123' },
-        { name: 'ICAR-Krishi Vigyan Kendra, Dakshina Kannada', username: 'institution_icar', password: 'Pass@icar123' }
+      // 1. Super Admin & District Admins (Multi-District)
+      const administrative = [
+        { role: 'super_admin', entityId: 'admin_global', entityName: 'Super Admin', username: 'super_admin', password: 'Pass@super123', email: 'admin@dkdistrict.gov.in' },
+        { role: 'district_admin', entityId: 'Dakshina Kannada', entityName: 'District Admin (DK)', username: 'admin_dk', password: 'Pass@dk123', email: 'dk_admin@dkdistrict.gov.in' },
+        { role: 'district_admin', entityId: 'Udupi', entityName: 'District Admin (Udupi)', username: 'admin_udupi', password: 'Pass@udupi123', email: 'udupi_admin@district.gov.in' },
+        { role: 'district_admin', entityId: 'Uttara Kannada', entityName: 'District Admin (UK)', username: 'admin_uk', password: 'Pass@uk123', email: 'uk_admin@district.gov.in' },
+        { role: 'district_admin', entityId: 'Kodagu', entityName: 'District Admin (Kodagu)', username: 'admin_kodagu', password: 'Pass@kodagu123', email: 'kodagu_admin@district.gov.in' }
       ];
 
-      institutions.forEach((inst) => {
-        const cred = generateCredential({
+      for (const admin of administrative) {
+        await generateCredential(admin as any);
+        count++;
+      }
+
+      // 2. Training Centers / Institutions (Full List of 12)
+      const institutions = [
+        { name: 'District Agriculture Training Centre Belthangady', username: 'institution_datcbgy' },
+        { name: 'RUDSETI Ujire', username: 'institution_rudset' },
+        { name: 'Horticulture Department', username: 'institution_horti' },
+        { name: 'College of Fisheries, Mangaluru', username: 'institution_fisheries' },
+        { name: 'Govt.ITI(M)Mangaluru-4', username: 'institution_giti_mng' },
+        { name: 'Govt ITI (Women) Mangalore', username: 'institution_giti_wom' },
+        { name: 'KGTTI Mangaluru', username: 'institution_kgtti' },
+        { name: 'GTTC, Mangalore', username: 'institution_gttc' },
+        { name: 'JNV Dakshina Kannada', username: 'institution_jnv' },
+        { name: 'CEDOK Mangaluru', username: 'institution_cedok' },
+        { name: 'KV No.1 Mangaluru', username: 'institution_kv1' },
+        { name: 'ICAR-Krishi Vigyan Kendra', username: 'institution_kvk' }
+      ];
+
+      for (const inst of institutions) {
+        await generateCredential({
           role: 'institution',
-          entityId: inst.name, // Use name as ID for seeded data consistency
+          entityId: inst.name,
           entityName: inst.name,
+          username: inst.username,
+          password: `Pass@${inst.username.split('_')[1]}123`,
           email: `${inst.username}@dkdistrict.gov.in`
         });
-
-        // Override with custom username/password for consistency
-        cred.username = inst.username;
-        cred.password = inst.password;
         count++;
-      });
+      }
 
-      // Student/Trainee Credentials
+      // 3. Trainees (Expanded)
       const trainees = [
-        {
-          name: 'Preetham',
-          email: 'preetham@sahyadri.edu',
-          username: 'trainee_preetham',
-          password: 'Pass@preetham123',
-          linkedEntityId: 'Govt.ITI(M)Mangaluru-4'
-        },
-        {
-          name: 'Rajesh Kumar',
-          email: 'rajesh@student.edu',
-          username: 'trainee_rajesh',
-          password: 'Pass@rajesh123',
-          linkedEntityId: 'Govt.ITI(M)Mangaluru-4'
-        },
-        {
-          name: 'Priya Shetty',
-          email: 'priya@student.edu',
-          username: 'trainee_priya',
-          password: 'Pass@priya123',
-          linkedEntityId: 'GOVT. ITI (WOMEN) MANGALORE'
-        },
-        {
-          name: 'Arun Bhat',
-          email: 'arun@student.edu',
-          username: 'trainee_arun',
-          password: 'Pass@arun123',
-          linkedEntityId: 'KGTTI Mangaluru'
-        }
+        { name: 'Preetham', username: 'trainee_preetham', email: 'preetham@sahyadri.edu', linkedEntityId: 'Govt.ITI(M)Mangaluru-4' },
+        { name: 'Sanjay Kumar', username: 'trainee_sanjay', email: 'sanjay@kgtti.edu', linkedEntityId: 'KGTTI Mangaluru' },
+        { name: 'Aditi Rao', username: 'trainee_aditi', email: 'aditi@gttc.edu', linkedEntityId: 'GTTC, Mangalore' },
+        { name: 'Kavya Hegde', username: 'trainee_kavya', email: 'kavya@datc.edu', linkedEntityId: 'District Agriculture Training Centre Belthangady' }
       ];
 
-      trainees.forEach(trainee => {
-        const cred = generateCredential({
+      for (const t of trainees) {
+        await generateCredential({
           role: 'trainee',
           entityId: crypto.randomUUID(),
-          entityName: trainee.name,
-          linkedEntityId: trainee.linkedEntityId,
-          email: trainee.email
+          entityName: t.name,
+          linkedEntityId: t.linkedEntityId,
+          email: t.email,
+          username: t.username,
+          password: `Pass@${t.username.split('_')[1]}123`
         });
-
-        // Override with custom username/password
-        cred.username = trainee.username;
-        cred.password = trainee.password;
         count++;
-      });
+      }
 
-      // Recruiter Credentials
-      const recruiters = [
-        {
-          name: 'InUnity (Recruiter)',
-          email: 'preetham+recruit@inunity.in',
-          username: 'preetham+recruit@inunity.in',
-          password: 'Password@2025'
+      // 4. Auto-Sync Companies from Employer Survey Table (Safer Select)
+      try {
+        const { data: employers, error: empError } = await supabase
+          .from('ad_survey_employer')
+          .select('employer_name, contact_person_email');
+
+        if (!empError && employers) {
+          // Unique companies by name
+          const uniqueEmployers = Array.from(new Set(employers.map(e => e.employer_name as string).filter(Boolean)));
+
+          for (const empName of uniqueEmployers) {
+            const emp = employers.find(e => e.employer_name === empName);
+
+            // Generate a unique password for each company
+            const uniquePass = 'Pass@' + Math.random().toString(36).slice(-8).toUpperCase() + '2025';
+
+            // Use the same username logic as the store
+            const sanitizedName = empName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            const username = `company_${sanitizedName}`;
+
+            await generateCredential({
+              role: 'company',
+              entityId: `company-${sanitizedName}`,
+              entityName: empName,
+              email: (emp as any)?.contact_person_email || `${sanitizedName}@company.com`,
+              username: username,
+              password: uniquePass
+            });
+            count++;
+          }
+        } else if (empError) {
+          console.warn("Could not sync companies (possibly missing column):", empError.message);
+          // Don't throw here, just skip company sync if table/column isn't ready
         }
-      ];
-
-      recruiters.forEach(recruiter => {
-        const cred = generateCredential({
-          role: 'company',
-          entityId: 'recruiter-inunity',
-          entityName: recruiter.name,
-          email: recruiter.email
-        });
-
-        // Override with custom username/password
-        cred.username = recruiter.username;
-        cred.password = recruiter.password;
-        count++;
-      });
+      } catch (err) {
+        console.error("Critical error during company sync:", err);
+      }
 
       setSeedResult({
         success: true,
-        message: `Successfully seeded ${count} credentials (${institutions.length} institutions, ${trainees.length} trainees, ${recruiters.length} recruiters)`,
+        message: `Seeding Complete! Processed ${count} credentials. (Note: Company sync may have been skipped if schema is outdated).`,
         count
       });
     } catch (error) {
@@ -150,11 +151,10 @@ export const CredentialSeeder: React.FC = () => {
 
         <div className="flex-1">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-            Seed Test Credentials
+            Seed & Sync Credentials
           </h3>
           <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-            Automatically generate credentials for all 12 training centers, 4 test trainees, and the InUnity recruiter.
-            This will populate the Credential Manager with ready-to-use test accounts.
+            Generate credentials for all 12 district institutions, expanded trainees, and automatically <strong>sync login details for all registered companies</strong> in the survey database.
           </p>
 
           {seedResult && (

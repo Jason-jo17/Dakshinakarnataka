@@ -5,23 +5,38 @@ CREATE TABLE IF NOT EXISTS ad_survey_employer (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   district_id VARCHAR(100) NOT NULL,
   employer_name VARCHAR(255) NOT NULL,
+  employer_address TEXT,
   
+  -- Company Details
+  registration_number VARCHAR(100),
+  company_type VARCHAR(100),
+  sector VARCHAR(255),
+  sub_sector VARCHAR(255),
+  business_activity TEXT,
+  manufacturing_location TEXT,
+  state VARCHAR(100) DEFAULT 'Karnataka',
+
   -- Recruited in past 12 months
   recruited_past_12m_num INTEGER DEFAULT 0,
   recruited_past_12m_avg_salary DECIMAL(10, 2) DEFAULT 0,
-  recruited_job_roles TEXT, -- Comma separated or JSON
+  recruited_job_roles TEXT,
+  skill_gaps_observed TEXT,
   
   -- Contact Person
   contact_person_name VARCHAR(255),
   contact_person_designation VARCHAR(255),
   contact_person_phone VARCHAR(50),
+  contact_person_email VARCHAR(255),
+  contact_department VARCHAR(255),
   
   -- Expected Recruitment this year
   expected_recruit_num INTEGER DEFAULT 0,
   expected_recruit_salary DECIMAL(10, 2) DEFAULT 0,
   expected_recruit_job_role TEXT,
+  expected_recruit_qualification VARCHAR(255),
   place_of_recruitment VARCHAR(255),
   
+  created_by_credential_id UUID, -- Links to the Auth User ID (Credential ID)
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

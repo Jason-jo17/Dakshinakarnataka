@@ -4,10 +4,13 @@
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- In a real app, store bcrypt hash. For demo simplicity, might be plain text if strictly local.
-    role VARCHAR(50) NOT NULL CHECK (role IN ('super_admin', 'district_admin', 'institution', 'company', 'coe', 'training_center', 'guest')),
+    password_hash VARCHAR(255) NOT NULL, -- Stored as plain text for the "Master Sheet" requirement in this pilot
+    role VARCHAR(50) NOT NULL CHECK (role IN ('super_admin', 'district_admin', 'district_team', 'institution', 'company', 'coe', 'training_center', 'trainee', 'guest')),
     entity_id VARCHAR(255), -- Links to the specific institution/company ID
     entity_name VARCHAR(255), -- Denormalized name for easier display
+    email VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'revoked')),
+    linked_entity_id VARCHAR(255), -- For trainees to link to an institution
     created_by UUID REFERENCES public.users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     last_login TIMESTAMP WITH TIME ZONE

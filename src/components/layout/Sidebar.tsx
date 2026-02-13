@@ -2,6 +2,7 @@ import React from 'react';
 import type { Institution } from '../../types/institution';
 import { MapPin, Building2, Compass, Sun, Moon, LayoutDashboard, GraduationCap, Briefcase, Award, Bot, FileText, PieChart, Search, Zap, LogIn, LogOut, Key } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
     institutions: Institution[];
@@ -39,12 +40,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     onToggleCategory,
     onLogin
 }) => {
-    const { user, isAuthenticated, logout, currentDistrict, setDistrict } = useAuthStore();
-
+    const { user, isAuthenticated, logout, currentDistrict, setDistrict, updatePassword } = useAuthStore();
+    const navigate = useNavigate();
 
     const MenuItem = ({ view, icon: Icon, label }: { view: any, icon: any, label: string }) => (
         <button
-            onClick={() => onViewChange(view)}
+            onClick={() => {
+                onViewChange(view);
+                navigate(`/${view}`);
+            }}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-r-full mr-2 ${currentView === view
                 ? view === 'skills-intel'
                     ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' // Orange for Intelligence Hub
@@ -225,6 +229,25 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 <MapPin size={14} /> Switch District
                             </button>
                         )}
+
+                        <button
+                            onClick={async () => {
+                                const newPass = prompt("Enter new password:");
+                                if (newPass && newPass.length >= 6) {
+                                    try {
+                                        await updatePassword(newPass);
+                                        alert("Password updated successfully!");
+                                    } catch (err) {
+                                        alert("Failed to update password.");
+                                    }
+                                } else if (newPass) {
+                                    alert("Password must be at least 6 characters.");
+                                }
+                            }}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            <Key size={14} /> Change Password
+                        </button>
 
                         <button
                             onClick={logout}
