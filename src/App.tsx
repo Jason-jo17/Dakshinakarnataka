@@ -156,10 +156,11 @@ function App() {
 
 
   if (!isAuthenticated) {
+    // If the user arrived at the survey route, show a focused login
+    const isSurveyPath = window.location.pathname.startsWith('/company-survey');
+
     return (
-      <>
-        <CentralLoginPage />
-      </>
+      <CentralLoginPage forceTab={isSurveyPath ? 'company' : undefined} />
     );
   }
 
@@ -459,7 +460,8 @@ function App() {
     }
 
     if (user?.role === 'company') {
-      return <Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} replace />;
+      const slug = user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company';
+      return <Navigate to={`/company-survey/${slug}`} replace />;
     }
 
     // Handle Admin Paths via Route or State
@@ -720,15 +722,15 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<CentralLoginPage />} />
+      <Route path="/company-survey" element={<EmployerSurveyForm />} />
       <Route path="/company-survey/:companyName" element={<EmployerSurveyForm />} />
-      <Route path="/company-survey" element={<Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'guest'}`} replace />} />
       <Route path="/company_survey" element={<Navigate to="/company-survey" replace />} />
       <Route path="/admin/plan/:planId" element={renderMainContent()} />
       <Route path="/admin/:adminPath" element={renderMainContent()} />
       <Route path="/:view" element={renderMainContent()} />
       <Route path="/" element={
         user?.role === 'company'
-          ? <Navigate to={`/company-survey/${user?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} replace />
+          ? <Navigate to={`/company-survey/${user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company'}`} replace />
           : <Navigate to="/dashboard" replace />
       } />
     </Routes>

@@ -10,10 +10,14 @@ import TraineeDetailsSection from '../pages/TraineeDetailsSection';
 import InstitutionDataWizard from '../entry/institution/InstitutionDataWizard';
 import EmployerSurveyForm from '../entry/employer/EmployerSurveyForm';
 
-export default function CentralLoginPage() {
+interface CentralLoginPageProps {
+  forceTab?: 'super' | 'district' | 'institution' | 'student' | 'company';
+}
+
+export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
   const { login, setDistrict } = useAuthStore();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'super' | 'district' | 'institution' | 'student' | 'company'>('super');
+  const [activeTab, setActiveTab] = useState<'super' | 'district' | 'institution' | 'student' | 'company'>(forceTab || 'super');
   const [districtRole, setDistrictRole] = useState<'admin' | 'team'>('admin'); // Toggle for District Admin vs Team
   const [formData, setFormData] = useState({ id: '', password: '' });
   const [selectedDistrictVal, setSelectedDistrictVal] = useState('Dakshina Kannada');
@@ -163,31 +167,33 @@ export default function CentralLoginPage() {
 
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* Left Column: Login Form (Span 7) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col min-h-[500px]">
-          {/* Admin Tabs */}
-          <div className="grid grid-cols-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
-            <button
-              onClick={() => setActiveTab('super')}
-              className={`py-4 px-6 text-sm font-semibold flex items-center justify-center gap-2 transition-all
-                  ${activeTab === 'super'
-                  ? 'bg-white dark:bg-slate-800 text-blue-600 border-t-2 border-t-blue-600'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              <Globe size={18} />
-              State Admin
-            </button>
-            <button
-              onClick={() => setActiveTab('district')}
-              className={`py-4 px-6 text-sm font-semibold flex items-center justify-center gap-2 transition-all
-                  ${activeTab === 'district'
-                  ? 'bg-white dark:bg-slate-800 text-blue-600 border-t-2 border-t-blue-600'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-            >
-              <Map size={18} />
-              District Admin
-            </button>
-          </div>
+        {/* Left Column: Login Form (Span 7 or 12) */}
+        <div className={forceTab ? "lg:col-span-12 max-w-2xl mx-auto w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col min-h-[500px]" : "lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col min-h-[500px]"}>
+          {/* Admin Tabs - Hidden if forceTab is active */}
+          {!forceTab && (
+            <div className="grid grid-cols-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+              <button
+                onClick={() => setActiveTab('super')}
+                className={`py-4 px-6 text-sm font-semibold flex items-center justify-center gap-2 transition-all
+                    ${activeTab === 'super'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 border-t-2 border-t-blue-600'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                <Globe size={18} />
+                State Admin
+              </button>
+              <button
+                onClick={() => setActiveTab('district')}
+                className={`py-4 px-6 text-sm font-semibold flex items-center justify-center gap-2 transition-all
+                    ${activeTab === 'district'
+                    ? 'bg-white dark:bg-slate-800 text-blue-600 border-t-2 border-t-blue-600'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              >
+                <Map size={18} />
+                District Admin
+              </button>
+            </div>
+          )}
 
           <div className="p-8 flex-1 flex flex-col justify-center">
             <div className="mb-6">
@@ -353,7 +359,7 @@ export default function CentralLoginPage() {
                         <button
                           type="button"
                           onClick={() => setShowEntryForm(true)}
-                          className="text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
+                          className="text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
                         >
                           Continue as Guest
                         </button>
@@ -362,8 +368,6 @@ export default function CentralLoginPage() {
                   </div>
                 </div>
               )}
-
-
 
               {/* Instructions for Company */}
               {activeTab === 'company' && (
@@ -484,46 +488,47 @@ export default function CentralLoginPage() {
         </div>
 
         {/* Right Column: Portal Cards (Span 5) */}
-        <div className="lg:col-span-5 space-y-4">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
-            <ExternalLink size={20} />
-            Role based access portals
-          </h3>
+        {!forceTab && (
+          <div className="lg:col-span-5 space-y-4">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
+              <ExternalLink size={20} />
+              Role based access portals
+            </h3>
 
-          <PortalCard
-            title="Company View"
-            description="For Industries & Recruiters"
-            icon={Briefcase}
-            color="blue"
-            isActive={activeTab === 'company'}
-            onClick={() => { setActiveTab('company'); setShowEntryForm(false); }}
-          />
+            <PortalCard
+              title="Company View"
+              description="For Industries & Recruiters"
+              icon={Briefcase}
+              color="blue"
+              isActive={activeTab === 'company'}
+              onClick={() => { setActiveTab('company'); setShowEntryForm(false); }}
+            />
 
-          <PortalCard
-            title="Institution View"
-            description="For Colleges & Universities"
-            icon={School}
-            color="emerald"
-            isActive={activeTab === 'institution'}
-            onClick={() => { setActiveTab('institution'); setShowEntryForm(false); }}
-          />
+            <PortalCard
+              title="Institution View"
+              description="For Colleges & Universities"
+              icon={School}
+              color="emerald"
+              isActive={activeTab === 'institution'}
+              onClick={() => { setActiveTab('institution'); setShowEntryForm(false); }}
+            />
 
-          <PortalCard
-            title="Student View"
-            description="For Students & Learners"
-            icon={GraduationCap}
-            color="violet"
-            isActive={activeTab === 'student'}
-            onClick={() => { setActiveTab('student'); setShowEntryForm(false); }}
-          />
+            <PortalCard
+              title="Student View"
+              description="For Students & Learners"
+              icon={GraduationCap}
+              color="violet"
+              isActive={activeTab === 'student'}
+              onClick={() => { setActiveTab('student'); setShowEntryForm(false); }}
+            />
 
-          <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl p-4 mt-6">
-            <p className="text-sm text-blue-800 dark:text-blue-300">
-              <span className="font-semibold">Note:</span> Access credentials will be shared once you verify your identity. Use them to login to the respective portals.
-            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl p-4 mt-6">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                <span className="font-semibold">Note:</span> Access credentials will be shared once you verify your identity. Use them to login to the respective portals.
+              </p>
+            </div>
           </div>
-        </div>
-
+        )}
       </div>
 
       {/* Portal Access Modal (Gatekeeper Success) */}
@@ -635,5 +640,5 @@ function PortalCard({ title, description, icon: Icon, color, isActive, onClick }
         </div>
       )}
     </button>
-  )
+  );
 }

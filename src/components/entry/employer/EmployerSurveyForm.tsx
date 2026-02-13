@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, MapPin, Briefcase, Plus, Trash2, Phone, AlertCircle, ArrowRight, Pencil, ShieldCheck, Key, Check, Download, Printer, FileText } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -53,6 +53,7 @@ interface EmployerSurveyData {
 
 export default function EmployerSurveyForm() {
     const { logout, user } = useAuthStore();
+    const navigate = useNavigate();
     const { generateCredential } = useCredentialStore();
     const { companyName: urlCompanyName, role: urlRole } = useParams();
     const [activeSection, setActiveSection] = useState<number>(1);
@@ -74,6 +75,14 @@ export default function EmployerSurveyForm() {
             setGuestSessionId(sid);
         }
     }, [user]);
+
+    // Auto-slugging for authenticated users
+    useEffect(() => {
+        if (user && !urlCompanyName && window.location.pathname === '/company-survey') {
+            const slug = user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company';
+            navigate(`/company-survey/${slug}`, { replace: true });
+        }
+    }, [user, urlCompanyName, navigate]);
 
     // Form State
     const [formData, setFormData] = useState<EmployerSurveyData>({
@@ -1103,7 +1112,7 @@ export default function EmployerSurveyForm() {
                                     onClick={() => setActiveSection(2)}
                                     className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors font-medium shadow-sm transition-all hover:translate-x-1"
                                 >
-                                    Next: Location
+                                    Next
                                     <ArrowRight className="w-4 h-4" />
                                 </button>
                             </div>
@@ -1179,7 +1188,7 @@ export default function EmployerSurveyForm() {
                                     >
                                         <ShieldCheck className="w-4 h-4" /> Save Draft
                                     </button>
-                                    <button onClick={() => setActiveSection(3)} className="btn-primary">Next: Hiring Plans</button>
+                                    <button onClick={() => setActiveSection(3)} className="btn-primary">Next</button>
                                 </div>
                             </div>
                         </div>
@@ -1299,7 +1308,7 @@ export default function EmployerSurveyForm() {
                                     >
                                         <ShieldCheck className="w-4 h-4" /> Save Draft
                                     </button>
-                                    <button onClick={() => setActiveSection(4)} className="btn-primary">Next: Contact Info</button>
+                                    <button onClick={() => setActiveSection(4)} className="btn-primary">Next</button>
                                 </div>
                             </div>
                         </div>
