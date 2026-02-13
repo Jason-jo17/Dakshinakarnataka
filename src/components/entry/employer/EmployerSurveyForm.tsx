@@ -7,6 +7,7 @@ import { useCredentialStore } from '../../../store/useCredentialStore';
 import type { GeneratedCredential } from '../../../store/useCredentialStore';
 import { supabase } from '../../../lib/supabaseClient';
 import { emailService } from '../../../services/emailService';
+import { toSlug } from '../../../utils/slugUtils';
 
 // TypeScript Interfaces based on requirements
 interface JobRoleHistory {
@@ -60,6 +61,7 @@ export default function EmployerSurveyForm() {
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [requestedCreds, setRequestedCreds] = useState<GeneratedCredential | null>(null);
     const [isRequestingCreds, setIsRequestingCreds] = useState(false);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
     const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export default function EmployerSurveyForm() {
     // Auto-slugging for authenticated users
     useEffect(() => {
         if (user && !urlCompanyName && window.location.pathname === '/company-survey') {
-            const slug = user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company';
+            const slug = user.name ? toSlug(user.name) : 'company';
             navigate(`/company-survey/${slug}`, { replace: true });
         }
     }, [user, urlCompanyName, navigate]);
@@ -111,73 +113,85 @@ export default function EmployerSurveyForm() {
 
 
 
-    // Draft Persistence Logic (Database-backed)
+    // Unified Initialization Logic
     useEffect(() => {
-        const loadDraftFromDB = async () => {
-            const identifier = user?.id || localStorage.getItem('employer_survey_session_id');
-            if (!identifier) return;
+        const initForm = async () => {
+            setIsInitialLoading(true);
+            try {
+                // 1. Fetch autofill data
+                const autofillData = await fetchCompanyAutofillData();
 
-            let query = supabase
-                .from('user_drafts')
-                .select('state')
-                .eq('form_type', 'employer_survey');
+                // 2. Load draft data
+                const draftData = await loadDraftFromDB();
 
-            // Build or filter safely
-            const orConditions = [];
-            if (user) {
-                orConditions.push(`user_id.eq.${identifier}`);
-                orConditions.push(`user_id.eq.${user.name}`);
-            } else {
-                orConditions.push(`guest_id.eq.${identifier}`);
-            }
+                // 3. Merge and set state exactly once
+                setFormData(prev => {
+                    let finalForm = { ...prev };
 
-            // ONLY include UUID check if the DB haven't been migrated yet 
-            // but we want to be as broad as possible to find the draft on any PC
-            const { data, error } = await query
-                .or(orConditions.join(','))
-                .maybeSingle();
-
-            if (error) {
-                // If it fails with 22P02, retry with name only
-                if (error.code === '22P02' && user) {
-                    console.warn('UUID mismatch in draft lookup, retrying with name-only...');
-                    const { data: retryData } = await supabase
-                        .from('user_drafts')
-                        .select('state')
-                        .eq('user_id', user.name)
-                        .eq('form_type', 'employer_survey')
-                        .maybeSingle();
-                    if (retryData) {
-                        try {
-                            const { formData: savedForm, pastHiring: savedPast, futureHiring: savedFuture } = retryData.state;
-                            if (savedForm) setFormData(prev => ({ ...prev, ...savedForm }));
-                            if (savedPast) setPastHiring(savedPast);
-                            if (savedFuture) setFutureHiring(savedFuture);
-                            setDraftSavedAt('Restored (Name-match)');
-                        } catch (e) { }
+                    // Apply Autofill if found
+                    if (autofillData) {
+                        finalForm = {
+                            ...finalForm,
+                            ...autofillData
+                        };
                     }
-                    return;
-                }
-                console.error('Failed to fetch draft:', error);
-                return;
-            }
 
-            if (data && data.state) {
-                try {
-                    const { formData: savedForm, pastHiring: savedPast, futureHiring: savedFuture } = data.state;
-                    if (savedForm) setFormData(prev => ({ ...prev, ...savedForm }));
-                    if (savedPast) setPastHiring(savedPast);
-                    if (savedFuture) setFutureHiring(savedFuture);
-                    console.log('📬 Draft restored from database');
-                    setDraftSavedAt('Restored');
-                } catch (e) {
-                    console.error('Failed to parse DB draft', e);
-                }
+                    // Apply Draft if found (Surgical merge)
+                    if (draftData && draftData.formData) {
+                        const savedForm = draftData.formData;
+                        const isSameCompany = urlCompanyName && savedForm.companyName &&
+                            (toSlug(savedForm.companyName) === urlCompanyName);
+
+                        // Priority: URL Company Name > Draft Company Name
+                        const finalCompanyName = (urlCompanyName && !isSameCompany)
+                            ? finalForm.companyName
+                            : (savedForm.companyName || finalForm.companyName);
+
+                        // Merge draft fields but PROTECT non-empty autofilled fields from being emptied by draft
+                        Object.keys(savedForm).forEach(key => {
+                            const k = key as keyof EmployerSurveyData;
+                            if (savedForm[k]) {
+                                (finalForm as any)[k] = savedForm[k];
+                            }
+                        });
+
+                        finalForm.companyName = finalCompanyName;
+                    }
+
+                    return finalForm;
+                });
+
+                if (draftData?.pastHiring) setPastHiring(draftData.pastHiring);
+                if (draftData?.futureHiring) setFutureHiring(draftData.futureHiring);
+
+                // 4. Fetch sidebar history
+                await fetchSurveyData(sessionSubmissionIds);
+            } catch (err) {
+                console.error("Initialization error:", err);
+            } finally {
+                setIsInitialLoading(false);
             }
         };
 
-        loadDraftFromDB();
-    }, [user, guestSessionId]);
+        if (user !== undefined) {
+            initForm();
+        }
+    }, [user, urlCompanyName]);
+
+    const loadDraftFromDB = async () => {
+        const identifier = user?.id || localStorage.getItem('employer_survey_session_id');
+        if (!identifier) return null;
+
+        const { data, error } = await supabase
+            .from('user_drafts')
+            .select('state')
+            .eq('form_type', 'employer_survey')
+            .or(`user_id.eq.${identifier},guest_id.eq.${identifier},user_id.eq.${user?.name || ''}`)
+            .maybeSingle();
+
+        if (error || !data?.state) return null;
+        return data.state as { formData: EmployerSurveyData, pastHiring: any[], futureHiring: any[] };
+    };
 
     const handleSaveDraft = async (manual = false) => {
         const identifier = user?.id || guestSessionId;
@@ -211,11 +225,11 @@ export default function EmployerSurveyForm() {
 
     // Auto-save to DB
     useEffect(() => {
-        if (!isSubmitted) {
+        if (!isSubmitted && !isInitialLoading) {
             const timer = setTimeout(() => handleSaveDraft(false), 2000); // 2 second delay
             return () => clearTimeout(timer);
         }
-    }, [formData, pastHiring, futureHiring, isSubmitted, user, guestSessionId]);
+    }, [formData, pastHiring, futureHiring, isSubmitted, user, guestSessionId, isInitialLoading]);
 
     const clearDraft = async () => {
         const identifier = user?.id || guestSessionId;
@@ -239,7 +253,7 @@ export default function EmployerSurveyForm() {
         try {
             const cred = await generateCredential({
                 role: 'company',
-                entityId: `company-${formData.companyName.toLowerCase().replace(/\s+/g, '-')}`,
+                entityId: `company-${toSlug(formData.companyName)}`,
                 entityName: formData.companyName,
                 email: formData.contactEmail
             });
@@ -268,91 +282,75 @@ export default function EmployerSurveyForm() {
         return saved ? JSON.parse(saved) : [];
     });
 
-    useEffect(() => {
-        fetchSurveyData(sessionSubmissionIds);
-        if (user?.role === 'company') {
-            fetchExistingCompanyData();
-        }
-    }, [user]);
-
-    const fetchExistingCompanyData = async () => {
-        if (!user) return;
+    // Finalize Autofill Function
+    const fetchCompanyAutofillData = async () => {
         try {
-            console.log("Searching for existing data for:", user.name);
+            if (!user && !urlCompanyName) return null;
+            console.log("🔍 Fetching Autofill Data...");
 
-            // Helper to check if string is UUID
-            const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-
-            let existingSurvey = null;
-
-            // Priority 1: Match by NAME (Most reliable for companies across PCs)
-            const { data: nameMatch } = await supabase
-                .from('ad_survey_employer')
-                .select('*')
-                .ilike('employer_name', `%${user.name}%`)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-
-            existingSurvey = nameMatch;
-
-            // Priority 2: Match by credential ID IF it's a valid UUID (fallback)
-            if (!existingSurvey && isUUID(user.id)) {
-                const { data } = await supabase
-                    .from('ad_survey_employer')
+            // 1. Check New Public Autofill Table (FAST & Guest Friendly)
+            if (urlCompanyName) {
+                const { data: autofillMatch } = await supabase
+                    .from('dic_company_autofill')
                     .select('*')
-                    .eq('created_by_credential_id', user.id)
-                    .order('created_at', { ascending: false })
+                    .eq('slug', urlCompanyName)
                     .limit(1)
                     .maybeSingle();
-                existingSurvey = data;
-            }
 
-            if (existingSurvey) {
-                console.log("Found existing survey data, auto-filling...");
-                setFormData({
-                    companyName: existingSurvey.employer_name || '',
-                    registrationNumber: existingSurvey.registration_number || '',
-                    companyType: existingSurvey.company_type || '',
-                    industrySector: existingSurvey.sector || '',
-                    subSector: existingSurvey.sub_sector || '',
-                    businessActivity: existingSurvey.business_activity || '',
-                    officeAddress: existingSurvey.employer_address || '',
-                    manufacturingLocation: existingSurvey.manufacturing_location || '',
-                    district: existingSurvey.district_id || 'Dakshina Kannada',
-                    state: existingSurvey.state || 'Karnataka',
-                    contactName: existingSurvey.contact_person_name || '',
-                    contactDesignation: existingSurvey.contact_person_designation || '',
-                    contactDepartment: existingSurvey.contact_department || '',
-                    contactPhone: existingSurvey.contact_person_phone || '',
-                    contactEmail: existingSurvey.contact_person_email || ''
-                });
-
-            } else {
-                // FALLBACK: Try to fetch from DIC Master Sheet
-                const { data: masterData } = await supabase
-                    .from('dic_master_companies')
-                    .select('*')
-                    .ilike('employer_name', `%${user.name}%`)
-                    .maybeSingle();
-
-                if (masterData) {
-                    console.log("Auto-populating from DIC Master Data");
-                    setFormData(prev => ({
-                        ...prev,
-                        companyName: masterData.employer_name || prev.companyName,
-                        industrySector: masterData.sector || prev.industrySector,
-                        district: masterData.district_id || prev.district,
-                        contactName: masterData.contact_person_name || prev.contactName,
-                        contactEmail: masterData.contact_person_email || prev.contactEmail,
-                        contactPhone: masterData.contact_person_phone || prev.contactPhone,
-                        registrationNumber: masterData.registration_number || prev.registrationNumber,
-                        officeAddress: masterData.address || prev.officeAddress,
-                    }));
+                if (autofillMatch) {
+                    console.log("✅ Found match in dic_company_autofill");
+                    return {
+                        companyName: autofillMatch.employer_name,
+                        industrySector: autofillMatch.sector,
+                        registrationNumber: autofillMatch.registration_number,
+                        officeAddress: autofillMatch.address
+                    };
                 }
             }
+
+            // 2. Fallback to existing logic if public table not yet populated/matched
+            let masterDataMatch = null;
+
+            if (user) {
+            // Match by exact name in master table (logged in user)
+                const { data } = await supabase
+                    .from('dic_master_companies')
+                    .select('*')
+                    .ilike('employer_name', user.name)
+                    .limit(1)
+                    .maybeSingle();
+                masterDataMatch = data;
+
+                if (!masterDataMatch) {
+                    // Try partial name match
+                    const cleanName = user.name.replace(/[()]/g, '');
+                    const { data: partial } = await supabase
+                        .from('dic_master_companies')
+                        .select('*')
+                         .ilike('employer_name', `%${cleanName}%`)
+                         .limit(1)
+                         .maybeSingle();
+                    masterDataMatch = partial;
+                }
+            }
+
+            if (masterDataMatch) {
+                return {
+                    companyName: masterDataMatch.employer_name,
+                    industrySector: masterDataMatch.sector,
+                    district: masterDataMatch.district_id,
+                    contactName: masterDataMatch.contact_person_name,
+                    contactEmail: masterDataMatch.contact_person_email,
+                    contactPhone: masterDataMatch.contact_person_phone,
+                    registrationNumber: masterDataMatch.registration_number,
+                    officeAddress: masterDataMatch.address
+                };
+            }
+
+            return null;
         } catch (err) {
-            console.error("Error auto-populating form:", err);
+            console.error("Autofill fetch failed:", err);
+            return null;
         }
     };
 
@@ -716,7 +714,7 @@ export default function EmployerSurveyForm() {
             try {
                 const cred = await generateCredential({
                     role: 'company',
-                    entityId: `company-${formData.companyName.toLowerCase().replace(/\s+/g, '-')}`,
+                    entityId: `company-${toSlug(formData.companyName)}`,
                     entityName: formData.companyName,
                     email: formData.contactEmail
                 });

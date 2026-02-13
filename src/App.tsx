@@ -51,6 +51,7 @@ import DicSeeder from './components/admin/DicSeeder';
 import { useAuthStore } from './store/useAuthStore';
 import { useCredentialStore } from './store/useCredentialStore';
 import { seedAllCredentials } from './utils/seedCredentials';
+import { toSlug } from './utils/slugUtils';
 
 
 function App() {
@@ -460,7 +461,7 @@ function App() {
     }
 
     if (user?.role === 'company') {
-      const slug = user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company';
+      const slug = user.name ? toSlug(user.name) : 'company';
       return <Navigate to={`/company-survey/${slug}`} replace />;
     }
 
@@ -730,7 +731,7 @@ function App() {
       <Route path="/:view" element={renderMainContent()} />
       <Route path="/" element={
         user?.role === 'company'
-          ? <Navigate to={`/company-survey/${user.name ? user.name.toLowerCase().replace(/\s+/g, '-') : 'company'}`} replace />
+          ? <Navigate to={`/company-survey/${user.name ? toSlug(user.name) : 'company'}`} replace />
           : <Navigate to="/dashboard" replace />
       } />
     </Routes>

@@ -7,6 +7,8 @@ import { INSTITUTIONS } from '../data/institutions';
 import { JOBS } from '../data/jobs';
 import { DISTRICTS } from '../data/districts';
 
+import { toSlug } from '../utils/slugUtils';
+
 export function DataSeeder() {
     const [status, setStatus] = useState<string>('Ready to seed');
     const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +83,7 @@ export function DataSeeder() {
         setStatus('Seeding Districts...');
         try {
             const districtData = DISTRICTS.map(name => ({
-                id: name.toLowerCase().replace(/\s+/g, '-'),
+                id: toSlug(name),
                 name: name
             }));
 

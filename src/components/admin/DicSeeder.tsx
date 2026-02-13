@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import Papa from 'papaparse';
 import { Save, Download, AlertTriangle, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { toSlug } from '../../utils/slugUtils';
 
 export default function DicSeeder({ onBack }: { onBack: () => void }) {
     const { user: authUser } = useAuthStore();
@@ -55,14 +56,18 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
                         current++;
                         setProgress(Math.round((current / total) * 100));
 
-                        const companyName = row['Name of the Enterprise'];
+                        const companyName = row['Name of the Enterprise'] || row['Enterprise Name'] || row['Company Name'] || '';
                         if (!companyName) continue;
 
                         try {
+                            // Find the registration number (S.no variant)
+                            const regNo = row['S.no'] || row['S.No'] || row['sno'] || row['Serial No'] || row['Id'] || '';
+                            const address = row['Address'] || row['Registered Address'] || row['Office Address'] || '';
+
                             // 3. Generate Credential
                             // Create a username from company name (slugified)
                             const cleanName = companyName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, 15);
-                            const username = `dic_${cleanName}_${row['S.no']}`;
+                            const username = `dic_${cleanName}_${regNo}`;
 
                             // Check if user exists
                             const { data: existingUser } = await supabase
@@ -111,7 +116,7 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
                                     .insert({
                                         employer_name: companyName,
                                         sector: row['Sector'] || null,
-                                        address: row['Address'],
+                                        address: address,
                                         contact_person_name: row['Primary Contact 1'],
                                         contact_person_name_2: row['Primary Contact 2'] || null, 
                                         contact_person_email: row['Primary Contact Mail Id'],
@@ -119,18 +124,34 @@ export default function DicSeeder({ onBack }: { onBack: () => void }) {
                                         district_id: 'Dakshina Kannada',
                                         status: 'registered',
                                         credential_id: credentialId,
-                                        registration_number: row['S.no']
+                                        registration_number: regNo
                                     });
 
                                 if (dicError) {
                                     console.error('DIC Insert Error', dicError);
                                     setLogs(prev => [...prev, `❌ Error inserting ${companyName}: ${dicError.message}`]);
                                 }
+
+                                // 5. ALSO Sync to new Public Autofill Table
+                                const { error: autofillError } = await supabase
+                                    .from('dic_company_autofill')
+                                    .upsert({
+                                        slug: toSlug(companyName),
+                                        employer_name: companyName,
+                                        address: address,
+                                        sector: row['Sector'] || null,
+                                        registration_number: regNo,
+                                        last_updated: new Date().toISOString()
+                                    });
+
+                                if (autofillError) {
+                                    console.error('Autofill Sync Error', autofillError);
+                                }
                             }
 
                             // Store credential for export
                             newCredentials.push({
-                                s_no: row['S.no'],
+                                s_no: regNo,
                                 company_name: companyName,
                                 username: username,
                                 password: password,
