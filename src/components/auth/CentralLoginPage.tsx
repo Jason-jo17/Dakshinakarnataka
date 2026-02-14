@@ -31,40 +31,37 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Query Supabase for the user record
+    const username = formData.id.trim();
+    const password = formData.password.trim();
+
+    console.log(`[CentralLogin] Attempting login for: ${username}`);
+
+    // 1. Direct Supabase Query
     const { data: userRecord, error } = await supabase
       .from('users')
       .select('*')
-      .eq('username', formData.id)
-      .eq('password_hash', formData.password)
+      .eq('username', username)
+      .eq('password_hash', password)
       .eq('status', 'active')
-      .single();
+      .maybeSingle();
 
-    if (error || !userRecord) {
-      // If no local credentials found, show external portal link or error
-      if (activeTab === 'company') {
-        setPortalData({
-          title: 'Recruiter Portal',
-          description: 'Employer Survey & Hiring Dashboard',
-          url: 'https://inpulse-staging-recruitment.web.app/recruiter',
-          credentials: `User: ${formData.id || 'hr@company.com'}\nPassword: ${formData.password || '••••••••'}`,
-          icon: Briefcase,
-          color: 'blue'
-        });
-      } else if (activeTab === 'student') {
-        setPortalData({
-          title: 'Trainee Portal',
-          description: 'Skill Training & Data Collection',
-          url: 'https://inpulse-staging-recruitment.web.app/trainee',
-          credentials: `User: ${formData.id || 'student@email.com'}\nPassword: ${formData.password || '••••••••'}`,
-          icon: GraduationCap,
-          color: 'violet'
-        });
+    if (error) {
+      console.error("[CentralLogin] DB Query Error:", error);
+    }
+
+    if (!userRecord) {
+      console.warn("[CentralLogin] No user record found for credentials.");
+
+      // If no local credentials found, show error or specific role behavior
+      if (['company', 'student', 'institution'].includes(activeTab)) {
+        alert(`Invalid credentials for ${activeTab} portal. Please check your username and password.`);
       } else {
         alert('Invalid credentials or account revoked. Please check your username and password.');
       }
       return;
     }
+
+    console.log("[CentralLogin] Login successful for:", userRecord.entity_name);
 
     // Success: Login with the retrieved record
     login({
@@ -82,9 +79,8 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
 
     // REDIRECTION LOGIC
     if (userRecord.role === 'company') {
-      navigate('/company-survey');
-    } else if (userRecord.role === 'super_admin' || userRecord.role === 'district_admin' || userRecord.role === 'district_team') {
-      navigate('/dashboard');
+      const slug = userRecord.entity_name ? userRecord.entity_name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase() : 'company';
+      navigate(`/company-survey/${slug}`);
     } else {
       navigate('/dashboard');
     }
@@ -282,23 +278,28 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                     <button
                       type="button"
                       onClick={async () => {
+                        const username = formData.id.trim();
+                        const password = formData.password.trim();
+
                         const { credentials } = useCredentialStore.getState();
                         let traineeCred = credentials.find(c =>
-                          c.username === formData.id &&
-                          c.password === formData.password &&
+                          c.username === username &&
+                          c.password === password &&
                           c.role === 'trainee'
                         );
 
                         // Fallback: Query DB directly if not in local store
-                        if (!traineeCred && formData.id && formData.password) {
-                          const { data: userRecord } = await supabase
+                        if (!traineeCred && username && password) {
+                          const { data: userRecord, error } = await supabase
                             .from('users')
                             .select('*')
-                            .eq('username', formData.id)
-                            .eq('password_hash', formData.password)
+                            .eq('username', username)
+                            .eq('password_hash', password)
                             .eq('role', 'trainee')
                             .eq('status', 'active')
                             .maybeSingle();
+
+                          if (error) console.error("[CentralLogin] Student pre-fill error:", error);
 
                           if (userRecord) {
                             traineeCred = {
@@ -316,7 +317,7 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                           }
                         }
 
-                        if (formData.id && formData.password && traineeCred) {
+                        if (username && password && traineeCred) {
                           login({
                             id: traineeCred.username,
                             name: traineeCred.entityName,
@@ -360,23 +361,28 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                         <button
                           type="button"
                           onClick={async () => {
+                            const username = formData.id.trim();
+                            const password = formData.password.trim();
+
                             const { credentials } = useCredentialStore.getState();
                             let instCred = credentials.find(c =>
-                              c.username === formData.id &&
-                              c.password === formData.password &&
+                              c.username === username &&
+                              c.password === password &&
                               c.role === 'institution'
                             );
 
                             // Fallback: Query DB directly
-                            if (!instCred && formData.id && formData.password) {
-                              const { data: userRecord } = await supabase
+                            if (!instCred && username && password) {
+                              const { data: userRecord, error } = await supabase
                                 .from('users')
                                 .select('*')
-                                .eq('username', formData.id)
-                                .eq('password_hash', formData.password)
+                                .eq('username', username)
+                                .eq('password_hash', password)
                                 .eq('role', 'institution')
                                 .eq('status', 'active')
                                 .maybeSingle();
+
+                              if (error) console.error("[CentralLogin] Institution pre-fill error:", error);
 
                               if (userRecord) {
                                 instCred = {
@@ -393,7 +399,7 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                               }
                             }
 
-                            if (formData.id && formData.password && instCred) {
+                            if (username && password && instCred) {
                               login({
                                 id: instCred.username,
                                 name: instCred.entityName,
@@ -438,25 +444,35 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                         <button
                           type="button"
                           onClick={async () => {
+                            const username = formData.id.trim();
+                            const password = formData.password.trim();
+
+                            console.log(`[CentralLogin] Pre-fill login attempt for: ${username}`);
+
                             const { credentials } = useCredentialStore.getState();
                             let companyCred = credentials.find(c =>
-                              c.username === formData.id &&
-                              c.password === formData.password &&
+                              c.username === username &&
+                              c.password === password &&
                               c.role === 'company'
                             );
 
                             // Fallback: Query DB directly
-                            if (!companyCred && formData.id && formData.password) {
-                              const { data: userRecord } = await supabase
+                            if (!companyCred && username && password) {
+                              const { data: userRecord, error } = await supabase
                                 .from('users')
                                 .select('*')
-                                .eq('username', formData.id)
-                                .eq('password_hash', formData.password)
+                                .eq('username', username)
+                                .eq('password_hash', password)
                                 .eq('role', 'company')
                                 .eq('status', 'active')
                                 .maybeSingle();
 
+                              if (error) {
+                                console.error("[CentralLogin] Company pre-fill query error:", error);
+                              }
+
                               if (userRecord) {
+                                console.log("[CentralLogin] Found company user in DB:", userRecord.entity_name);
                                 companyCred = {
                                   id: userRecord.id,
                                   username: userRecord.username,
@@ -468,10 +484,12 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                                   status: 'active',
                                   generatedAt: userRecord.created_at
                                 };
+                              } else {
+                                console.warn("[CentralLogin] No company user found in DB matching these credentials.");
                               }
                             }
 
-                            if (formData.id && formData.password && companyCred) {
+                            if (username && password && companyCred) {
                               login({
                                 id: companyCred.id,
                                 name: companyCred.entityName,
