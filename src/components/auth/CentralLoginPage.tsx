@@ -281,13 +281,40 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         const { credentials } = useCredentialStore.getState();
-                        const traineeCred = credentials.find(c =>
+                        let traineeCred = credentials.find(c =>
                           c.username === formData.id &&
                           c.password === formData.password &&
                           c.role === 'trainee'
                         );
+
+                        // Fallback: Query DB directly if not in local store
+                        if (!traineeCred && formData.id && formData.password) {
+                          const { data: userRecord } = await supabase
+                            .from('users')
+                            .select('*')
+                            .eq('username', formData.id)
+                            .eq('password_hash', formData.password)
+                            .eq('role', 'trainee')
+                            .eq('status', 'active')
+                            .maybeSingle();
+
+                          if (userRecord) {
+                            traineeCred = {
+                              id: userRecord.id,
+                              username: userRecord.username,
+                              password: userRecord.password_hash,
+                              role: 'trainee',
+                              entityId: userRecord.entity_id,
+                              entityName: userRecord.entity_name,
+                              email: userRecord.email,
+                              linkedEntityId: userRecord.linked_entity_id,
+                              generatedAt: userRecord.created_at,
+                              status: 'active'
+                            };
+                          }
+                        }
 
                         if (formData.id && formData.password && traineeCred) {
                           login({
@@ -332,13 +359,39 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const { credentials } = useCredentialStore.getState();
-                            const instCred = credentials.find(c =>
+                            let instCred = credentials.find(c =>
                               c.username === formData.id &&
                               c.password === formData.password &&
                               c.role === 'institution'
                             );
+
+                            // Fallback: Query DB directly
+                            if (!instCred && formData.id && formData.password) {
+                              const { data: userRecord } = await supabase
+                                .from('users')
+                                .select('*')
+                                .eq('username', formData.id)
+                                .eq('password_hash', formData.password)
+                                .eq('role', 'institution')
+                                .eq('status', 'active')
+                                .maybeSingle();
+
+                              if (userRecord) {
+                                instCred = {
+                                  id: userRecord.id,
+                                  username: userRecord.username,
+                                  password: userRecord.password_hash,
+                                  role: 'institution',
+                                  entityId: userRecord.entity_id,
+                                  entityName: userRecord.entity_name,
+                                  email: userRecord.email,
+                                  status: 'active',
+                                  generatedAt: userRecord.created_at
+                                };
+                              }
+                            }
 
                             if (formData.id && formData.password && instCred) {
                               login({
@@ -384,13 +437,39 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={async () => {
                             const { credentials } = useCredentialStore.getState();
-                            const companyCred = credentials.find(c =>
+                            let companyCred = credentials.find(c =>
                               c.username === formData.id &&
                               c.password === formData.password &&
                               c.role === 'company'
                             );
+
+                            // Fallback: Query DB directly
+                            if (!companyCred && formData.id && formData.password) {
+                              const { data: userRecord } = await supabase
+                                .from('users')
+                                .select('*')
+                                .eq('username', formData.id)
+                                .eq('password_hash', formData.password)
+                                .eq('role', 'company')
+                                .eq('status', 'active')
+                                .maybeSingle();
+
+                              if (userRecord) {
+                                companyCred = {
+                                  id: userRecord.id,
+                                  username: userRecord.username,
+                                  password: userRecord.password_hash,
+                                  role: 'company',
+                                  entityId: userRecord.entity_id,
+                                  entityName: userRecord.entity_name,
+                                  email: userRecord.email,
+                                  status: 'active',
+                                  generatedAt: userRecord.created_at
+                                };
+                              }
+                            }
 
                             if (formData.id && formData.password && companyCred) {
                               login({

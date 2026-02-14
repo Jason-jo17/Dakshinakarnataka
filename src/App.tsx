@@ -55,13 +55,20 @@ import { toSlug } from './utils/slugUtils';
 
 
 function App() {
-  // Auto-seed credentials if empty (for Vercel/fresh installs)
+  // Auto-sync and seed credentials if empty (for Vercel/fresh installs)
   useEffect(() => {
-    const { credentials } = useCredentialStore.getState();
-    if (credentials.length === 0) {
-      console.log('📦 No credentials found, auto-seeding test accounts...');
-      seedAllCredentials();
-    }
+    const initCredentials = async () => {
+      const store = useCredentialStore.getState();
+      await store.syncWithDatabase();
+
+      const { credentials } = useCredentialStore.getState();
+      if (credentials.length === 0) {
+        console.log('📦 No credentials found in database, auto-seeding test accounts...');
+        await seedAllCredentials();
+      }
+    };
+
+    initCredentials();
   }, []);
 
   const navigate = useNavigate();
