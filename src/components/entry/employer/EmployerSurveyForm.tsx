@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Briefcase, Plus, Trash2, Phone, AlertCircle, ArrowRight, Pencil, ShieldCheck, Key, Check, Download, Printer, FileText } from 'lucide-react';
+import { Building2, MapPin, Briefcase, Plus, Trash2, Phone, AlertCircle, ArrowRight, Pencil, ShieldCheck, Key, Check, Download, Printer, FileText, Edit2, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useCredentialStore } from '../../../store/useCredentialStore';
@@ -108,6 +108,10 @@ export default function EmployerSurveyForm() {
     // Dynamic Lists State
     const [pastHiring, setPastHiring] = useState<JobRoleHistory[]>([]);
     const [futureHiring, setFutureHiring] = useState<JobRoleFuture[]>([]);
+
+    // Inline Table Editing State
+    const [inlineEditId, setInlineEditId] = useState<string | null>(null);
+    const [inlineEditValues, setInlineEditValues] = useState<any>(null);
 
 
 
@@ -614,6 +618,44 @@ export default function EmployerSurveyForm() {
             alert("Record deleted successfully!");
             // Full refresh to be sure
             fetchSurveyData();
+        }
+    };
+
+    // --- Inline Table Editing Handlers ---
+    const handleInlineEditStart = (item: any) => {
+        setInlineEditId(item.id);
+        setInlineEditValues({ ...item });
+    };
+
+    const handleInlineEditChange = (field: string, value: any) => {
+        setInlineEditValues((prev: any) => ({ ...prev, [field]: value }));
+    };
+
+    const handleInlineCancel = () => {
+        setInlineEditId(null);
+        setInlineEditValues(null);
+    };
+
+    const handleInlineSave = async () => {
+        if (!inlineEditId || !inlineEditValues) return;
+
+        setSaveStatus('saving');
+        const { error } = await supabase
+            .from('ad_survey_employer')
+            .update(inlineEditValues)
+            .eq('id', inlineEditId);
+
+        if (error) {
+            console.error('Error saving inline edit:', error);
+            alert(`Failed to update record: ${error.message}`);
+            setSaveStatus('idle');
+        } else {
+            console.log("✅ Inline update successful");
+            setSurveyData(prev => prev.map(item => item.id === inlineEditId ? inlineEditValues : item));
+            setInlineEditId(null);
+            setInlineEditValues(null);
+            setSaveStatus('idle');
+            alert("Record updated successfully!");
         }
     };
 
@@ -1713,53 +1755,196 @@ export default function EmployerSurveyForm() {
                                     </tr>
                                 ) : (
                                     surveyData.map((item, index) => (
-                                        <tr key={item.id} className={`border-b dark:border-slate-700 transition-colors ${editingId === item.id ? 'bg-amber-50 dark:bg-amber-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
+                                        <tr key={item.id} className={`border-b dark:border-slate-700 transition-colors ${inlineEditId === item.id ? 'bg-blue-50 dark:bg-blue-900/10' : editingId === item.id ? 'bg-amber-50 dark:bg-amber-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
                                             <td className="px-4 py-3 text-center border-r dark:border-slate-700">{index + 1}</td>
-                                            <td className="px-4 py-3 font-medium border-r dark:border-slate-700 max-w-xs">{item.employer_name}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.employer_address}>{item.employer_address}</td>
+
+                                            {/* Enterprise Name */}
+                                            <td className="px-4 py-3 font-medium border-r dark:border-slate-700 max-w-xs">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.employer_name} onChange={e => handleInlineEditChange('employer_name', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.employer_name}
+                                            </td>
+
+                                            {/* Address */}
+                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs">
+                                                {inlineEditId === item.id ? (
+                                                    <textarea value={inlineEditValues.employer_address} onChange={e => handleInlineEditChange('employer_address', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs h-12" />
+                                                ) : (
+                                                    <div className="truncate" title={item.employer_address}>{item.employer_address}</div>
+                                                )}
+                                            </td>
 
                                             {/* Company Details */}
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.registration_number}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.company_type}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.sector}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.sub_sector}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.business_activity}>{item.business_activity}</td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.registration_number || ''} onChange={e => handleInlineEditChange('registration_number', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.registration_number}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <select value={inlineEditValues.company_type} onChange={e => handleInlineEditChange('company_type', e.target.value)} className="bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs">
+                                                        <option value="Private Limited">Private Limited</option>
+                                                        <option value="Public Limited">Public Limited</option>
+                                                        <option value="MNC">MNC</option>
+                                                        <option value="Proprietorship">Proprietorship</option>
+                                                        <option value="Partnership">Partnership</option>
+                                                    </select>
+                                                ) : item.company_type}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.sector} onChange={e => handleInlineEditChange('sector', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.sector}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.sub_sector || ''} onChange={e => handleInlineEditChange('sub_sector', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.sub_sector}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <textarea value={inlineEditValues.business_activity || ''} onChange={e => handleInlineEditChange('business_activity', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs h-12" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.business_activity}>{item.business_activity}</div>
+                                                )}
+                                            </td>
 
                                             {/* Recruited */}
-                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700 font-bold text-blue-600">{item.recruited_past_12m_num}</td>
-                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">₹{item.recruited_past_12m_avg_salary?.toLocaleString()}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.recruited_job_roles}>{item.recruited_job_roles}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.skill_gaps_observed}>{item.skill_gaps_observed}</td>
+                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="number" value={inlineEditValues.recruited_past_12m_num} onChange={e => handleInlineEditChange('recruited_past_12m_num', parseInt(e.target.value))} className="w-16 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <span className="font-bold text-blue-600">{item.recruited_past_12m_num}</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <span>₹</span>
+                                                        <input type="number" value={inlineEditValues.recruited_past_12m_avg_salary} onChange={e => handleInlineEditChange('recruited_past_12m_avg_salary', parseFloat(e.target.value))} className="w-20 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                    </div>
+                                                ) : `₹${item.recruited_past_12m_avg_salary?.toLocaleString()}`}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.recruited_job_roles} onChange={e => handleInlineEditChange('recruited_job_roles', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.recruited_job_roles}>{item.recruited_job_roles}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <textarea value={inlineEditValues.skill_gaps_observed || ''} onChange={e => handleInlineEditChange('skill_gaps_observed', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs h-12" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.skill_gaps_observed}>{item.skill_gaps_observed}</div>
+                                                )}
+                                            </td>
 
                                             {/* Contact */}
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.contact_person_name}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.contact_person_designation}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.contact_person_email}>{item.contact_person_email}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 whitespace-nowrap">{item.contact_person_phone}</td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.contact_person_name} onChange={e => handleInlineEditChange('contact_person_name', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.contact_person_name}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.contact_person_designation} onChange={e => handleInlineEditChange('contact_person_designation', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.contact_person_designation}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="email" value={inlineEditValues.contact_person_email} onChange={e => handleInlineEditChange('contact_person_email', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.contact_person_email}>{item.contact_person_email}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="tel" value={inlineEditValues.contact_person_phone} onChange={e => handleInlineEditChange('contact_person_phone', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.contact_person_phone}
+                                            </td>
 
                                             {/* Expected */}
-                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700 font-bold text-green-600">{item.expected_recruit_num}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.expected_recruit_job_role}>{item.expected_recruit_job_role}</td>
-                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">₹{item.expected_recruit_salary?.toLocaleString()}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 max-w-xs truncate" title={item.expected_recruit_qualification}>{item.expected_recruit_qualification}</td>
-                                            <td className="px-4 py-3 border-r dark:border-slate-700 text-center">{item.place_of_recruitment}</td>
+                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="number" value={inlineEditValues.expected_recruit_num} onChange={e => handleInlineEditChange('expected_recruit_num', parseInt(e.target.value))} className="w-16 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <span className="font-bold text-green-600">{item.expected_recruit_num}</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.expected_recruit_job_role} onChange={e => handleInlineEditChange('expected_recruit_job_role', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.expected_recruit_job_role}>{item.expected_recruit_job_role}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 text-center border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <span>₹</span>
+                                                        <input type="number" value={inlineEditValues.expected_recruit_salary} onChange={e => handleInlineEditChange('expected_recruit_salary', parseFloat(e.target.value))} className="w-20 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                    </div>
+                                                ) : `₹${item.expected_recruit_salary?.toLocaleString()}`}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.expected_recruit_qualification} onChange={e => handleInlineEditChange('expected_recruit_qualification', e.target.value)} className="w-full bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : (
+                                                    <div className="max-w-[150px] truncate" title={item.expected_recruit_qualification}>{item.expected_recruit_qualification}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 border-r dark:border-slate-700 text-center">
+                                                {inlineEditId === item.id ? (
+                                                    <input type="text" value={inlineEditValues.place_of_recruitment} onChange={e => handleInlineEditChange('place_of_recruitment', e.target.value)} className="w-24 bg-white dark:bg-slate-800 border-blue-400 dark:border-blue-500 rounded p-1 text-xs" />
+                                                ) : item.place_of_recruitment}
+                                            </td>
 
                                             <td className="px-4 py-3 text-center">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => handleEdit(item)}
-                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                        title="Edit"
-                                                    >
-                                                        <Pencil className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(item.id)}
-                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    {inlineEditId === item.id ? (
+                                                        <>
+                                                            <button
+                                                                onClick={handleInlineSave}
+                                                                className="text-emerald-600 hover:text-emerald-800 p-1 hover:bg-emerald-50 rounded"
+                                                                title="Save Changes"
+                                                                disabled={saveStatus === 'saving'}
+                                                            >
+                                                                <Check className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={handleInlineCancel}
+                                                                className="text-slate-500 hover:text-slate-700 p-1 hover:bg-slate-100 rounded"
+                                                                title="Cancel"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleInlineEditStart(item)}
+                                                                className="text-blue-500 hover:text-blue-700 p-1 hover:bg-blue-50 rounded"
+                                                                title="Inline Edit"
+                                                            >
+                                                                <Edit2 className="w-4 h-4" />
+                                                            </button>
+                                                                <button
+                                                                    onClick={() => handleEdit(item)}
+                                                                    className="text-slate-600 hover:text-slate-800 p-1 hover:bg-slate-50 rounded"
+                                                                    title="Edit via Form"
+                                                                >
+                                                                    <Pencil className="w-3 h-3" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(item.id)}
+                                                                    className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                    title="Delete"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
