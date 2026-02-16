@@ -308,45 +308,120 @@ export default function EmployerSurveyForm() {
                 }
             }
 
-            // 2. Fallback to existing logic if public table not yet populated/matched
-            let masterDataMatch = null;
-
+            // 2. Fallback: Search Master Data & Previous Surveys (Industrial Strength)
             if (user) {
-            // Match by exact name in master table (logged in user)
-                const { data } = await supabase
-                    .from('dic_master_companies')
-                    .select('*')
-                    .ilike('employer_name', user.name)
-                    .limit(1)
-                    .maybeSingle();
-                masterDataMatch = data;
+                const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 
-                if (!masterDataMatch) {
-                    // Try partial name match
-                    const cleanName = user.name.replace(/[()]/g, '');
-                    const { data: partial } = await supabase
+                // TIER 1: Match by Unique Registration Number (Highest Precision)
+                if (user.managedEntityId) {
+                    const { data: idMatch } = await supabase
                         .from('dic_master_companies')
                         .select('*')
-                         .ilike('employer_name', `%${cleanName}%`)
-                         .limit(1)
-                         .maybeSingle();
-                    masterDataMatch = partial;
+                        .eq('registration_number', user.managedEntityId)
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (idMatch) {
+                        console.log("🎯 Tier 1 Match: Found by registration_number");
+                        return {
+                            companyName: idMatch.employer_name,
+                            industrySector: idMatch.sector,
+                            district: idMatch.district_id,
+                            contactName: idMatch.contact_person_name,
+                            contactEmail: idMatch.contact_person_email,
+                            contactPhone: idMatch.contact_person_phone,
+                            registrationNumber: idMatch.registration_number,
+                            officeAddress: idMatch.address
+                        };
+                    }
+                }
+
+                // TIER 2: Match by Exact Name
+                const { data: exactMatch } = await supabase
+                    .from('dic_master_companies')
+                    .select('*')
+                    .eq('employer_name', user.name)
+                    .limit(1)
+                    .maybeSingle();
+
+                if (exactMatch) {
+                    console.log("🎯 Tier 2 Match: Found by exact name");
+                    return {
+                        companyName: exactMatch.employer_name,
+                        industrySector: exactMatch.sector,
+                        district: exactMatch.district_id,
+                        contactName: exactMatch.contact_person_name,
+                        contactEmail: exactMatch.contact_person_email,
+                        contactPhone: exactMatch.contact_person_phone,
+                        registrationNumber: exactMatch.registration_number,
+                        officeAddress: exactMatch.address
+                    };
+                }
+
+                // TIER 3: Fallback to Tokenized/Email Match (Industrial Strength)
+                const cleanName = user.name?.replace(/[().,&-]/g, ' ')?.replace(/\bEngg\b/gi, 'Engineering')?.replace(/\s+/g, ' ')?.trim();
+                const noiseWords = ['PVT', 'LTD', 'LIMITED', 'PRIVATE', 'CO', 'CORP', 'INC', 'AND', 'THE', 'FOR', 'WITH'];
+                const tokens = cleanName?.split(' ')?.filter(t =>
+                    t.length > 2 && !noiseWords.includes(t.toUpperCase())
+                ) || [];
+                const wildcard = tokens.length > 0 ? `%${tokens.join('%')}%` : `%${user.name}%`;
+
+                console.log(`🔍 Tier 3 Fallback: Checking broad matches for: ${wildcard}`);
+                const { data: broadMatch } = await supabase
+                    .from('dic_master_companies')
+                    .select('*')
+                    .or(`employer_name.ilike.${wildcard},contact_person_email.ilike.${user.email || 'none'}`)
+                    .limit(1)
+                    .maybeSingle();
+
+                if (broadMatch) {
+                    console.log("✅ Tier 3 Match: Found by broad token/email");
+                    return {
+                        companyName: broadMatch.employer_name,
+                        industrySector: broadMatch.sector,
+                        district: broadMatch.district_id,
+                        contactName: broadMatch.contact_person_name,
+                        contactEmail: broadMatch.contact_person_email,
+                        contactPhone: broadMatch.contact_person_phone,
+                        registrationNumber: broadMatch.registration_number,
+                        officeAddress: broadMatch.address
+                    };
+                }
+
+                // CHECK PREVIOUS SURVEYS (Last Resort)
+                const filters = [`employer_name.eq."${user.name}"`]; // Prioritize exact name in survey table
+                if (user.email) filters.push(`contact_person_email.ilike.${user.email}`);
+                if (isUUID(user.id)) filters.push(`created_by_credential_id.eq.${user.id}`);
+
+                const { data: lastSurvey } = await supabase
+                    .from('ad_survey_employer')
+                    .select('*')
+                    .or(filters.join(','))
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (lastSurvey) {
+                    console.log("✅ Found previous submission in survey table");
+                    return {
+                        companyName: lastSurvey.employer_name,
+                        registrationNumber: lastSurvey.registration_number || '',
+                        companyType: lastSurvey.company_type || '',
+                        industrySector: lastSurvey.sector || '',
+                        subSector: lastSurvey.sub_sector || '',
+                        businessActivity: lastSurvey.business_activity || '',
+                        officeAddress: lastSurvey.employer_address || '',
+                        manufacturingLocation: lastSurvey.manufacturing_location || '',
+                        district: lastSurvey.district_id,
+                        state: lastSurvey.state || 'Karnataka',
+                        contactName: lastSurvey.contact_person_name || '',
+                        contactDesignation: lastSurvey.contact_person_designation || '',
+                        contactDepartment: lastSurvey.contact_department || '',
+                        contactPhone: lastSurvey.contact_person_phone || '',
+                        contactEmail: lastSurvey.contact_person_email || ''
+                    };
                 }
             }
-
-            if (masterDataMatch) {
-                return {
-                    companyName: masterDataMatch.employer_name,
-                    industrySector: masterDataMatch.sector,
-                    district: masterDataMatch.district_id,
-                    contactName: masterDataMatch.contact_person_name,
-                    contactEmail: masterDataMatch.contact_person_email,
-                    contactPhone: masterDataMatch.contact_person_phone,
-                    registrationNumber: masterDataMatch.registration_number,
-                    officeAddress: masterDataMatch.address
-                };
-            }
-
             return null;
         } catch (err) {
             console.error("Autofill fetch failed:", err);
@@ -354,107 +429,90 @@ export default function EmployerSurveyForm() {
         }
     };
 
-
     const fetchSurveyData = async (manualIds?: string[]) => {
         try {
             setLoading(true);
             const currentIds = manualIds || sessionSubmissionIds;
-
             console.log("🔍 Fetching Survey Data...");
-            console.log("User State:", {
-                id: user?.id,
-                name: user?.name,
-                role: user?.role,
-                managedEntityId: user?.managedEntityId
-            });
-            console.log("Session/Manual IDs:", currentIds);
 
-            let query = supabase
-                .from('ad_survey_employer')
-                .select('*')
-                .order('created_at', { ascending: false });
+            let query = supabase.from('ad_survey_employer').select('*').order('created_at', { ascending: false });
 
-            // GUEST USER: Can ONLY see submissions from this session/storage
+            // GUEST USER
             if (!user) {
                 if (currentIds.length === 0) {
-                    console.log("⚠️ No IDs for guest, returning empty.");
                     setSurveyData([]);
                     setLoading(false);
                     return;
                 }
                 query = query.in('id', currentIds);
             }
-            // LOGGED IN USER: RLS-like logic for Company role
+                // LOGGED IN USER
             else if (user?.role === 'company') {
                 const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+                const filters = [];
 
-                // Clean the name for the filter
-                const nameFilter = user.name.replace(/[()]/g, '');
+                // 1. Always prioritize exact name visibility
+                filters.push(`employer_name.eq."${user.name}"`);
 
-                const filters = [
-                    `employer_name.ilike.%${nameFilter}%`
-                ];
+                // 2. Prioritize exact ID match
+                if (user.managedEntityId && String(user.managedEntityId).length > 3) {
+                    filters.push(`registration_number.eq."${user.managedEntityId}"`);
+                }
 
-                // ONLY query by ID if it's a valid UUID to prevent PostgREST errors
+                // 3. Credential ID match (Absolute security)
                 if (isUUID(user.id)) {
                     filters.push(`created_by_credential_id.eq.${user.id}`);
                 }
 
-                if (user.managedEntityId) {
-                    filters.push(`id.eq.${user.managedEntityId}`);
+                // 4. Tokenized Fallback (Use ONLY if no exact matches exist to avoid confusion)
+                // We make these more restrictive for "Unit" cases
+                const cleanName = user.name?.replace(/[().,&-]/g, ' ')?.replace(/\bEngg\b/gi, 'Engineering')?.replace(/\s+/g, ' ')?.trim();
+                const noiseWords = ['PVT', 'LTD', 'LIMITED', 'PRIVATE', 'CO', 'CORP', 'INC', 'AND', 'THE', 'FOR', 'WITH', 'UNIT'];
+                const tokens = cleanName?.split(' ')?.filter(t =>
+                    t.length > 2 && !noiseWords.includes(t.toUpperCase())
+                ) || [];
+
+                if (tokens.length > 0) {
+                    const wildcardName = tokens.join('%');
+                    // Only use broad filter if name is unique enough (more than 2 tokens)
+                    if (tokens.length >= 2) {
+                        filters.push(`employer_name.ilike.%${wildcardName}%`);
+                    }
+                }
+
+                // 5. Email matching
+                if (user.email) {
+                    filters.push(`contact_person_email.ilike.${user.email}`);
                 }
 
                 if (currentIds.length > 0) {
-                    filters.push(`id.in.(${currentIds.join(',')})`);
+                    const validIds = currentIds.filter(id => isUUID(id));
+                    if (validIds.length > 0) filters.push(`id.in.(${validIds.join(',')})`);
                 }
 
-                const orFilter = filters.join(',');
-                console.log("🛠️ Applying OR Filter:", orFilter);
-                query = query.or(orFilter);
+                console.log("🛠️ Data Visibility Filters Applied:", filters.length);
+                query = query.or(filters.join(','));
             }
-            // ADMINS: See everything (Dakshina Kannada default)
-            else {
-                console.log("👑 Admin/Default view, fetching all.");
-            }
+            // ADMINS
+            else { console.log("👑 Admin/Default view"); }
 
             const { data, error } = await query;
-
             if (error) {
-                // If it fails with UUID syntax error (22P02) before migration, retry with name match ONLY
                 if (error.code === '22P02' && user?.role === 'company') {
-                    console.warn('⚠️ UUID syntax error in table query, retrying with Name-only lookup...');
                     const nameFilter = user.name.replace(/[()]/g, '');
-                    const { data: retryData, error: retryError } = await supabase
-                        .from('ad_survey_employer')
-                        .select('*')
-                        .ilike('employer_name', `%${nameFilter}%`)
-                        .order('created_at', { ascending: false });
-
-                    if (retryError) throw retryError;
-
-                    // Deduplicate by ID just in case
-                    const uniqueData = Array.from(new Map((retryData || []).map(item => [item.id, item])).values());
-
-                    console.log(`✅ Retry Success! Found ${uniqueData.length} unique records.`);
-                    setSurveyData(uniqueData);
+                    const { data: retryData } = await supabase.from('ad_survey_employer').select('*').ilike('employer_name', `%${nameFilter}%`).order('created_at', { ascending: false });
+                    setSurveyData(Array.from(new Map((retryData || []).map(item => [item.id, item])).values()));
                     return;
                 }
-                console.error('❌ Supabase Query Error:', error);
                 throw error;
             }
-
-            // Deduplicate by ID for normal queries too
-            const uniqueData = Array.from(new Map((data || []).map(item => [item.id, item])).values());
-            console.log(`✅ Success! Found ${uniqueData.length} unique records.`);
-            setSurveyData(uniqueData);
+            setSurveyData(Array.from(new Map((data || []).map(item => [item.id, item])).values()));
         } catch (error) {
             console.error('Error fetching survey data:', error);
         } finally {
             setLoading(false);
         }
     };
-
-    // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -709,19 +767,60 @@ export default function EmployerSurveyForm() {
 
         setSaveStatus('saved');
 
-        // AUTOMATIC CREDENTIAL GENERATION for new submissions/guests
-        if (!user && !requestedCreds && formData.companyName && formData.contactEmail) {
-            try {
-                const cred = await generateCredential({
-                    role: 'company',
-                    entityId: `company-${toSlug(formData.companyName)}`,
-                    entityName: formData.companyName,
-                    email: formData.contactEmail
-                });
-                setRequestedCreds(cred);
-            } catch (error) {
-                console.error("Automatic credential generation failed:", error);
+        // COMREHENSIVE DATA SYNC: Update all master tables and user profile
+        if (user && formData.companyName) {
+            console.log("♻️ Syncing updated company information to master tables...");
+
+            // 1. Update User Profile
+            const userUpdate: any = { entity_name: formData.companyName };
+            if (formData.contactEmail) userUpdate.email = formData.contactEmail;
+
+            await supabase.from('users').update(userUpdate).eq('id', user.id);
+
+            // Update local session immediately
+            useAuthStore.getState().login({
+                ...user,
+                name: formData.companyName,
+                email: formData.contactEmail || user.email
+            });
+
+            // 2. Update dic_master_companies (The primary source for autofill)
+            // Use registration number or old name as anchors
+            const masterUpdate = {
+                employer_name: formData.companyName,
+                address: formData.officeAddress,
+                sector: formData.industrySector,
+                contact_person_name: formData.contactName,
+                contact_person_email: formData.contactEmail,
+                contact_person_phone: formData.contactPhone,
+                registration_number: formData.registrationNumber
+            };
+
+            if (formData.registrationNumber) {
+                await supabase.from('dic_master_companies')
+                    .update(masterUpdate)
+                    .eq('registration_number', formData.registrationNumber);
+            } else {
+                // Fallback to original name if registration number is missing
+                await supabase.from('dic_master_companies')
+                    .update(masterUpdate)
+                    .eq('employer_name', user.name);
             }
+
+            // 3. Update or Insert into dic_company_autofill (For guest/public access)
+            const slug = toSlug(formData.companyName);
+            const autofillData = {
+                employer_name: formData.companyName,
+                address: formData.officeAddress,
+                sector: formData.industrySector,
+                registration_number: formData.registrationNumber,
+                slug: slug,
+                updated_at: new Date().toISOString()
+            };
+
+            await supabase.from('dic_company_autofill').upsert(autofillData, {
+                onConflict: 'employer_name'
+            });
         }
 
         alert(editingId ? 'Survey Updated Successfully!' : 'Survey Submitted Successfully!');
@@ -981,6 +1080,11 @@ export default function EmployerSurveyForm() {
         return <SuccessView />;
     }
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pb-12 print:hidden">
             {/* Header */}
@@ -1003,7 +1107,7 @@ export default function EmployerSurveyForm() {
                             </div>
                         )}
                         <button
-                            onClick={logout}
+                            onClick={handleLogout}
                             className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
                         >
                             Logout

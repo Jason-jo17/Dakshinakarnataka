@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, X, Briefcase, ChevronRight } from 'lucide-react';
+import { Shield, Map, GraduationCap, ArrowRight, User, Globe, School, ExternalLink, Briefcase, ChevronRight } from 'lucide-react';
 import { ThemeToggle } from '../ThemeToggle';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useCredentialStore } from '../../store/useCredentialStore';
 import { DISTRICTS } from '../../data/districts';
 import TraineeDetailsSection from '../pages/TraineeDetailsSection';
 import InstitutionDataWizard from '../entry/institution/InstitutionDataWizard';
@@ -22,8 +21,7 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
   const [formData, setFormData] = useState({ id: '', password: '' });
   const [selectedDistrictVal, setSelectedDistrictVal] = useState('Dakshina Kannada');
 
-  // State for the "Portal Access" modal (Gatekeeper success state)
-  const [portalData, setPortalData] = useState<any>(null);
+
 
   // State for Data Entry Form Overlay
   const [showEntryForm, setShowEntryForm] = useState(false);
@@ -266,82 +264,10 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                     </div>
                     <div className="text-sm text-amber-800 dark:text-amber-200 flex-1">
                       <p className="font-medium mb-1">Trainee Data Collection</p>
-                      <p className="mb-2">
+                      <p>
                         Enter your Student ID and password to access your localized profile.
                       </p>
-                      <p className="text-xs opacity-80">
-                        If you don't have local credentials, login to the state portal or continue to the manual entry form.
-                      </p>
                     </div>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const username = formData.id.trim();
-                        const password = formData.password.trim();
-
-                        const { credentials } = useCredentialStore.getState();
-                        let traineeCred = credentials.find(c =>
-                          c.username === username &&
-                          c.password === password &&
-                          c.role === 'trainee'
-                        );
-
-                        // Fallback: Query DB directly if not in local store
-                        if (!traineeCred && username && password) {
-                          const { data: userRecord, error } = await supabase
-                            .from('users')
-                            .select('*')
-                            .eq('username', username)
-                            .eq('password_hash', password)
-                            .eq('role', 'trainee')
-                            .eq('status', 'active')
-                            .maybeSingle();
-
-                          if (error) console.error("[CentralLogin] Student pre-fill error:", error);
-
-                          if (userRecord) {
-                            traineeCred = {
-                              id: userRecord.id,
-                              username: userRecord.username,
-                              password: userRecord.password_hash,
-                              role: 'trainee',
-                              entityId: userRecord.entity_id,
-                              entityName: userRecord.entity_name,
-                              email: userRecord.email,
-                              linkedEntityId: userRecord.linked_entity_id,
-                              generatedAt: userRecord.created_at,
-                              status: 'active'
-                            };
-                          }
-                        }
-
-                        if (username && password && traineeCred) {
-                          login({
-                            id: traineeCred.username,
-                            name: traineeCred.entityName,
-                            role: 'trainee',
-                            email: traineeCred.email,
-                            managedEntityId: traineeCred.linkedEntityId
-                          });
-                          setShowEntryForm(true);
-                        } else {
-                          alert("Invalid student credentials for pre-fill. Please enter a valid ID and Password or 'Continue as Guest'.");
-                        }
-                      }}
-                      className="text-white bg-amber-600 hover:bg-amber-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
-                    >
-                      <GraduationCap size={14} />
-                      Login & Fill Form
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowEntryForm(true)}
-                      className="text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
-                    >
-                      Continue as Guest
-                    </button>
                   </div>
                 </div>
               )}
@@ -354,75 +280,9 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                     </div>
                     <div className="text-sm text-emerald-800 dark:text-emerald-200 flex-1">
                       <p className="font-medium mb-1">Institution Data Collection</p>
-                      <p className="mb-3">
-                        Please fill out the institution profile and training center information.
+                      <p>
+                        Please login with your institution credentials to update your profile and training center information.
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const username = formData.id.trim();
-                            const password = formData.password.trim();
-
-                            const { credentials } = useCredentialStore.getState();
-                            let instCred = credentials.find(c =>
-                              c.username === username &&
-                              c.password === password &&
-                              c.role === 'institution'
-                            );
-
-                            // Fallback: Query DB directly
-                            if (!instCred && username && password) {
-                              const { data: userRecord, error } = await supabase
-                                .from('users')
-                                .select('*')
-                                .eq('username', username)
-                                .eq('password_hash', password)
-                                .eq('role', 'institution')
-                                .eq('status', 'active')
-                                .maybeSingle();
-
-                              if (error) console.error("[CentralLogin] Institution pre-fill error:", error);
-
-                              if (userRecord) {
-                                instCred = {
-                                  id: userRecord.id,
-                                  username: userRecord.username,
-                                  password: userRecord.password_hash,
-                                  role: 'institution',
-                                  entityId: userRecord.entity_id,
-                                  entityName: userRecord.entity_name,
-                                  email: userRecord.email,
-                                  status: 'active',
-                                  generatedAt: userRecord.created_at
-                                };
-                              }
-                            }
-
-                            if (username && password && instCred) {
-                              login({
-                                id: instCred.username,
-                                name: instCred.entityName,
-                                role: 'institution',
-                                managedEntityId: instCred.entityId
-                              });
-                            } else {
-                              setShowEntryForm(true); // Still allow guest/manual entry for institutions
-                            }
-                          }}
-                          className="text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
-                        >
-                          <School size={14} />
-                          Login & Fill Form
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowEntryForm(true)}
-                          className="text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
-                        >
-                          Continue as Guest
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -437,85 +297,9 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                     </div>
                     <div className="text-sm text-blue-800 dark:text-blue-200 flex-1">
                       <p className="font-medium mb-1">Employer Survey & Recruitment</p>
-                      <p className="mb-2">
+                      <p>
                         You will be redirected to the Employer Survey Form upon login to update your organization's data.
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            const username = formData.id.trim();
-                            const password = formData.password.trim();
-
-                            console.log(`[CentralLogin] Pre-fill login attempt for: ${username}`);
-
-                            const { credentials } = useCredentialStore.getState();
-                            let companyCred = credentials.find(c =>
-                              c.username === username &&
-                              c.password === password &&
-                              c.role === 'company'
-                            );
-
-                            // Fallback: Query DB directly
-                            if (!companyCred && username && password) {
-                              const { data: userRecord, error } = await supabase
-                                .from('users')
-                                .select('*')
-                                .eq('username', username)
-                                .eq('password_hash', password)
-                                .eq('role', 'company')
-                                .eq('status', 'active')
-                                .maybeSingle();
-
-                              if (error) {
-                                console.error("[CentralLogin] Company pre-fill query error:", error);
-                              }
-
-                              if (userRecord) {
-                                console.log("[CentralLogin] Found company user in DB:", userRecord.entity_name);
-                                companyCred = {
-                                  id: userRecord.id,
-                                  username: userRecord.username,
-                                  password: userRecord.password_hash,
-                                  role: 'company',
-                                  entityId: userRecord.entity_id,
-                                  entityName: userRecord.entity_name,
-                                  email: userRecord.email,
-                                  status: 'active',
-                                  generatedAt: userRecord.created_at
-                                };
-                              } else {
-                                console.warn("[CentralLogin] No company user found in DB matching these credentials.");
-                              }
-                            }
-
-                            if (username && password && companyCred) {
-                              login({
-                                id: companyCred.id,
-                                name: companyCred.entityName,
-                                role: 'company',
-                                email: companyCred.email,
-                                managedEntityId: companyCred.entityId
-                              });
-                              setShowEntryForm(true);
-                            } else {
-                              alert("Invalid company credentials for pre-fill. Please enter valid credentials or 'Continue as Guest'.");
-                            }
-                          }}
-                          className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors shadow-sm"
-                        >
-                          <Briefcase size={14} />
-                          Login & Fill Form
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowEntryForm(true)}
-                          className="text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium rounded-lg text-xs px-4 py-2 flex items-center gap-2 transition-colors"
-                        >
-                          <User size={14} />
-                          Fill Survey as Guest
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -560,7 +344,7 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-4">
                 <button
                   type="submit"
                   className={`w-full py-3 px-4 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform active:scale-[0.98]
@@ -574,6 +358,30 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
                   {['institution', 'company', 'student'].includes(activeTab) ? 'Login to Portal' : 'Sign In to Dashboard'}
                   <ArrowRight size={18} />
                 </button>
+
+                {/* Guest Access Option for Public Forms */}
+                {['institution', 'company', 'student'].includes(activeTab) && (
+                  <div className="border-t border-slate-100 dark:border-slate-700/50 pt-4 mt-2">
+                    <div className="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-200 dark:border-slate-700/50">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
+                        <span className="font-bold text-slate-700 dark:text-slate-200">Don't have login credentials?</span> You can still contribute by filling the form as a guest. Data matches will be attempted based on your organization name to preserve continuity.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowEntryForm(true)}
+                        className={`w-full py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold transition-all border
+                          ${activeTab === 'institution' ? 'text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' :
+                            activeTab === 'company' ? 'text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20' :
+                              'text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-900/20'
+                          }
+                        `}
+                      >
+                        <User size={16} />
+                        Continue as Guest
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {['super', 'district'].includes(activeTab) && (
                   <div className="text-center mt-4">
                     <p className="text-xs text-slate-400">Use any credentials for demo access.</p>
@@ -628,63 +436,7 @@ export default function CentralLoginPage({ forceTab }: CentralLoginPageProps) {
         )}
       </div>
 
-      {/* Portal Access Modal (Gatekeeper Success) */}
-      {portalData && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => setPortalData(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-            >
-              <X size={20} />
-            </button>
 
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className={`p-4 rounded-full mb-4 bg-${portalData.color}-50 text-${portalData.color}-600`}>
-                <portalData.icon size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{portalData.title}</h3>
-              <p className="text-slate-500 dark:text-slate-400">{portalData.description}</p>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 mb-6 border border-slate-100 dark:border-slate-700">
-              <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Access Credentials</p>
-              <div className="font-mono text-sm text-slate-700 dark:text-slate-300 space-y-1">
-                {portalData.credentials.split('\n').map((line: string, i: number) => (
-                  <div key={i} className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded border border-slate-200 dark:border-slate-700">
-                    <span>{line.trim()}</span>
-                    <button
-                      onClick={() => navigator.clipboard.writeText(line.split(':')[1]?.trim() || line)}
-                      className="text-xs text-blue-600 hover:text-blue-700 font-sans font-medium"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPortalData(null)}
-                className="flex-1 px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg font-medium transition-colors"
-              >
-                Close
-              </button>
-              <a
-                href={portalData.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm hover:shadow"
-                onClick={() => setPortalData(null)}
-              >
-                <span>Go to Portal</span>
-                <ExternalLink size={18} />
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

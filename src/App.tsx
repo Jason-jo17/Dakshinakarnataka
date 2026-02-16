@@ -55,25 +55,29 @@ import { toSlug } from './utils/slugUtils';
 
 
 function App() {
+  const navigate = useNavigate();
+  const institutions = useDataStore(state => state.institutions);
+  const { isAuthenticated, user, currentDistrict } = useAuthStore();
+
   // Auto-sync and seed credentials if empty (for Vercel/fresh installs)
   useEffect(() => {
     const initCredentials = async () => {
-      const store = useCredentialStore.getState();
-      await store.syncWithDatabase();
+      const auth = useAuthStore.getState();
+      // Only sync all credentials if super admin (for management) or if specifically needed for seeding
+      if (auth.user?.role === 'super_admin') {
+        const store = useCredentialStore.getState();
+        await store.syncWithDatabase();
+      }
 
       const { credentials } = useCredentialStore.getState();
-      if (credentials.length === 0) {
+      if (credentials.length === 0 && auth.user?.role === 'super_admin') {
         console.log('📦 No credentials found in database, auto-seeding test accounts...');
         await seedAllCredentials();
       }
     };
 
     initCredentials();
-  }, []);
-
-  const navigate = useNavigate();
-  const institutions = useDataStore(state => state.institutions);
-  const { isAuthenticated, user, currentDistrict } = useAuthStore();
+  }, [user?.role]);
 
 
   const [showEntryForm, setShowEntryForm] = useState<'institution' | 'company' | 'coe' | null>(null);

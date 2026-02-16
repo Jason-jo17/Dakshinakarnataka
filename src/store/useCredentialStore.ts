@@ -111,7 +111,7 @@ export const useCredentialStore = create<CredentialStore>()(
             // 1. Check if user already exists
             const { data: existingUser, error: checkError } = await supabase
                 .from('users')
-                .select('*')
+                .select('id, username, role, entity_id, entity_name, email, status, linked_entity_id, created_at')
                 .eq('username', username)
                 .maybeSingle();
 
@@ -163,7 +163,7 @@ export const useCredentialStore = create<CredentialStore>()(
             set({ loading: true });
             const { data, error } = await supabase
                 .from('users')
-                .select('*')
+                .select('id, username, role, entity_id, entity_name, email, status, linked_entity_id, created_at')
                 .order('created_at', { ascending: false })
                 .range(0, 9999);
 
@@ -174,10 +174,10 @@ export const useCredentialStore = create<CredentialStore>()(
             }
 
             if (data) {
-                const mappedCreds: GeneratedCredential[] = data.map(u => ({
+                const mappedCreds: GeneratedCredential[] = (data as any[]).map(u => ({
                     id: u.id,
                     username: u.username,
-                    password: u.password_hash,
+                    password: '********', // Password hash is protected
                     role: u.role as UserRole,
                     entityId: u.entity_id,
                     entityName: u.entity_name,
