@@ -111,7 +111,7 @@ export const useCredentialStore = create<CredentialStore>()(
             // 1. Check if user already exists
             const { data: existingUser, error: checkError } = await supabase
                 .from('users')
-                .select('id, username, role, entity_id, entity_name, email, status, linked_entity_id, created_at')
+                .select('id, username, password_hash, role, entity_id, entity_name, email, status, linked_entity_id, created_at')
                 .eq('username', username)
                 .maybeSingle();
 
