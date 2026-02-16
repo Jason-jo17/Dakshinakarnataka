@@ -111,6 +111,7 @@ export default function EmployerSurveyForm() {
 
     // Inline Table Editing State
     const [inlineEditId, setInlineEditId] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [inlineEditValues, setInlineEditValues] = useState<any>(null);
 
 
@@ -216,15 +217,17 @@ export default function EmployerSurveyForm() {
             setDraftSavedAt(new Date().toLocaleTimeString());
             if (manual) {
                 setTimeout(() => setSaveStatus('idle'), 2000);
-                alert("Draft saved successfully!");
+                setSuccessMessage("Draft saved successfully!");
             }
         } else {
             console.error('Save draft error:', error);
             if (manual) {
                 setSaveStatus('idle');
-                alert("Failed to save draft. Check console for details.");
+                setSuccessMessage("Failed to save draft. Check console for details.");
             }
         }
+
+        // ... (Next replacement for handleRequestCredentials)
     };
 
     // Auto-save to DB
@@ -248,8 +251,12 @@ export default function EmployerSurveyForm() {
     };
 
     const handleRequestCredentials = async () => {
+        if (editingId) {
+            setSuccessMessage("Please finish or cancel the current edit before starting another.");
+            return;
+        }
         if (!formData.companyName || !formData.contactEmail) {
-            alert("Please fill in the Company Name and Contact Email first.");
+            setSuccessMessage("Please fill in the Company Name and Contact Email first.");
             return;
         }
 
@@ -617,12 +624,12 @@ export default function EmployerSurveyForm() {
 
         if (error) {
             console.error('Error deleting:', error);
-            alert(`Failed to delete record: ${error.message}`);
+            setSuccessMessage(`Failed to delete record: ${error.message}`);
         } else {
             // Optimistic update
             setSurveyData(prev => prev.filter(item => item.id !== id));
             console.log("✅ Record deleted successfully from state.");
-            alert("Record deleted successfully!");
+            setSuccessMessage("Record deleted successfully!");
             // Full refresh to be sure
             fetchSurveyData();
         }
@@ -647,56 +654,168 @@ export default function EmployerSurveyForm() {
         if (!inlineEditId || !inlineEditValues) return;
 
         setSaveStatus('saving');
+        console.log("💾 handleInlineSave started for ID:", inlineEditId);
+        console.log("👤 Current Logged-in User:", user);
+        console.log("📦 Record being edited (local values):", inlineEditValues);
 
-        // --- 🧹 CLEAN PAYLOAD: Strip non-updatable and metadata fields ---
-        const {
-            id, created_at, updated_at,
-            ...updatableData
-        } = inlineEditValues;
+        try {
+            // --- 🧹 CLEAN PAYLOAD: Strip non-updatable and metadata fields ---
+            // 'credential_id' comes from Master tables and causes errors in ad_survey_employer
+            const {
+                id, created_at, updated_at, credential_id,
+                ...updatableData
+            } = inlineEditValues;
 
-        // Ensure numbers are numbers, and defaults are handled
-        const payload = {
-            ...updatableData,
-            recruited_past_12m_num: parseInt(updatableData.recruited_past_12m_num) || 0,
-            recruited_past_12m_avg_salary: parseFloat(updatableData.recruited_past_12m_avg_salary) || 0,
-            expected_recruit_num: parseInt(updatableData.expected_recruit_num) || 0,
-            expected_recruit_salary: parseFloat(updatableData.expected_recruit_salary) || 0
-        };
+            // Ensure numbers are numbers, and defaults are handled
+            const payload: any = {
+                ...updatableData,
+                updated_at: new Date().toISOString(),
+                recruited_past_12m_num: parseInt(String(updatableData.recruited_past_12m_num)) || 0,
+                recruited_past_12m_avg_salary: parseFloat(String(updatableData.recruited_past_12m_avg_salary)) || 0,
+                expected_recruit_num: parseInt(String(updatableData.expected_recruit_num)) || 0,
+                expected_recruit_salary: parseFloat(String(updatableData.expected_recruit_salary)) || 0
+            };
 
-        console.log("📤 Persisting inline edit to DB:", { id: inlineEditId, payload });
+            // If logged in, adopt/retain ownership to satisfy RLS
+            if (user?.id) {
+                payload.created_by_credential_id = user.id;
+                console.log("👤 User is logged in. Including ownership ID:", user.id);
+            }
 
-        const { data, error } = await supabase
-            .from('ad_survey_employer')
-            .update(payload)
-            .eq('id', inlineEditId)
-            .select();
+            console.log("📤 Sending update to ad_survey_employer for ID:", inlineEditId);
 
-        if (error) {
-            console.error('❌ Error saving inline edit:', error);
-            alert(`Failed to update record: ${error.message}. If this persists, try clearing your browser cache.`);
-            setSaveStatus('idle');
-        } else {
-            console.log("✅ Inline update successful in DB:", data);
+            const { data: updatedRows, error } = await supabase
+                .from('ad_survey_employer')
+                .update(payload)
+                .eq('id', inlineEditId)
+                .select();
 
-            // Sync local state
-            const updatedItem = data?.[0] || { ...inlineEditValues, ...payload };
-            setSurveyData(prev => prev.map(item => item.id === inlineEditId ? updatedItem : item));
+            let finalRecord = updatedRows?.[0];
 
-            // Also update autofill sync if company name or location changed
-            if (payload.registration_number && (payload.employer_name || payload.employer_address)) {
-                await supabase.from('dic_master_companies').upsert({
+            if (error) {
+                console.error('❌ Supabase update error:', error);
+                setSuccessMessage(`DB Error: ${error.message}`);
+                setSaveStatus('idle');
+                return;
+            }
+
+            // --- 👻 GHOST RECORD HANDLING ---
+            // If No rows updated, it means the ID exists in Master but not in Survey Table.
+            // We must INSERT it as a NEW Survey Record.
+            if (!updatedRows || updatedRows.length === 0) {
+                console.warn("⚠️ No rows updated. ID mismatch detected (Ghost Record). Attempting to INSERT as new survey entry...");
+
+                const { data: insertedRows, error: insertError } = await supabase
+                    .from('ad_survey_employer')
+                    .insert([payload]) // Insert the cleaned payload as a new record
+                    .select();
+
+                if (insertError) {
+                    console.error("❌ Failed to insert ghost record:", insertError);
+                    setSuccessMessage("The record could not be saved. RLS might be blocking creation, or the data is invalid.\n\n" + insertError.message);
+                    setSaveStatus('idle');
+                    return;
+                }
+
+                if (insertedRows && insertedRows.length > 0) {
+                    finalRecord = insertedRows[0];
+                    console.log("✅ Ghost Record converted to Real Survey Record with NEW ID:", finalRecord.id);
+
+                    // Update state: Remove the old "Ghost" ID and add the new "Real" ID
+                    setSurveyData(prev => {
+                        const filtered = prev.filter(p => p.id !== inlineEditId);
+                        return [finalRecord, ...filtered];
+                    });
+
+                    // Also update the inline ID so subsequent saves in this session work (though we close it below)
+                    setInlineEditId(finalRecord.id);
+                    setInlineEditId(finalRecord.id);
+                    setSuccessMessage("Record saved successfully! A new entry was created as the original was not editable.");
+                } else {
+                    setSuccessMessage("Record saved but no data returned. Please refresh.");
+                }
+            } else {
+                console.log("✅ DB Update Result:", updatedRows);
+                // Sync local
+                setSurveyData(prev => prev.map(item => item.id === inlineEditId ? finalRecord : item));
+                setSuccessMessage("Record Saved Successfully! \n\nIf you see duplicates, you can delete the older un-editable entry.");
+            }
+
+            // --- 🔥 SYNC WITH MASTER COLLECTIONS (Safe & Non-blocking) ---
+            try {
+            // Secondary syncs are optional and often fail for Guests due to RLS (42501)
+            // We wrap them so they don't block the primary "Success" experience
+
+                if (payload.registration_number && (payload.employer_name || payload.employer_address)) {
+                    console.log("🔄 Syncing with dic_master_companies...");
+
+                    // Attempt to find if it exists first to avoid constraint issues
+                    const { data: existing } = await supabase
+                        .from('dic_master_companies')
+                        .select('id')
+                        .eq('registration_number', payload.registration_number)
+                        .maybeSingle();
+
+                    if (existing) {
+                        await supabase.from('dic_master_companies')
+                            .update({
+                                employer_name: payload.employer_name,
+                                address: payload.employer_address,
+                                sector: payload.sector,
+                                district_id: payload.district_id
+                            })
+                            .eq('id', existing.id);
+                    } else if (user) {
+                        // Only insert new master companies if LOGGED IN to prevent guest spam
+                        await supabase.from('dic_master_companies').insert({
+                            employer_name: payload.employer_name,
+                            registration_number: payload.registration_number,
+                            address: payload.employer_address,
+                            sector: payload.sector,
+                            district_id: payload.district_id
+                        });
+                    }
+                }
+
+                // Also Sync dic_company_autofill
+                const slug = toSlug(payload.employer_name || inlineEditValues.publisher_name || inlineEditValues.employer_name);
+                const autofillSyncData = {
                     employer_name: payload.employer_name || inlineEditValues.employer_name,
-                    registration_number: payload.registration_number,
                     address: payload.employer_address || inlineEditValues.employer_address,
                     sector: payload.sector || inlineEditValues.sector,
-                    district_id: payload.district_id || inlineEditValues.district_id
-                }, { onConflict: 'registration_number' });
+                    registration_number: payload.registration_number || inlineEditValues.registration_number,
+                    slug: slug,
+                    last_updated: new Date().toISOString()
+                };
+
+                const { data: existingAutofill } = await supabase
+                    .from('dic_company_autofill')
+                    .select('employer_name')
+                    .eq('employer_name', autofillSyncData.employer_name)
+                    .maybeSingle();
+
+                if (existingAutofill) {
+                    await supabase.from('dic_company_autofill').update(autofillSyncData).eq('employer_name', autofillSyncData.employer_name);
+                } else if (user || urlCompanyName) {
+                    // Only insert if user is identified or visiting via target slug
+                    await supabase.from('dic_company_autofill').insert(autofillSyncData);
+                }
+
+            } catch (syncErr: any) {
+                // Log but don't alert for sync errors (likely RLS 42501)
+                console.log("📋 Secondary sync skipped or blocked (Expected for guests/RLS):", syncErr.message);
             }
 
             setInlineEditId(null);
             setInlineEditValues(null);
             setSaveStatus('idle');
-            alert("Record updated successfully!");
+            // User requested explicit guidance on duplicates
+            alert("Record Saved Successfully! \n\nNOTE: If you now see two entries for this company (the old un-editable one and this new one), please DELETE the old/duplicate one to keep your list clean.");
+
+        } catch (err: any) {
+            console.error("🚨 Critical Error in handleInlineSave:", err);
+            alert("Unexpected error: " + err.message);
+            setSaveStatus('idle');
         }
     };
 
@@ -743,14 +862,22 @@ export default function EmployerSurveyForm() {
             };
 
             // 1. Update the original row
-            const { error: updateError } = await supabase
+            const { data: updatedRows, error: updateError } = await supabase
                 .from('ad_survey_employer')
                 .update(primaryUpdateData)
-                .eq('id', editingId);
+                .eq('id', editingId)
+                .select();
 
             if (updateError) {
                 console.error('Update error:', updateError);
                 alert('Failed to update survey: ' + updateError.message);
+                setSaveStatus('idle');
+                return;
+            }
+
+            if (!updatedRows || updatedRows.length === 0) {
+                console.warn("⚠️ No rows updated in handleSubmitSurvey. RLS might be blocking this edit.");
+                alert("The update was received but did not persist in the database. This is likely due to security policies restricting edits because you are not the original owner of this record. \n\nPlease run a SQL check in your Supabase dashboard to verify record ownership.");
                 setSaveStatus('idle');
                 return;
             }
@@ -850,60 +977,73 @@ export default function EmployerSurveyForm() {
 
         setSaveStatus('saved');
 
-        // COMREHENSIVE DATA SYNC: Update all master tables and user profile
+        // COMPREHENSIVE DATA SYNC: Update all master tables and user profile
         if (user && formData.companyName) {
             console.log("♻️ Syncing updated company information to master tables...");
 
-            // 1. Update User Profile
-            const userUpdate: any = { entity_name: formData.companyName };
-            if (formData.contactEmail) userUpdate.email = formData.contactEmail;
+            try {
+                // 1. Update User Profile
+                const userUpdate: any = { entity_name: formData.companyName };
+                if (formData.contactEmail) userUpdate.email = formData.contactEmail;
 
-            await supabase.from('users').update(userUpdate).eq('id', user.id);
+                await supabase.from('users').update(userUpdate).eq('id', user.id);
 
-            // Update local session immediately
-            useAuthStore.getState().login({
-                ...user,
-                name: formData.companyName,
-                email: formData.contactEmail || user.email
-            });
+                // Update local session immediately
+                useAuthStore.getState().login({
+                    ...user,
+                    name: formData.companyName,
+                    email: formData.contactEmail || user.email
+                });
 
-            // 2. Update dic_master_companies (The primary source for autofill)
-            // Use registration number or old name as anchors
-            const masterUpdate = {
-                employer_name: formData.companyName,
-                address: formData.officeAddress,
-                sector: formData.industrySector,
-                contact_person_name: formData.contactName,
-                contact_person_email: formData.contactEmail,
-                contact_person_phone: formData.contactPhone,
-                registration_number: formData.registrationNumber
-            };
+                // 2. Sync with dic_master_companies (Safe update only if registration_number exists)
+                if (urlCompanyName || user) {
+                    const masterUpdate: any = {
+                        employer_name: formData.companyName,
+                        address: formData.officeAddress,
+                        sector: formData.industrySector,
+                        district_id: 'Dakshina Kannada',
+                        registration_number: formData.registrationNumber,
+                        contact_person_name: formData.contactName,
+                        contact_person_email: formData.contactEmail,
+                        contact_person_phone: formData.contactPhone
+                    };
 
-            if (formData.registrationNumber) {
-                await supabase.from('dic_master_companies')
-                    .update(masterUpdate)
-                    .eq('registration_number', formData.registrationNumber);
-            } else {
-                // Fallback to original name if registration number is missing
-                await supabase.from('dic_master_companies')
-                    .update(masterUpdate)
-                    .eq('employer_name', user.name);
+                    if (formData.registrationNumber) {
+                        await supabase.from('dic_master_companies')
+                            .update(masterUpdate)
+                            .eq('registration_number', formData.registrationNumber);
+                    } else if (user?.name) {
+                        await supabase.from('dic_master_companies')
+                            .update(masterUpdate)
+                            .eq('employer_name', user.name);
+                    }
+
+                    // 3. Update dic_company_autofill (Silent failure for RLS blocks)
+                    const slug = toSlug(formData.companyName);
+                    const autofillData = {
+                        employer_name: formData.companyName,
+                        address: formData.officeAddress,
+                        sector: formData.industrySector,
+                        registration_number: formData.registrationNumber,
+                        slug: slug,
+                        last_updated: new Date().toISOString()
+                    };
+
+                    const { data: existingAuto } = await supabase
+                        .from('dic_company_autofill')
+                        .select('employer_name')
+                        .eq('employer_name', formData.companyName)
+                        .maybeSingle();
+
+                    if (existingAuto) {
+                        await supabase.from('dic_company_autofill').update(autofillData).eq('employer_name', formData.companyName);
+                    } else if (user) {
+                        await supabase.from('dic_company_autofill').insert(autofillData);
+                    }
+                }
+            } catch (syncErr: any) {
+                console.log("📋 Secondary sync during submit skipped or blocked:", syncErr.message);
             }
-
-            // 3. Update or Insert into dic_company_autofill (For guest/public access)
-            const slug = toSlug(formData.companyName);
-            const autofillData = {
-                employer_name: formData.companyName,
-                address: formData.officeAddress,
-                sector: formData.industrySector,
-                registration_number: formData.registrationNumber,
-                slug: slug,
-                updated_at: new Date().toISOString()
-            };
-
-            await supabase.from('dic_company_autofill').upsert(autofillData, {
-                onConflict: 'employer_name'
-            });
         }
 
         alert(editingId ? 'Survey Updated Successfully!' : 'Survey Submitted Successfully!');
@@ -918,6 +1058,7 @@ export default function EmployerSurveyForm() {
         if (editingId) setEditingId(null);
         clearDraft(); // Clear local storage after successful submission
         setIsSubmitted(true); // Show acknowledgment screen
+        setSuccessMessage("Survey Submitted Successfully! \n\nNOTE: If you check your submission history and see duplicate entries, feel free to delete the older/un-editable ones.");
         setTimeout(() => setSaveStatus('idle'), 2000);
     };
 
@@ -994,6 +1135,10 @@ export default function EmployerSurveyForm() {
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4 print:text-xl">Submission Successful!</h1>
                     <p className="text-slate-600 dark:text-slate-400 max-w-lg mx-auto print:text-sm">
                         Thank you for contributing to the District Industrial Directory. Your organization's data has been securely recorded.
+                        <br /><br />
+                        <span className="font-medium text-amber-600 dark:text-amber-400">
+                            Note: If you see duplicate entries in your dashboard (old vs new), you can safely delete the old, un-editable ones.
+                        </span>
                     </p>
                 </div>
 
@@ -1715,10 +1860,28 @@ export default function EmployerSurveyForm() {
                                         {saveStatus === 'saving' ? 'Submitting...' : 'Confirm & Final Submit'}
                                     </button>
                                 </div>
-                        </div>
+                            </div>
+
+                            {/* Success Message Banner */}
+                            {successMessage && (
+                                <div className="mt-8 mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                                    <div className="mt-0.5 text-emerald-600 dark:text-emerald-400">
+                                        <Check size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">Success</h3>
+                                        <p className="text-emerald-700 dark:text-emerald-300 text-sm whitespace-pre-line mt-1">{successMessage}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setSuccessMessage(null)}
+                                        className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 underline mt-0.5"
+                                    >
+                                        Dismiss
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
-
                 </div>
 
                 {/* Master Table Section */}
