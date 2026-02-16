@@ -286,6 +286,13 @@ export default function EmployerSurveyForm() {
         return saved ? JSON.parse(saved) : [];
     });
 
+    // Persist session submissions to localStorage
+    useEffect(() => {
+        if (sessionSubmissionIds.length > 0) {
+            localStorage.setItem('employer_survey_session_ids', JSON.stringify(sessionSubmissionIds));
+        }
+    }, [sessionSubmissionIds]);
+
     // Finalize Autofill Function
     const fetchCompanyAutofillData = async () => {
         try {
@@ -640,18 +647,52 @@ export default function EmployerSurveyForm() {
         if (!inlineEditId || !inlineEditValues) return;
 
         setSaveStatus('saving');
-        const { error } = await supabase
+
+        // --- 🧹 CLEAN PAYLOAD: Strip non-updatable and metadata fields ---
+        const {
+            id, created_at, updated_at,
+            ...updatableData
+        } = inlineEditValues;
+
+        // Ensure numbers are numbers, and defaults are handled
+        const payload = {
+            ...updatableData,
+            recruited_past_12m_num: parseInt(updatableData.recruited_past_12m_num) || 0,
+            recruited_past_12m_avg_salary: parseFloat(updatableData.recruited_past_12m_avg_salary) || 0,
+            expected_recruit_num: parseInt(updatableData.expected_recruit_num) || 0,
+            expected_recruit_salary: parseFloat(updatableData.expected_recruit_salary) || 0
+        };
+
+        console.log("📤 Persisting inline edit to DB:", { id: inlineEditId, payload });
+
+        const { data, error } = await supabase
             .from('ad_survey_employer')
-            .update(inlineEditValues)
-            .eq('id', inlineEditId);
+            .update(payload)
+            .eq('id', inlineEditId)
+            .select();
 
         if (error) {
-            console.error('Error saving inline edit:', error);
-            alert(`Failed to update record: ${error.message}`);
+            console.error('❌ Error saving inline edit:', error);
+            alert(`Failed to update record: ${error.message}. If this persists, try clearing your browser cache.`);
             setSaveStatus('idle');
         } else {
-            console.log("✅ Inline update successful");
-            setSurveyData(prev => prev.map(item => item.id === inlineEditId ? inlineEditValues : item));
+            console.log("✅ Inline update successful in DB:", data);
+
+            // Sync local state
+            const updatedItem = data?.[0] || { ...inlineEditValues, ...payload };
+            setSurveyData(prev => prev.map(item => item.id === inlineEditId ? updatedItem : item));
+
+            // Also update autofill sync if company name or location changed
+            if (payload.registration_number && (payload.employer_name || payload.employer_address)) {
+                await supabase.from('dic_master_companies').upsert({
+                    employer_name: payload.employer_name || inlineEditValues.employer_name,
+                    registration_number: payload.registration_number,
+                    address: payload.employer_address || inlineEditValues.employer_address,
+                    sector: payload.sector || inlineEditValues.sector,
+                    district_id: payload.district_id || inlineEditValues.district_id
+                }, { onConflict: 'registration_number' });
+            }
+
             setInlineEditId(null);
             setInlineEditValues(null);
             setSaveStatus('idle');
